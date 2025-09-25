@@ -171,6 +171,7 @@ export type Database = {
           is_active: boolean | null
           location: string | null
           phone: string | null
+          push_token: string | null
           suspended_at: string | null
           suspended_by: string | null
           suspension_reason: string | null
@@ -188,6 +189,7 @@ export type Database = {
           is_active?: boolean | null
           location?: string | null
           phone?: string | null
+          push_token?: string | null
           suspended_at?: string | null
           suspended_by?: string | null
           suspension_reason?: string | null
@@ -205,6 +207,7 @@ export type Database = {
           is_active?: boolean | null
           location?: string | null
           phone?: string | null
+          push_token?: string | null
           suspended_at?: string | null
           suspended_by?: string | null
           suspension_reason?: string | null

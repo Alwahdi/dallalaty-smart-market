@@ -31,7 +31,6 @@ export function useRoles() {
           console.log('User roles:', userRoles);
           setRoles(userRoles);
         } else {
-          // Check if user has default user role
           console.log('No roles found, setting default user role');
           setRoles(['user']);
         }
@@ -44,6 +43,28 @@ export function useRoles() {
     };
 
     fetchRoles();
+
+    // Listen for role changes in real-time
+    const channel = supabase
+      .channel('user_roles_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_roles',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Role change detected:', payload);
+          fetchRoles(); // Refresh roles when changed
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   const hasRole = (role: UserRole): boolean => roles.includes(role);

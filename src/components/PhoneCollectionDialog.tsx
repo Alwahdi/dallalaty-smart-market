@@ -75,7 +75,7 @@ export default function PhoneCollectionDialog({
             إكمال المعلومات
           </DialogTitle>
           <DialogDescription>
-            مرحباً! لإكمال إنشاء حسابك، يرجى إدخال رقم الهاتف
+            مرحباً! رقم الهاتف مطلوب لإكمال إنشاء حسابك والحصول على أفضل خدمة
           </DialogDescription>
         </DialogHeader>
         
@@ -105,11 +105,12 @@ export default function PhoneCollectionDialog({
             </Button>
             <Button 
               type="button" 
-              variant="outline" 
+              variant="ghost" 
               onClick={onClose}
               disabled={loading}
+              className="text-xs"
             >
-              تخطي
+              المتابعة لاحقاً
             </Button>
           </div>
         </form>

@@ -61,9 +61,25 @@ export default function UserRoleDialog({ userId, userEmail, currentRoles, onRole
         if (error) throw error;
       }
 
+      // Send notification to user about role assignment
+      if (selectedRoles.length > 0) {
+        const roleLabels = selectedRoles.map(role => 
+          AVAILABLE_ROLES.find(r => r.value === role)?.label || role
+        ).join('، ');
+
+        await supabase
+          .from('notifications')
+          .insert({
+            user_id: userId,
+            title: "تم تحديث صلاحياتك",
+            message: `تم تعيين صلاحيات جديدة لك: ${roleLabels}. يمكنك الآن الوصول إلى لوحة الإدارة.`,
+            type: 'success'
+          });
+      }
+
       toast({
         title: "✅ تم التحديث",
-        description: "تم تحديث صلاحيات المستخدم بنجاح",
+        description: "تم تحديث صلاحيات المستخدم بنجاح وإرسال إشعار له",
         className: "bg-green-50 border-green-200 text-green-800"
       });
 

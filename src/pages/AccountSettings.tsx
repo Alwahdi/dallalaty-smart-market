@@ -168,11 +168,35 @@ export default function AccountSettings() {
     try {
       setLoading(true);
       
+      // Validate form data
+      if (!formData.full_name?.trim()) {
+        toast({
+          title: "خطأ",
+          description: "الاسم الكامل مطلوب",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (!formData.phone?.trim()) {
+        toast({
+          title: "خطأ",
+          description: "رقم الهاتف مطلوب",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('profiles')
         .upsert({
           user_id: user.id,
-          ...formData
+          full_name: formData.full_name.trim(),
+          phone: formData.phone.trim(),
+          bio: formData.bio?.trim() || null,
+          location: formData.location?.trim() || null,
+          website: formData.website?.trim() || null,
+          updated_at: new Date().toISOString()
         });
 
       if (error) throw error;
@@ -185,9 +209,10 @@ export default function AccountSettings() {
 
       fetchProfile();
     } catch (error: any) {
+      console.error('Profile update error:', error);
       toast({
         title: "خطأ",
-        description: error.message,
+        description: error.message || "حدث خطأ أثناء حفظ البيانات",
         variant: "destructive"
       });
     } finally {

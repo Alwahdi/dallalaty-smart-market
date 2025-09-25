@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Check if user signed in with Google and needs phone number
+        // Check if user needs phone number (mandatory for all users)
         if (event === 'SIGNED_IN' && session?.user) {
           // Check if user has a profile with phone number
           setTimeout(async () => {
@@ -39,12 +39,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 .eq('user_id', session.user.id)
                 .single();
 
-              // If user signed in with Google and doesn't have phone, show dialog
-              if (session.user.app_metadata?.provider === 'google' && (!profile?.phone || profile.phone === '')) {
+              // Show phone dialog if user doesn't have phone number
+              if (!profile?.phone || profile.phone === '') {
                 setShowPhoneDialog(true);
               }
             } catch (error) {
               console.error('Error checking profile:', error);
+              // If no profile exists yet, also show dialog
+              setShowPhoneDialog(true);
             }
           }, 100);
         }

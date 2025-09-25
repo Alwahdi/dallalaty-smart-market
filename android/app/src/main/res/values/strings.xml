@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">com.alwahdi.matjeribb</string>
+    <string name="title_activity_main">com.alwahdi.matjeribb</string>
+    <string name="package_name">com.alwahdi.matjeribb</string>
+    <string name="custom_url_scheme">com.alwahdi.matjeribb</string>
+</resources>

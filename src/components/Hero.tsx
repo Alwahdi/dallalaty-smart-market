@@ -22,7 +22,7 @@ const Hero = () => {
           <div className="mb-8 animate-fade-in">
             <h1 className="text-5xl md:text-7xl font-bold mb-4 font-display">
               <span className="bg-gradient-to-r from-primary via-primary-glow to-secondary bg-clip-text text-transparent">
-                دلّالتي
+                متجر إب الشامل
               </span>
             </h1>
             <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-4 font-arabic">

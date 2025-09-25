@@ -20,7 +20,7 @@ const Privacy = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4 space-x-reverse">
               <Link to="/landing" className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                دلّالتي
+                متجر إب الشامل
               </Link>
             </div>
             <Button variant="ghost" asChild>
@@ -60,10 +60,10 @@ const Privacy = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="leading-relaxed">
-                  مرحباً بك في منصة "دلّالتي". نحن نقدر ثقتك بنا ونلتزم بحماية خصوصيتك. تشرح هذه السياسة كيفية جمعنا واستخدامنا وحماية المعلومات الشخصية التي تقدمها لنا عند استخدام منصتنا.
+                  مرحباً بك في منصة "متجر إب الشامل". نحن نقدر ثقتك بنا ونلتزم بحماية خصوصيتك. تشرح هذه السياسة كيفية جمعنا واستخدامنا وحماية المعلومات الشخصية التي تقدمها لنا عند استخدام منصتنا.
                 </p>
                 <p className="leading-relaxed">
-                  باستخدام منصة دلّالتي، فإنك توافق على ممارسات جمع واستخدام المعلومات المبينة في هذه السياسة.
+                  باستخدام منصة متجر إب الشامل، فإنك توافق على ممارسات جمع واستخدام المعلومات المبينة في هذه السياسة.
                 </p>
               </CardContent>
             </Card>
@@ -256,7 +256,7 @@ const Privacy = () => {
           {/* Footer */}
           <div className="mt-12 pt-8 border-t border-border/30 text-center">
             <p className="text-muted-foreground">
-              شكراً لك على ثقتك في دلّالتي. نحن ملتزمون بحماية خصوصيتك وتقديم تجربة آمنة وموثوقة.
+              شكراً لك على ثقتك في متجر إب الشامل. نحن ملتزمون بحماية خصوصيتك وتقديم تجربة آمنة وموثوقة.
             </p>
           </div>
         </div>

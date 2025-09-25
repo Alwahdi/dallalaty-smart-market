@@ -113,7 +113,7 @@ export default function Auth() {
           <div className="flex items-center justify-center mb-4">
             <Building2 className="h-12 w-12 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground">دلّالتي</h1>
+          <h1 className="text-3xl font-bold text-foreground">متجر إب الشامل</h1>
           <p className="text-muted-foreground mt-2">منصة العقارات الذكية</p>
         </div>
 

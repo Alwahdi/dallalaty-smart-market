@@ -444,16 +444,16 @@ export default function SectionManagement() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="parent">القسم الأب</Label>
+                  <Label htmlFor="parent">القسم الإب</Label>
                   <Select 
                     value={categoryForm.parent_id} 
                     onValueChange={(value) => setCategoryForm(prev => ({ ...prev, parent_id: value }))}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="اختر القسم الأب (اختياري)" />
+                      <SelectValue placeholder="اختر القسم الإب (اختياري)" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">بدون قسم أب</SelectItem>
+                      <SelectItem value="">بدون قسم إب</SelectItem>
                       {categories.filter(cat => cat.id !== editingCategory?.id).map((category) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.title}

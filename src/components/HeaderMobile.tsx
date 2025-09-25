@@ -40,7 +40,7 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
             </div>
             <div className="text-right">
               <h1 className="text-lg font-bold font-arabic bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-                متجر أب الشامل
+                متجر إب الشامل
               </h1>
               <p className="text-xs text-muted-foreground font-arabic leading-none">
                 المتجر الشامل

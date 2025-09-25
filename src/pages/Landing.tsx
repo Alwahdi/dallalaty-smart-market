@@ -32,7 +32,7 @@ const Landing = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4 space-x-reverse">
               <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                متجر أب الشامل
+                متجر إب الشامل
               </h1>
             </div>
             <div className="flex items-center space-x-4 space-x-reverse">
@@ -116,7 +116,7 @@ const Landing = () => {
               <div className="relative z-10">
                 <img 
                   src={heroImage} 
-                  alt="متجر أب الشامل - منصتك الذكية للعروض"
+                  alt="متجر إب الشامل - منصتك الذكية للعروض"
                   className="w-full rounded-2xl shadow-elegant"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl" />
@@ -131,7 +131,7 @@ const Landing = () => {
       <section id="features" className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">لماذا متجر أب الشامل؟</h2>
+            <h2 className="text-4xl font-bold mb-4">لماذا متجر إب الشامل؟</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               نقدم لك تجربة فريدة في البحث والعثور على أفضل العروض
             </p>
@@ -230,7 +230,7 @@ const Landing = () => {
               ابدأ رحلتك معنا اليوم
             </h2>
             <p className="text-xl text-white/90 mb-8">
-              انضم إلى آلاف المستخدمين الذين يثقون في متجر أب الشامل للعثور على أفضل العروض
+              انضم إلى آلاف المستخدمين الذين يثقون في متجر إب الشامل للعثور على أفضل العروض
             </p>
             <Button 
               size="lg" 
@@ -250,14 +250,14 @@ const Landing = () => {
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="flex items-center space-x-4 space-x-reverse mb-4 md:mb-0">
               <h3 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                متجر أب الشامل
+                متجر إب الشامل
               </h3>
               <span className="text-muted-foreground">منصتك الذكية للعروض</span>
             </div>
             <div className="flex items-center space-x-6 space-x-reverse text-sm text-muted-foreground">
               <button onClick={() => navigate('/privacy')}>سياسة الخصوصية</button>
               <span>•</span>
-              <span>© ٢٠٢٥ متجر أب الشامل. جميع الحقوق محفوظة</span>
+              <span>© ٢٠٢٥ متجر إب الشامل. جميع الحقوق محفوظة</span>
             </div>
           </div>
         </div>

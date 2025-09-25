@@ -8,7 +8,7 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* دلّالتي - نظام ألوان عربي فاخر */
+    /* متجر إب الشامل - نظام ألوان عربي فاخر */
     --background: 45 20% 98%;
     --foreground: 25 15% 15%;
 
@@ -74,7 +74,7 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* دلّالتي - الوضع الليلي */
+    /* متجر إب الشامل - الوضع الليلي */
     --background: 25 15% 8%;
     --foreground: 45 20% 95%;
 

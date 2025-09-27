@@ -11,9 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Building2, Plus, Edit, Trash2, Search, Eye } from 'lucide-react';
+import { Building2, Plus, Edit, Trash2, Search, Eye, ImagePlus } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import ImageUpload from '@/components/ImageUpload';
 
 interface Property {
   id: string;
@@ -75,6 +76,7 @@ export default function PropertyManagement() {
     category: '',
     status: 'active'
   });
+  const [propertyImages, setPropertyImages] = useState<string[]>([]);
   const [propertyDialogOpen, setPropertyDialogOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
 
@@ -146,7 +148,8 @@ export default function PropertyManagement() {
         agent_email: propertyForm.agent_email || null,
         category: propertyForm.category || null,
         status: propertyForm.status,
-        agent_id: user?.id || null
+        agent_id: user?.id || null,
+        images: propertyImages
       };
 
       let error;
@@ -252,6 +255,7 @@ export default function PropertyManagement() {
       category: '',
       status: 'active'
     });
+    setPropertyImages([]);
     setEditingProperty(null);
   };
 
@@ -275,6 +279,7 @@ export default function PropertyManagement() {
       category: property.category || '',
       status: property.status
     });
+    setPropertyImages(property.images || []);
     setPropertyDialogOpen(true);
   };
 
@@ -461,6 +466,21 @@ export default function PropertyManagement() {
                   placeholder="وصف مفصل للعقار..."
                   rows={3}
                 />
+              </div>
+              <div className="md:col-span-2">
+                <Label className="flex items-center gap-2">
+                  <ImagePlus className="w-4 h-4" />
+                  صور العقار
+                </Label>
+                <div className="mt-2">
+                  <ImageUpload
+                    images={propertyImages}
+                    onImagesChange={setPropertyImages}
+                    maxImages={10}
+                    bucketName="properties"
+                    folder="property-images"
+                  />
+                </div>
               </div>
               <div>
                 <Label htmlFor="agent_name">اسم الوكيل</Label>

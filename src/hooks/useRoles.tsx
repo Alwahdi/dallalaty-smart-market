@@ -12,6 +12,7 @@ export function useRoles() {
   useEffect(() => {
     const fetchRoles = async () => {
       if (!user) {
+        console.log('🔑 No user found, clearing roles');
         setRoles([]);
         setLoading(false);
         return;
@@ -19,23 +20,31 @@ export function useRoles() {
 
       try {
         setLoading(true);
+        console.log('🔑 Fetching roles for user:', user.id, user.email);
+        
         const { data, error } = await supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', user.id);
 
-        console.log('Roles fetch result:', { data, error, userId: user.id });
+        console.log('🔑 Roles fetch result:', { 
+          data, 
+          error, 
+          userId: user.id,
+          userEmail: user.email,
+          dataLength: data?.length 
+        });
 
-        if (!error && data) {
+        if (!error && data && data.length > 0) {
           const userRoles = data.map(r => r.role as UserRole);
-          console.log('User roles:', userRoles);
+          console.log('🔑 User roles found:', userRoles);
           setRoles(userRoles);
         } else {
-          console.log('No roles found, setting default user role');
+          console.log('🔑 No roles found in database, setting default user role');
           setRoles(['user']);
         }
       } catch (error) {
-        console.error('Roles fetch error:', error);
+        console.error('🔑 Roles fetch error:', error);
         setRoles(['user']);
       } finally {
         setLoading(false);
@@ -45,26 +54,31 @@ export function useRoles() {
     fetchRoles();
 
     // Listen for role changes in real-time
-    const channel = supabase
-      .channel('user_roles_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_roles',
-          filter: `user_id=eq.${user.id}`
-        },
-        (payload) => {
-          console.log('Role change detected:', payload);
-          fetchRoles(); // Refresh roles when changed
-        }
-      )
-      .subscribe();
+    if (user) {
+      const channel = supabase
+        .channel(`user_roles_changes_${user.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'user_roles',
+            filter: `user_id=eq.${user.id}`
+          },
+          (payload) => {
+            console.log('🔑 Real-time role change detected:', payload);
+            setTimeout(() => fetchRoles(), 500); // Small delay to ensure consistency
+          }
+        )
+        .subscribe((status) => {
+          console.log('🔑 Real-time subscription status:', status);
+        });
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+      return () => {
+        console.log('🔑 Cleaning up real-time subscription');
+        supabase.removeChannel(channel);
+      };
+    }
   }, [user]);
 
   const hasRole = (role: UserRole): boolean => roles.includes(role);
@@ -76,14 +90,15 @@ export function useRoles() {
   const isModerator = hasRole('moderator');
   const isAnyAdmin = isAdmin || isPropertiesAdmin || isCategoriesAdmin || isNotificationsAdmin || isModerator;
 
-  console.log('Role calculations:', {
+  console.log('🔑 Role calculations:', {
     roles,
     isAdmin,
     isPropertiesAdmin,
     isCategoriesAdmin,
     isNotificationsAdmin,
     isModerator,
-    isAnyAdmin
+    isAnyAdmin,
+    loading
   });
 
   return { 

@@ -36,89 +36,23 @@ const Index = () => {
   };
 
 
-  // بيانات تجريبية للعقارات المميزة
-  const featuredProperties = [
-    {
-      id: "1",
-      title: "شقة فاخرة في الرياض - حي النرجس",
-      price: "٤٥٠,٠٠٠ ريال",
-      location: "الرياض، النرجس",
-      area: "٢٥٠ متر مربع",
-      bedrooms: 4,
-      bathrooms: 3,
-      type: "sale" as const,
-      status: "new" as const,
-      images: [heroImage],
-      isLiked: false
-    },
-    {
-      id: "2",
-      title: "فيلا مودرن في جدة مع حديقة خاصة",
-      price: "٨,٥٠٠ ريال/شهر",
-      location: "جدة، الحمراء",
-      area: "٤٠٠ متر مربع", 
-      bedrooms: 5,
-      bathrooms: 4,
-      type: "rent" as const,
-      status: "new" as const,
-      images: [heroImage],
-      isLiked: true
-    },
-    {
-      id: "3",
-      title: "شقة عائلية في الدمام قريبة من البحر",
-      price: "٣٢٠,٠٠٠ ريال",
-      location: "الدمام، الكورنيش",
-      area: "١٨٠ متر مربع",
-      bedrooms: 3,
-      bathrooms: 2,
-      type: "sale" as const,
-      status: "used" as const,
-      images: [heroImage],
-      isLiked: false
-    },
-    {
-      id: "4",
-      title: "أرض تجارية في مكة المكرمة موقع استراتيجي",
-      price: "١,٢٠٠,٠٠٠ ريال",
-      location: "مكة، العزيزية",
-      area: "٦٠٠ متر مربع",
-      type: "sale" as const,
-      status: "new" as const,
-      images: [heroImage],
-      isLiked: false
-    }
-  ];
-
-  const handlePropertyLike = (id: string) => {
-    console.log("تم الإعجاب بالعقار:", id);
-  };
-
-  const handlePropertyShare = (id: string) => {
-    console.log("تم مشاركة العقار:", id);
-  };
-
-  const handlePropertyContact = (id: string) => {
-    // فتح واتساب
-    window.open("https://wa.me/966500000000?text=مرحباً، أود الاستفسار عن هذا العقار");
-  };
-
-  const handlePropertyClick = (id: string) => {
-    console.log("تم النقر على العقار:", id);
-  };
-
-
   const [properties, setProperties] = useState([]);
 
   useEffect(() => {
     const fetchProperties = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('properties')
         .select('*')
         .eq('status', 'active')
         .order('created_at', { ascending: false })
-        .limit(4);
-      if (data) setProperties(data);
+        .limit(8);
+      
+      if (error) {
+        console.error('Error fetching properties:', error);
+      } else if (data) {
+        console.log('Fetched properties:', data.length);
+        setProperties(data);
+      }
     };
     fetchProperties();
   }, []);
@@ -160,11 +94,17 @@ const Index = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {properties.map((property, index) => (
-                <div key={property.id} className="animate-scale-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <PropertyCard property={property} />
+              {properties.length > 0 ? (
+                properties.map((property, index) => (
+                  <div key={property.id} className="animate-scale-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                    <PropertyCard property={property} />
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-12">
+                  <p className="text-muted-foreground text-lg">لا توجد عروض متاحة حالياً</p>
                 </div>
-              ))}
+              )}
             </div>
 
             <div className="text-center mt-12">

@@ -12,7 +12,7 @@ export function useRoles() {
   useEffect(() => {
     const fetchRoles = async () => {
       if (!user) {
-        console.log('🔑 No user found, clearing roles');
+        console.log('🔑 [useRoles] No user found, clearing roles');
         setRoles([]);
         setLoading(false);
         return;
@@ -20,31 +20,38 @@ export function useRoles() {
 
       try {
         setLoading(true);
-        console.log('🔑 Fetching roles for user:', user.id, user.email);
+        console.log('🔑 [useRoles] Fetching roles for user:', {
+          userId: user.id,
+          userEmail: user.email
+        });
         
         const { data, error } = await supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', user.id);
 
-        console.log('🔑 Roles fetch result:', { 
+        console.log('🔑 [useRoles] Roles fetch result:', { 
           data, 
-          error, 
+          error: error?.message, 
           userId: user.id,
           userEmail: user.email,
-          dataLength: data?.length 
+          dataLength: data?.length,
+          rawData: JSON.stringify(data)
         });
 
-        if (!error && data && data.length > 0) {
+        if (error) {
+          console.error('🔑 [useRoles] Database error:', error);
+          setRoles(['user']);
+        } else if (data && data.length > 0) {
           const userRoles = data.map(r => r.role as UserRole);
-          console.log('🔑 User roles found:', userRoles);
+          console.log('🔑 [useRoles] ✅ User roles found:', userRoles);
           setRoles(userRoles);
         } else {
-          console.log('🔑 No roles found in database, setting default user role');
+          console.log('🔑 [useRoles] ⚠️ No roles found in database, setting default user role');
           setRoles(['user']);
         }
       } catch (error) {
-        console.error('🔑 Roles fetch error:', error);
+        console.error('🔑 [useRoles] Exception while fetching roles:', error);
         setRoles(['user']);
       } finally {
         setLoading(false);

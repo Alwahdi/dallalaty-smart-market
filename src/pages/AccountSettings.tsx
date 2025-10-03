@@ -399,14 +399,30 @@ export default function AccountSettings() {
                     <div className="space-y-2">
                       <Label htmlFor="phone" className="flex items-center gap-2 font-arabic">
                         <Phone className="w-4 h-4" />
-                        رقم الهاتف
+                        رقم الهاتف (لا يمكن التعديل)
                       </Label>
                       <Input
                         id="phone"
                         value={formData.phone}
-                        onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                        disabled
                         placeholder="05xxxxxxxx"
                         dir="ltr"
+                        className="bg-muted cursor-not-allowed"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="flex items-center gap-2 font-arabic">
+                        <Mail className="w-4 h-4" />
+                        البريد الإلكتروني (لا يمكن التعديل)
+                      </Label>
+                      <Input
+                        id="email"
+                        value={user?.email || ''}
+                        disabled
+                        placeholder="email@example.com"
+                        dir="ltr"
+                        className="bg-muted cursor-not-allowed"
                       />
                     </div>
 

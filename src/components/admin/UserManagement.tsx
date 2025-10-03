@@ -22,6 +22,7 @@ interface UserProfile {
   user_id: string;
   full_name: string | null;
   phone: string | null;
+  email: string | null;
   is_active: boolean;
   created_at: string;
   user_roles: { role: UserRole }[];
@@ -59,9 +60,26 @@ export default function UserManagement() {
 
       if (rolesError) throw rolesError;
 
+      // Fetch emails from auth.users using admin API
+      const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
+      
+      if (authError) {
+        console.error('Error fetching auth users:', authError);
+      }
+
+      // Create a map of user_id to email
+      const emailMap: Map<string, string> = new Map();
+      const authUsers = authData?.users || [];
+      authUsers.forEach(u => {
+        if (u.email) {
+          emailMap.set(u.id, u.email);
+        }
+      });
+
       // Combine the data
-      const usersWithRoles = (profilesData || []).map(profile => ({
+      const usersWithRoles: UserProfile[] = (profilesData || []).map(profile => ({
         ...profile,
+        email: emailMap.get(profile.user_id) || null,
         user_roles: (rolesData || [])
           .filter(role => role.user_id === profile.user_id)
           .map(role => ({ role: role.role as UserRole }))
@@ -110,12 +128,6 @@ export default function UserManagement() {
     }
   };
 
-  const getUserEmail = (userId: string) => {
-    // This would ideally come from a join with auth.users or be stored in profiles
-    // For now, we'll use a placeholder since we can't directly query auth.users
-    return 'user@example.com'; // This should be replaced with actual email lookup
-  };
-
   const getRoleLabel = (role: string) => {
     const roleLabels: Record<string, string> = {
       'admin': 'مدير عام',
@@ -130,7 +142,8 @@ export default function UserManagement() {
 
   const filteredUsers = users.filter(user =>
     user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.phone?.toLowerCase().includes(searchTerm.toLowerCase())
+    user.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) {
@@ -164,7 +177,7 @@ export default function UserManagement() {
           <div className="relative">
             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
-              placeholder="البحث في المستخدمين بالاسم أو رقم الهاتف..."
+              placeholder="البحث بالاسم، البريد الإلكتروني، أو رقم الهاتف..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pr-10 bg-background/50 border-border/50"
@@ -189,7 +202,8 @@ export default function UserManagement() {
                         </div>
                         <div>
                           <p className="font-medium text-sm">{user.full_name || 'غير محدد'}</p>
-                          <p className="text-xs text-muted-foreground">{getUserEmail(user.user_id)}</p>
+                          <p className="text-xs text-muted-foreground">{user.email || 'لا يوجد بريد'}</p>
+                          <p className="text-xs text-muted-foreground">{user.phone || 'لا يوجد هاتف'}</p>
                           {user.user_roles && user.user_roles.length > 0 && (
                             <div className="flex flex-wrap gap-1 mt-1">
                               {user.user_roles.map((roleObj, idx) => (
@@ -212,7 +226,7 @@ export default function UserManagement() {
                         
                         <UserRoleDialog
                           userId={user.user_id}
-                          userEmail={getUserEmail(user.user_id)}
+                          userEmail={user.email || 'لا يوجد بريد'}
                           currentRoles={user.user_roles?.map(r => r.role as UserRole) || []}
                           onRolesUpdated={async (updatedRoles) => {
                             await fetchUsers();

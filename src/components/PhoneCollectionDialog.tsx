@@ -67,15 +67,26 @@ export default function PhoneCollectionDialog({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md" dir="rtl">
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      // Prevent closing the dialog without entering a phone number
+      if (!open && !phone.trim()) {
+        toast({
+          title: "تنبيه",
+          description: "رقم الهاتف مطلوب لإكمال التسجيل",
+          variant: "destructive"
+        });
+        return;
+      }
+      onClose();
+    }}>
+      <DialogContent className="sm:max-w-md" dir="rtl" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Phone className="w-5 h-5 text-primary" />
-            إكمال المعلومات
+            إكمال المعلومات - مطلوب
           </DialogTitle>
           <DialogDescription>
-            مرحباً! رقم الهاتف مطلوب لإكمال إنشاء حسابك والحصول على أفضل خدمة
+            رقم الهاتف مطلوب لإكمال إنشاء حسابك. لن تتمكن من المتابعة بدون إدخاله.
           </DialogDescription>
         </DialogHeader>
         
@@ -94,23 +105,14 @@ export default function PhoneCollectionDialog({
             />
           </div>
           
-          <div className="flex gap-3 pt-4">
+          <div className="pt-4">
             <Button 
               type="submit" 
-              className="flex-1 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80" 
-              disabled={loading}
+              className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80" 
+              disabled={loading || !phone.trim()}
             >
               {loading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
-              حفظ المتابعة
-            </Button>
-            <Button 
-              type="button" 
-              variant="ghost" 
-              onClick={onClose}
-              disabled={loading}
-              className="text-xs"
-            >
-              المتابعة لاحقاً
+              حفظ والمتابعة
             </Button>
           </div>
         </form>

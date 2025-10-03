@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import PropertyCard from '@/components/PropertyCardNew';
+import PropertyCardSkeleton from '@/components/PropertyCardSkeleton';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -235,13 +236,10 @@ export default function Properties() {
         <HeaderMobile isDark={isDark} toggleTheme={toggleTheme} />
         
         <div className="container mx-auto px-4 py-8 pb-20 md:pb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="bg-muted rounded-lg h-64 mb-4"></div>
-                <div className="h-4 bg-muted rounded mb-2"></div>
-                <div className="h-4 bg-muted rounded w-3/4"></div>
-              </div>
+          <h1 className="text-3xl font-bold mb-6 font-arabic">جميع العروض</h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <PropertyCardSkeleton key={i} />
             ))}
           </div>
         </div>

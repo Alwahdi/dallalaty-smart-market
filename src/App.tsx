@@ -10,6 +10,7 @@ import AdminGuard from "@/components/AdminGuard";
 import Index from "./pages/Index";
 import Landing from "./pages/Landing";
 import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import Properties from "./pages/Properties";
@@ -37,6 +38,7 @@ const App = () => (
             {/* Public routes */}
             <Route path="/landing" element={<Landing />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/dashboard" element={<Navigate to="/" replace />} />

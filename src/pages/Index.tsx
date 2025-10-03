@@ -9,6 +9,7 @@ import Hero from "@/components/Hero";
 import ExploreSection from "@/components/ExploreSection";
 import SearchSection from "@/components/SearchSection";
 import PropertyCard from "@/components/PropertyCardNew";
+import PropertyCardSkeleton from "@/components/PropertyCardSkeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-apartment-backup.jpg";
@@ -37,9 +38,11 @@ const Index = () => {
 
 
   const [properties, setProperties] = useState([]);
+  const [loadingProperties, setLoadingProperties] = useState(true);
 
   useEffect(() => {
     const fetchProperties = async () => {
+      setLoadingProperties(true);
       const { data, error } = await supabase
         .from('properties')
         .select('*')
@@ -53,6 +56,7 @@ const Index = () => {
         console.log('Fetched properties:', data.length);
         setProperties(data);
       }
+      setLoadingProperties(false);
     };
     fetchProperties();
   }, []);
@@ -94,7 +98,11 @@ const Index = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {properties.length > 0 ? (
+              {loadingProperties ? (
+                [...Array(8)].map((_, i) => (
+                  <PropertyCardSkeleton key={i} />
+                ))
+              ) : properties.length > 0 ? (
                 properties.map((property, index) => (
                   <div key={property.id} className="animate-scale-in" style={{ animationDelay: `${index * 0.1}s` }}>
                     <PropertyCard property={property} />
@@ -153,17 +161,59 @@ const Index = () => {
 
       {/* الفوتر */}
       <footer className="bg-card border-t border-border py-12 px-4">
-        <div className="container mx-auto text-center">
-          <div className="mb-8">
-            <h3 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent font-arabic">
-              متجر إب الشامل
-            </h3>
-            <p className="text-muted-foreground mt-2 font-arabic">
-              متجرك الذكي للأقسام والعروض
-            </p>
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            {/* About */}
+            <div>
+              <h3 className="text-xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent font-arabic mb-4">
+                متجر إب الشامل
+              </h3>
+              <p className="text-muted-foreground font-arabic">
+                متجرك الذكي للأقسام والعروض. نربط بين الدلالين والمشترين بكل سهولة وأمان.
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h4 className="text-lg font-bold text-foreground font-arabic mb-4">روابط سريعة</h4>
+              <ul className="space-y-2">
+                <li>
+                  <Link to="/properties" className="text-muted-foreground hover:text-primary transition-colors font-arabic">
+                    تصفح العروض
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/favorites" className="text-muted-foreground hover:text-primary transition-colors font-arabic">
+                    المفضلة
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/account-settings" className="text-muted-foreground hover:text-primary transition-colors font-arabic">
+                    الحساب
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h4 className="text-lg font-bold text-foreground font-arabic mb-4">قانوني</h4>
+              <ul className="space-y-2">
+                <li>
+                  <Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors font-arabic">
+                    سياسة الخصوصية
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors font-arabic">
+                    شروط الاستخدام
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </div>
           
-          <div className="text-muted-foreground text-sm font-arabic">
+          <div className="text-center text-muted-foreground text-sm font-arabic border-t border-border pt-6">
             <p>© ٢٠٢٤ متجر إب الشامل. جميع الحقوق محفوظة.</p>
           </div>
         </div>

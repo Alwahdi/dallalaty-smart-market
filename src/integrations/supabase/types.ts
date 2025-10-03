@@ -170,7 +170,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           location: string | null
-          phone: string | null
+          phone: string
           push_token: string | null
           suspended_at: string | null
           suspended_by: string | null
@@ -188,7 +188,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           location?: string | null
-          phone?: string | null
+          phone: string
           push_token?: string | null
           suspended_at?: string | null
           suspended_by?: string | null
@@ -206,7 +206,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           location?: string | null
-          phone?: string | null
+          phone?: string
           push_token?: string | null
           suspended_at?: string | null
           suspended_by?: string | null
@@ -349,6 +349,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_category_role: {
+        Args: {
+          _category: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

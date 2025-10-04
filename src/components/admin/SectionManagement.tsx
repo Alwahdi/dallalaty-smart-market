@@ -136,14 +136,33 @@ export default function SectionManagement() {
         return;
       }
 
+      // Check for duplicate slug
+      if (!editingCategory) {
+        const { data: existingCategory } = await supabase
+          .from('categories')
+          .select('id')
+          .eq('slug', categoryForm.slug.toLowerCase().trim())
+          .maybeSingle();
+
+        if (existingCategory) {
+          toast({
+            title: "خطأ",
+            description: "الرمز المميز مستخدم بالفعل، يرجى اختيار رمز آخر",
+            variant: "destructive"
+          });
+          return;
+        }
+      }
+
       const categoryData = {
-        title: categoryForm.title,
-        subtitle: categoryForm.subtitle || null,
-        slug: categoryForm.slug,
-        description: categoryForm.description || null,
-        icon: categoryForm.icon || null,
+        title: categoryForm.title.trim(),
+        subtitle: categoryForm.subtitle?.trim() || null,
+        slug: categoryForm.slug.toLowerCase().trim(),
+        description: categoryForm.description?.trim() || null,
+        icon: categoryForm.icon?.trim() || null,
         parent_id: categoryForm.parent_id || null,
-        order_index: editingCategory ? editingCategory.order_index : categories.length
+        order_index: editingCategory ? editingCategory.order_index : categories.length,
+        status: 'active'
       };
 
       let error;
@@ -156,11 +175,15 @@ export default function SectionManagement() {
       } else {
         const result = await supabase
           .from('categories')
-          .insert([categoryData]);
+          .insert([categoryData])
+          .select();
         error = result.error;
       }
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error:', error);
+        throw error;
+      }
 
       toast({
         title: "تم الحفظ",
@@ -169,11 +192,20 @@ export default function SectionManagement() {
 
       resetCategoryForm();
       fetchCategories();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving category:', error);
+      
+      let errorMessage = "حدث خطأ في حفظ القسم";
+      
+      if (error?.message?.includes('duplicate key')) {
+        errorMessage = "الرمز المميز مستخدم بالفعل";
+      } else if (error?.message?.includes('permission')) {
+        errorMessage = "ليس لديك صلاحية لإضافة الأقسام";
+      }
+      
       toast({
         title: "خطأ",
-        description: "حدث خطأ في حفظ القسم",
+        description: errorMessage,
         variant: "destructive"
       });
     }
@@ -321,28 +353,28 @@ export default function SectionManagement() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
-            <FolderOpen className="w-6 h-6" />
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
+            <FolderOpen className="w-5 h-5 sm:w-6 sm:h-6" />
             إدارة الأقسام
           </h2>
-          <p className="text-muted-foreground mt-1">إدارة الأقسام وتعيين مدراء الأقسام</p>
+          <p className="text-sm text-muted-foreground mt-1">إدارة الأقسام وتعيين مدراء الأقسام</p>
         </div>
         
         <div className="flex flex-col sm:flex-row gap-2">
           <Dialog open={assignmentDialogOpen} onOpenChange={setAssignmentDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline" className="gap-2 w-full sm:w-auto touch-manipulation">
                 <UserPlus className="w-4 h-4" />
-                تعيين مدير أقسام
+                <span className="text-sm">تعيين مدير أقسام</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-md max-h-[85vh] sm:max-h-[90vh]">
               <DialogHeader>
                 <DialogTitle>تعيين مدير أقسام</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4">
+              <div className="space-y-4 overflow-y-auto max-h-[calc(85vh-120px)] sm:max-h-[calc(90vh-120px)] px-1">
                 <div>
                   <Label htmlFor="user-select">المستخدم</Label>
                   <Select value={selectedUser} onValueChange={setSelectedUser}>
@@ -358,9 +390,9 @@ export default function SectionManagement() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Label>الأقسام المراد إدارتها</Label>
-                  <div className="space-y-2 max-h-48 overflow-y-auto border rounded p-3 mt-2">
+                 <div>
+                   <Label>الأقسام المراد إدارتها</Label>
+                   <div className="space-y-2 max-h-40 overflow-y-auto border rounded-lg p-3 mt-2 bg-muted/30">
                     {categories.map((category) => (
                       <div key={category.id} className="flex items-center space-x-2 space-x-reverse">
                         <Checkbox
@@ -388,16 +420,16 @@ export default function SectionManagement() {
 
           <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={() => resetCategoryForm()} className="gap-2">
+              <Button onClick={() => resetCategoryForm()} className="gap-2 w-full sm:w-auto touch-manipulation">
                 <Plus className="w-4 h-4" />
-                إضافة قسم
+                <span className="text-sm">إضافة قسم</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-md max-h-[85vh] sm:max-h-[90vh]">
               <DialogHeader>
                 <DialogTitle>{editingCategory ? 'تحديث القسم' : 'إضافة قسم جديد'}</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4">
+              <div className="space-y-4 overflow-y-auto max-h-[calc(85vh-120px)] sm:max-h-[calc(90vh-120px)] px-1">
                 <div>
                   <Label htmlFor="title">عنوان القسم *</Label>
                   <Input
@@ -549,32 +581,33 @@ export default function SectionManagement() {
                       <TableCell className="hidden lg:table-cell">
                         {new Date(category.created_at).toLocaleDateString('ar-SA')}
                       </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setEditingCategory(category);
-                              setCategoryForm({
-                                title: category.title,
-                                subtitle: category.subtitle || '',
-                                slug: category.slug,
-                                description: category.description || '',
-                                icon: category.icon || '',
-                                parent_id: category.parent_id || ''
-                              });
-                              setCategoryDialogOpen(true);
-                            }}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="destructive" size="sm">
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </AlertDialogTrigger>
+                       <TableCell>
+                         <div className="flex items-center gap-1">
+                           <Button
+                             variant="outline"
+                             size="sm"
+                             className="touch-manipulation h-8 w-8 p-0"
+                             onClick={() => {
+                               setEditingCategory(category);
+                               setCategoryForm({
+                                 title: category.title,
+                                 subtitle: category.subtitle || '',
+                                 slug: category.slug,
+                                 description: category.description || '',
+                                 icon: category.icon || '',
+                                 parent_id: category.parent_id || ''
+                               });
+                               setCategoryDialogOpen(true);
+                             }}
+                           >
+                             <Edit className="w-4 h-4" />
+                           </Button>
+                           <AlertDialog>
+                             <AlertDialogTrigger asChild>
+                               <Button variant="destructive" size="sm" className="touch-manipulation h-8 w-8 p-0">
+                                 <Trash2 className="w-4 h-4" />
+                               </Button>
+                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
                                 <AlertDialogTitle>حذف القسم</AlertDialogTitle>

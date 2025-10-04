@@ -315,7 +315,7 @@ export default function AdminPanel() {
         </div>
         
         {/* Mobile Tab Navigation */}
-        <div className="flex overflow-x-auto scrollbar-hide pb-1 px-4 gap-2">
+        <div className="flex overflow-x-auto scrollbar-hide pb-2 px-2 gap-1.5">
           {visibleTabs.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -324,15 +324,15 @@ export default function AdminPanel() {
                 variant={activeTab === tab.id ? "default" : "outline"}
                 size="sm"
                 className={`
-                  whitespace-nowrap gap-2 min-w-fit transition-all duration-200
+                  whitespace-nowrap gap-1.5 min-w-fit transition-all duration-200 touch-manipulation
                   ${activeTab === tab.id 
-                    ? 'bg-primary text-primary-foreground shadow-md' 
+                    ? 'bg-primary text-primary-foreground shadow-md scale-105' 
                     : 'bg-background/80 hover:bg-primary/10 border-border/50'
                   }
                 `}
                 onClick={() => setActiveTab(tab.id)}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-3.5 h-3.5 flex-shrink-0" />
                 <span className="text-xs font-medium">{tab.label}</span>
               </Button>
             );
@@ -401,9 +401,7 @@ export default function AdminPanel() {
 
         {/* Main Content */}
         <div className="flex-1 min-h-screen">
-          <main className="p-4 lg:p-8 max-w-7xl mx-auto">
-            <RoleDebugger />
-            <DatabaseRoleChecker />
+          <main className="p-3 sm:p-4 lg:p-8 max-w-7xl mx-auto pb-20 lg:pb-8">
             <div className="animate-fade-in">
               {renderTabContent()}
             </div>

@@ -315,29 +315,29 @@ export default function PropertyManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
-            <Building2 className="w-6 h-6" />
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
+            <Building2 className="w-5 h-5 sm:w-6 sm:h-6" />
             إدارة العقارات
           </h2>
-          <p className="text-muted-foreground mt-1">إدارة جميع العقارات والإعلانات في النظام</p>
+          <p className="text-sm text-muted-foreground mt-1">إدارة جميع العقارات والإعلانات في النظام</p>
         </div>
         
         <Dialog open={propertyDialogOpen} onOpenChange={setPropertyDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={resetForm} className="gap-2">
+            <Button onClick={resetForm} className="gap-2 w-full sm:w-auto touch-manipulation">
               <Plus className="w-4 h-4" />
-              إضافة عقار
+              <span className="text-sm">إضافة عقار</span>
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl max-h-[85vh] sm:max-h-[90vh]">
             <DialogHeader>
               <DialogTitle>{editingProperty ? 'تحديث العقار' : 'إضافة عقار جديد'}</DialogTitle>
             </DialogHeader>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto max-h-[calc(85vh-120px)] sm:max-h-[calc(90vh-120px)] px-1">
               <div>
                 <Label htmlFor="title">عنوان العقار *</Label>
                 <Input
@@ -593,21 +593,22 @@ export default function PropertyManagement() {
                     <TableCell>
                       {new Date(property.created_at).toLocaleDateString('ar-SA')}
                     </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => editProperty(property)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="sm">
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </AlertDialogTrigger>
+                     <TableCell>
+                       <div className="flex items-center gap-2">
+                         <Button
+                           variant="outline"
+                           size="sm"
+                           className="touch-manipulation"
+                           onClick={() => editProperty(property)}
+                         >
+                           <Edit className="w-4 h-4" />
+                         </Button>
+                         <AlertDialog>
+                           <AlertDialogTrigger asChild>
+                             <Button variant="destructive" size="sm" className="touch-manipulation">
+                               <Trash2 className="w-4 h-4" />
+                             </Button>
+                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
                               <AlertDialogTitle>حذف العقار</AlertDialogTitle>

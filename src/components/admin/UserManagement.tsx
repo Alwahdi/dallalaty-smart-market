@@ -87,7 +87,6 @@ export default function UserManagement() {
 
       setUsers(usersWithRoles);
     } catch (error) {
-      console.error('Error fetching users:', error);
       toast({
         title: "خطأ",
         description: "حدث خطأ في تحميل بيانات المستخدمين",
@@ -242,12 +241,12 @@ export default function UserManagement() {
                           }}
                         />
                         
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <MoreVertical className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
+                         <DropdownMenu>
+                           <DropdownMenuTrigger asChild>
+                             <Button variant="ghost" size="icon" className="h-8 w-8 touch-manipulation">
+                               <MoreVertical className="w-4 h-4" />
+                             </Button>
+                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem
                               onClick={() => toggleUserStatus(user.user_id, user.is_active)}

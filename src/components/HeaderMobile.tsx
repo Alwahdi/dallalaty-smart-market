@@ -22,52 +22,50 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
   const { user, signOut } = useAuth();
   const { isAnyAdmin, loading: rolesLoading } = useRoles();
 
-  console.log('HeaderMobile - isAnyAdmin:', isAnyAdmin, 'rolesLoading:', rolesLoading, 'user:', user?.id);
-
   const handleSignOut = async () => {
     await signOut();
     navigate('/auth');
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-gradient-card backdrop-blur-md border-b border-border/50 shadow-card md:hidden">
-      <div className="px-4 py-3">
+      <header className="sticky top-0 z-40 bg-gradient-card backdrop-blur-md border-b border-border/50 shadow-card md:hidden">
+      <div className="px-3 sm:px-4 py-3">
         <div className="flex items-center justify-between">
           {/* الشعار */}
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
-            <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center shadow-glow">
+            <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center shadow-glow flex-shrink-0">
               <span className="text-lg font-bold text-primary-foreground">م</span>
             </div>
-            <div className="text-right">
-              <h1 className="text-lg font-bold font-arabic bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+            <div className="text-right min-w-0">
+              <h1 className="text-base sm:text-lg font-bold font-arabic bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent truncate">
                 متجر إب الشامل
               </h1>
-              <p className="text-xs text-muted-foreground font-arabic leading-none">
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-arabic leading-none">
                 المتجر الشامل
               </p>
             </div>
           </div>
 
           {/* الأزرار الجانبية */}
-          <div className="flex items-center space-x-2 rtl:space-x-reverse">
+          <div className="flex items-center space-x-1.5 sm:space-x-2 rtl:space-x-reverse">
             {showSearch && (
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="hover:bg-accent/50 transition-colors"
+                className="hover:bg-accent/50 transition-colors h-9 w-9 touch-manipulation"
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
               >
-                <Search className="w-5 h-5" />
+                <Search className="w-4 h-4 sm:w-5 sm:h-5" />
               </Button>
             )}
 
             {/* مركز الإشعارات */}
-            <NotificationCenter className="hover:bg-accent/50 transition-colors" />
+            <NotificationCenter className="hover:bg-accent/50 transition-colors touch-manipulation" />
 
             {/* أيقونة المستخدم */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="hover:bg-accent/50 transition-colors">
+                <Button variant="ghost" size="icon" className="hover:bg-accent/50 transition-colors h-9 w-9 touch-manipulation">
                   <Avatar className="w-6 h-6">
                     <AvatarFallback className="text-xs bg-primary/10 text-primary">
                       {user?.email?.[0].toUpperCase() || 'د'}
@@ -75,26 +73,26 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-48 bg-background/95 backdrop-blur-md border-border/50">
-                <DropdownMenuItem onClick={() => navigate('/account')} className="font-arabic">
+              <DropdownMenuContent align="start" className="w-48 bg-background/95 backdrop-blur-md border-border/50 z-50">
+                <DropdownMenuItem onClick={() => navigate('/account')} className="font-arabic touch-manipulation">
                   <User className="w-4 h-4 ml-2" />
                   إعدادات الحساب
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/favorites')} className="font-arabic">
+                <DropdownMenuItem onClick={() => navigate('/favorites')} className="font-arabic touch-manipulation">
                   <Bell className="w-4 h-4 ml-2" />
                   المفضلة
                 </DropdownMenuItem>
                 {isAnyAdmin && (
                   <>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => navigate('/admin')} className="font-arabic text-primary font-medium">
+                    <DropdownMenuItem onClick={() => navigate('/admin')} className="font-arabic text-primary font-medium touch-manipulation">
                       <Shield className="w-4 h-4 ml-2" />
                       لوحة الإدارة
                     </DropdownMenuItem>
                   </>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="font-arabic text-red-600">
+                <DropdownMenuItem onClick={handleSignOut} className="font-arabic text-red-600 touch-manipulation">
                   تسجيل الخروج
                 </DropdownMenuItem>
               </DropdownMenuContent>

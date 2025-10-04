@@ -525,15 +525,16 @@ export default function SectionManagement() {
           <CardDescription>جميع الأقسام المتاحة في النظام</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>اسم القسم</TableHead>
-                  <TableHead className="hidden sm:table-cell">الرمز المميز</TableHead>
-                  <TableHead className="hidden md:table-cell">الحالة</TableHead>
+                  <TableHead>الرمز المميز</TableHead>
+                  <TableHead>الحالة</TableHead>
                   <TableHead>مدراء القسم</TableHead>
-                  <TableHead className="hidden lg:table-cell">تاريخ الإنشاء</TableHead>
+                  <TableHead>تاريخ الإنشاء</TableHead>
                   <TableHead>الإجراءات</TableHead>
                 </TableRow>
               </TableHeader>
@@ -550,10 +551,10 @@ export default function SectionManagement() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell">
+                      <TableCell>
                         <code className="text-xs bg-muted px-1 py-0.5 rounded">{category.slug}</code>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">
+                      <TableCell>
                         <Badge variant={category.status === 'active' ? "default" : "secondary"}>
                           {category.status === 'active' ? 'نشط' : 'غير نشط'}
                         </Badge>
@@ -565,7 +566,7 @@ export default function SectionManagement() {
                               <Badge 
                                 key={manager.id} 
                                 variant="outline" 
-                                className="text-xs cursor-pointer hover:bg-destructive hover:text-destructive-foreground"
+                                className="text-xs cursor-pointer hover:bg-destructive hover:text-destructive-foreground transition-colors"
                                 onClick={() => removeCategoryManager(manager.id)}
                                 title="اضغط لحذف المدير"
                               >
@@ -578,36 +579,36 @@ export default function SectionManagement() {
                           <span className="text-muted-foreground text-sm">لا يوجد مدراء</span>
                         )}
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell">
+                      <TableCell>
                         {new Date(category.created_at).toLocaleDateString('ar-SA')}
                       </TableCell>
-                       <TableCell>
-                         <div className="flex items-center gap-1">
-                           <Button
-                             variant="outline"
-                             size="sm"
-                             className="touch-manipulation h-8 w-8 p-0"
-                             onClick={() => {
-                               setEditingCategory(category);
-                               setCategoryForm({
-                                 title: category.title,
-                                 subtitle: category.subtitle || '',
-                                 slug: category.slug,
-                                 description: category.description || '',
-                                 icon: category.icon || '',
-                                 parent_id: category.parent_id || ''
-                               });
-                               setCategoryDialogOpen(true);
-                             }}
-                           >
-                             <Edit className="w-4 h-4" />
-                           </Button>
-                           <AlertDialog>
-                             <AlertDialogTrigger asChild>
-                               <Button variant="destructive" size="sm" className="touch-manipulation h-8 w-8 p-0">
-                                 <Trash2 className="w-4 h-4" />
-                               </Button>
-                             </AlertDialogTrigger>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="touch-manipulation h-8 w-8 p-0"
+                            onClick={() => {
+                              setEditingCategory(category);
+                              setCategoryForm({
+                                title: category.title,
+                                subtitle: category.subtitle || '',
+                                slug: category.slug,
+                                description: category.description || '',
+                                icon: category.icon || '',
+                                parent_id: category.parent_id || ''
+                              });
+                              setCategoryDialogOpen(true);
+                            }}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="destructive" size="sm" className="touch-manipulation h-8 w-8 p-0">
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
                                 <AlertDialogTitle>حذف القسم</AlertDialogTitle>
@@ -630,6 +631,103 @@ export default function SectionManagement() {
                 })}
               </TableBody>
             </Table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-3 px-2">
+            {filteredCategories.map((category) => {
+              const managers = getCategoryManagers(category.id);
+              return (
+                <Card key={category.id} className="overflow-hidden">
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-sm">{category.title}</h3>
+                          {category.subtitle && (
+                            <p className="text-xs text-muted-foreground mt-0.5">{category.subtitle}</p>
+                          )}
+                          <code className="text-xs bg-muted px-1.5 py-0.5 rounded mt-1 inline-block">
+                            {category.slug}
+                          </code>
+                        </div>
+                        <Badge variant={category.status === 'active' ? "default" : "secondary"} className="text-xs">
+                          {category.status === 'active' ? 'نشط' : 'غير نشط'}
+                        </Badge>
+                      </div>
+
+                      {managers.length > 0 && (
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1.5">المدراء:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {managers.map((manager) => (
+                              <Badge 
+                                key={manager.id} 
+                                variant="outline" 
+                                className="text-xs cursor-pointer hover:bg-destructive hover:text-destructive-foreground transition-colors touch-manipulation"
+                                onClick={() => removeCategoryManager(manager.id)}
+                              >
+                                {manager.name}
+                                <X className="w-3 h-3 mr-1" />
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between pt-2 border-t">
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(category.created_at).toLocaleDateString('ar-SA')}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 px-3 touch-manipulation"
+                            onClick={() => {
+                              setEditingCategory(category);
+                              setCategoryForm({
+                                title: category.title,
+                                subtitle: category.subtitle || '',
+                                slug: category.slug,
+                                description: category.description || '',
+                                icon: category.icon || '',
+                                parent_id: category.parent_id || ''
+                              });
+                              setCategoryDialogOpen(true);
+                            }}
+                          >
+                            <Edit className="w-3.5 h-3.5 ml-1" />
+                            <span className="text-xs">تعديل</span>
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="destructive" size="sm" className="h-8 w-8 p-0 touch-manipulation">
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>حذف القسم</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  هل أنت متأكد من حذف "{category.title}"؟
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deleteCategory(category.id)}>
+                                  حذف
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
           
           {filteredCategories.length === 0 && (

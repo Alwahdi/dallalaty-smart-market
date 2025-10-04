@@ -539,7 +539,8 @@ export default function PropertyManagement() {
             </div>
           </div>
 
-          <div className="rounded-md border overflow-x-auto">
+          {/* Desktop Table View */}
+          <div className="hidden md:block rounded-md border overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -593,22 +594,22 @@ export default function PropertyManagement() {
                     <TableCell>
                       {new Date(property.created_at).toLocaleDateString('ar-SA')}
                     </TableCell>
-                     <TableCell>
-                       <div className="flex items-center gap-2">
-                         <Button
-                           variant="outline"
-                           size="sm"
-                           className="touch-manipulation"
-                           onClick={() => editProperty(property)}
-                         >
-                           <Edit className="w-4 h-4" />
-                         </Button>
-                         <AlertDialog>
-                           <AlertDialogTrigger asChild>
-                             <Button variant="destructive" size="sm" className="touch-manipulation">
-                               <Trash2 className="w-4 h-4" />
-                             </Button>
-                           </AlertDialogTrigger>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="touch-manipulation"
+                          onClick={() => editProperty(property)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="sm" className="touch-manipulation">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
                               <AlertDialogTitle>حذف العقار</AlertDialogTitle>
@@ -630,6 +631,112 @@ export default function PropertyManagement() {
                 ))}
               </TableBody>
             </Table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-3 px-2">
+            {filteredProperties.map((property) => (
+              <Card key={property.id} className="overflow-hidden">
+                <CardContent className="p-4">
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm truncate">{property.title}</h3>
+                        <p className="text-lg font-bold text-primary mt-1">
+                          {property.price.toLocaleString('ar-SA')} ريال
+                        </p>
+                      </div>
+                      <Select 
+                        value={property.status} 
+                        onValueChange={(value) => updatePropertyStatus(property.id, value)}
+                      >
+                        <SelectTrigger className="w-24 h-8 text-xs">
+                          <SelectValue>
+                            <Badge variant={
+                              property.status === 'active' ? 'default' : 
+                              property.status === 'sold' ? 'destructive' : 
+                              property.status === 'rented' ? 'secondary' : 'outline'
+                            } className="text-xs">
+                              {property.status === 'active' && 'نشط'}
+                              {property.status === 'inactive' && 'غير نشط'}
+                              {property.status === 'sold' && 'مباع'}
+                              {property.status === 'rented' && 'مؤجر'}
+                            </Badge>
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">نشط</SelectItem>
+                          <SelectItem value="inactive">غير نشط</SelectItem>
+                          <SelectItem value="sold">مباع</SelectItem>
+                          <SelectItem value="rented">مؤجر</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <span className="text-muted-foreground">النوع: </span>
+                        <span className="font-medium">{property.property_type}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">الموقع: </span>
+                        <span className="font-medium truncate">{property.city}</span>
+                      </div>
+                      {property.bedrooms && (
+                        <div>
+                          <span className="text-muted-foreground">الغرف: </span>
+                          <span className="font-medium">{property.bedrooms}</span>
+                        </div>
+                      )}
+                      {property.area_sqm && (
+                        <div>
+                          <span className="text-muted-foreground">المساحة: </span>
+                          <span className="font-medium">{property.area_sqm} م²</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t">
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(property.created_at).toLocaleDateString('ar-SA')}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 px-3 touch-manipulation"
+                          onClick={() => editProperty(property)}
+                        >
+                          <Edit className="w-3.5 h-3.5 ml-1" />
+                          <span className="text-xs">تعديل</span>
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="sm" className="h-8 w-8 p-0 touch-manipulation">
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>حذف العقار</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                هل أنت متأكد من حذف "{property.title}"؟
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => deleteProperty(property.id)}>
+                                حذف
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
           
           {filteredProperties.length === 0 && (

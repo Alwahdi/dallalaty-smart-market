@@ -80,68 +80,68 @@ export default function AdminPanel() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
         <Card className="relative overflow-hidden group hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 border-0 bg-gradient-to-br from-background to-primary/5">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
             <div className="space-y-1">
-              <CardTitle className="text-xs lg:text-sm font-medium text-muted-foreground">المستخدمين</CardTitle>
-              <div className="text-lg lg:text-2xl font-bold text-primary">{stats.users.toLocaleString('ar')}</div>
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">المستخدمين</CardTitle>
+              <div className="text-base sm:text-lg lg:text-2xl font-bold text-primary">{stats.users.toLocaleString('ar')}</div>
             </div>
-            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-300">
-              <Users className="h-4 w-4 lg:h-5 lg:w-5 text-primary" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-300 flex-shrink-0">
+              <Users className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
             </div>
           </CardHeader>
-          <CardContent className="relative pt-0">
-            <p className="text-xs text-muted-foreground">مستخدم مسجل</p>
+          <CardContent className="relative pt-0 p-3 sm:p-6">
+            <p className="text-[10px] sm:text-xs text-muted-foreground">مستخدم مسجل</p>
           </CardContent>
         </Card>
         
         <Card className="relative overflow-hidden group hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 border-0 bg-gradient-to-br from-background to-blue-500/5">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
             <div className="space-y-1">
-              <CardTitle className="text-xs lg:text-sm font-medium text-muted-foreground">العقارات</CardTitle>
-              <div className="text-lg lg:text-2xl font-bold text-blue-600">{stats.properties.toLocaleString('ar')}</div>
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">العقارات</CardTitle>
+              <div className="text-base sm:text-lg lg:text-2xl font-bold text-blue-600">{stats.properties.toLocaleString('ar')}</div>
             </div>
-            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-blue-500/10 rounded-lg flex items-center justify-center group-hover:bg-blue-500/20 transition-colors duration-300">
-              <Building2 className="h-4 w-4 lg:h-5 lg:w-5 text-blue-500" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500/10 rounded-lg flex items-center justify-center group-hover:bg-blue-500/20 transition-colors duration-300 flex-shrink-0">
+              <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
             </div>
           </CardHeader>
-          <CardContent className="relative pt-0">
-            <p className="text-xs text-muted-foreground">عقار منشور</p>
+          <CardContent className="relative pt-0 p-3 sm:p-6">
+            <p className="text-[10px] sm:text-xs text-muted-foreground">عقار منشور</p>
           </CardContent>
         </Card>
         
         <Card className="relative overflow-hidden group hover:shadow-xl hover:shadow-green-500/20 transition-all duration-300 border-0 bg-gradient-to-br from-background to-green-500/5">
           <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
             <div className="space-y-1">
-              <CardTitle className="text-xs lg:text-sm font-medium text-muted-foreground">الأقسام</CardTitle>
-              <div className="text-lg lg:text-2xl font-bold text-green-600">{stats.categories.toLocaleString('ar')}</div>
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">الأقسام</CardTitle>
+              <div className="text-base sm:text-lg lg:text-2xl font-bold text-green-600">{stats.categories.toLocaleString('ar')}</div>
             </div>
-            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-green-500/10 rounded-lg flex items-center justify-center group-hover:bg-green-500/20 transition-colors duration-300">
-              <FolderOpen className="h-4 w-4 lg:h-5 lg:w-5 text-green-500" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500/10 rounded-lg flex items-center justify-center group-hover:bg-green-500/20 transition-colors duration-300 flex-shrink-0">
+              <FolderOpen className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
             </div>
           </CardHeader>
-          <CardContent className="relative pt-0">
-            <p className="text-xs text-muted-foreground">قسم نشط</p>
+          <CardContent className="relative pt-0 p-3 sm:p-6">
+            <p className="text-[10px] sm:text-xs text-muted-foreground">قسم نشط</p>
           </CardContent>
         </Card>
         
         <Card className="relative overflow-hidden group hover:shadow-xl hover:shadow-orange-500/20 transition-all duration-300 border-0 bg-gradient-to-br from-background to-orange-500/5">
           <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
             <div className="space-y-1">
-              <CardTitle className="text-xs lg:text-sm font-medium text-muted-foreground">الإشعارات</CardTitle>
-              <div className="text-lg lg:text-2xl font-bold text-orange-600">{stats.notifications.toLocaleString('ar')}</div>
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">الإشعارات</CardTitle>
+              <div className="text-base sm:text-lg lg:text-2xl font-bold text-orange-600">{stats.notifications.toLocaleString('ar')}</div>
             </div>
-            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-orange-500/10 rounded-lg flex items-center justify-center group-hover:bg-orange-500/20 transition-colors duration-300">
-              <Bell className="h-4 w-4 lg:h-5 lg:w-5 text-orange-500" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-500/10 rounded-lg flex items-center justify-center group-hover:bg-orange-500/20 transition-colors duration-300 flex-shrink-0">
+              <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
             </div>
           </CardHeader>
-          <CardContent className="relative pt-0">
-            <p className="text-xs text-muted-foreground">إشعار مُرسل</p>
+          <CardContent className="relative pt-0 p-3 sm:p-6">
+            <p className="text-[10px] sm:text-xs text-muted-foreground">إشعار مُرسل</p>
           </CardContent>
         </Card>
       </div>
@@ -201,69 +201,69 @@ export default function AdminPanel() {
 
       {/* Quick Actions */}
       <Card className="border-0 bg-gradient-to-br from-background to-muted/30">
-        <CardHeader>
-          <CardTitle className="text-xl">الإجراءات السريعة</CardTitle>
-          <CardDescription>أهم العمليات الإدارية للوصول المباشر</CardDescription>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-lg sm:text-xl">الإجراءات السريعة</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">أهم العمليات الإدارية للوصول المباشر</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <CardContent className="p-4 sm:p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {isAdmin && (
               <Button 
                 variant="outline" 
-                className="justify-start gap-4 h-auto py-4 px-6 bg-background/50 hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 group"
+                className="justify-start gap-3 sm:gap-4 h-auto py-3 sm:py-4 px-4 sm:px-6 bg-background/50 hover:bg-primary/5 hover:border-primary/20 transition-all duration-200 group touch-manipulation"
                 onClick={() => setActiveTab('users')}
               >
-                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-200">
-                  <Users className="w-5 h-5 text-primary" />
+                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-200 flex-shrink-0">
+                  <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                 </div>
-                <div className="text-right flex-1">
-                  <div className="font-semibold text-sm">إدارة المستخدمين</div>
-                  <div className="text-xs text-muted-foreground mt-1">تفعيل وتعليق الحسابات وإدارة الأدوار</div>
+                <div className="text-right flex-1 min-w-0">
+                  <div className="font-semibold text-xs sm:text-sm">إدارة المستخدمين</div>
+                  <div className="text-[10px] sm:text-xs text-muted-foreground mt-1">تفعيل وتعليق الحسابات وإدارة الأدوار</div>
                 </div>
               </Button>
             )}
             {(isAdmin || isPropertiesAdmin) && (
               <Button 
                 variant="outline" 
-                className="justify-start gap-4 h-auto py-4 px-6 bg-background/50 hover:bg-blue-500/5 hover:border-blue-500/20 transition-all duration-200 group"
+                className="justify-start gap-3 sm:gap-4 h-auto py-3 sm:py-4 px-4 sm:px-6 bg-background/50 hover:bg-blue-500/5 hover:border-blue-500/20 transition-all duration-200 group touch-manipulation"
                 onClick={() => setActiveTab('properties')}
               >
-                <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center group-hover:bg-blue-500/20 transition-colors duration-200">
-                  <Building2 className="w-5 h-5 text-blue-500" />
+                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-blue-500/10 rounded-xl flex items-center justify-center group-hover:bg-blue-500/20 transition-colors duration-200 flex-shrink-0">
+                  <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
                 </div>
-                <div className="text-right flex-1">
-                  <div className="font-semibold text-sm">إدارة العقارات</div>
-                  <div className="text-xs text-muted-foreground mt-1">إضافة وتحرير ومراجعة العقارات</div>
+                <div className="text-right flex-1 min-w-0">
+                  <div className="font-semibold text-xs sm:text-sm">إدارة العقارات</div>
+                  <div className="text-[10px] sm:text-xs text-muted-foreground mt-1">إضافة وتحرير ومراجعة العقارات</div>
                 </div>
               </Button>
             )}
             {(isAdmin || isCategoriesAdmin) && (
               <Button 
                 variant="outline" 
-                className="justify-start gap-4 h-auto py-4 px-6 bg-background/50 hover:bg-green-500/5 hover:border-green-500/20 transition-all duration-200 group"
+                className="justify-start gap-3 sm:gap-4 h-auto py-3 sm:py-4 px-4 sm:px-6 bg-background/50 hover:bg-green-500/5 hover:border-green-500/20 transition-all duration-200 group touch-manipulation"
                 onClick={() => setActiveTab('sections')}
               >
-                <div className="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center group-hover:bg-green-500/20 transition-colors duration-200">
-                  <FolderOpen className="w-5 h-5 text-green-500" />
+                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-green-500/10 rounded-xl flex items-center justify-center group-hover:bg-green-500/20 transition-colors duration-200 flex-shrink-0">
+                  <FolderOpen className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
                 </div>
-                <div className="text-right flex-1">
-                  <div className="font-semibold text-sm">إدارة الأقسام</div>
-                  <div className="text-xs text-muted-foreground mt-1">تنظيم الأقسام وتعيين المشرفين</div>
+                <div className="text-right flex-1 min-w-0">
+                  <div className="font-semibold text-xs sm:text-sm">إدارة الأقسام</div>
+                  <div className="text-[10px] sm:text-xs text-muted-foreground mt-1">تنظيم الأقسام وتعيين المشرفين</div>
                 </div>
               </Button>
             )}
             {(isAdmin || isNotificationsAdmin) && (
               <Button 
                 variant="outline" 
-                className="justify-start gap-4 h-auto py-4 px-6 bg-background/50 hover:bg-orange-500/5 hover:border-orange-500/20 transition-all duration-200 group"
+                className="justify-start gap-3 sm:gap-4 h-auto py-3 sm:py-4 px-4 sm:px-6 bg-background/50 hover:bg-orange-500/5 hover:border-orange-500/20 transition-all duration-200 group touch-manipulation"
                 onClick={() => setActiveTab('notifications')}
               >
-                <div className="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center group-hover:bg-orange-500/20 transition-colors duration-200">
-                  <Bell className="w-5 h-5 text-orange-500" />
+                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-orange-500/10 rounded-xl flex items-center justify-center group-hover:bg-orange-500/20 transition-colors duration-200 flex-shrink-0">
+                  <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
                 </div>
-                <div className="text-right flex-1">
-                  <div className="font-semibold text-sm">إرسال الإشعارات</div>
-                  <div className="text-xs text-muted-foreground mt-1">إشعار المستخدمين بالتحديثات المهمة</div>
+                <div className="text-right flex-1 min-w-0">
+                  <div className="font-semibold text-xs sm:text-sm">إرسال الإشعارات</div>
+                  <div className="text-[10px] sm:text-xs text-muted-foreground mt-1">إشعار المستخدمين بالتحديثات المهمة</div>
                 </div>
               </Button>
             )}

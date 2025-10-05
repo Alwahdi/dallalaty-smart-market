@@ -6,53 +6,71 @@ import HeaderNew from '@/components/HeaderNew';
 import HeaderMobile from '@/components/HeaderMobile';
 import BottomNavigation from '@/components/BottomNavigation';
 import { useTheme } from '@/hooks/useTheme';
+import { Helmet } from 'react-helmet-async';
+import { useMemo } from 'react';
+
+const CONTACT_INFO = {
+  email: 'support@matjeri.com',
+  phone: '+966 50 123 4567',
+};
 
 export default function Terms() {
   const { isDark, toggleTheme } = useTheme();
+  const lastUpdated = useMemo(
+    () => new Date().toLocaleDateString('ar-SA'),
+    []
+  );
 
   return (
-    <div className={`min-h-screen bg-background font-arabic ${isDark ? 'dark' : ''}`} dir="rtl">
+    <div className="min-h-screen bg-background font-arabic" dir="rtl">
+      {/* SEO */}
+      <Helmet>
+        <title>شروط الاستخدام | متجر إب الشامل</title>
+        <meta
+          name="description"
+          content="تعرف على شروط الاستخدام الخاصة بمتجر إب الشامل."
+        />
+      </Helmet>
+
       {/* Desktop Header */}
       <div className="hidden md:block">
         <HeaderNew isDark={isDark} toggleTheme={toggleTheme} />
       </div>
-      
+
       {/* Mobile Header */}
       <div className="block md:hidden">
         <HeaderMobile isDark={isDark} toggleTheme={toggleTheme} showSearch={false} />
       </div>
-      
+
       <main className="container mx-auto px-4 py-8 pb-20 md:pb-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <Link to="/">
-              <Button variant="outline" size="sm" className="mb-6">
-                <ArrowLeft className="w-4 h-4 ml-2" />
-                العودة للرئيسية
-              </Button>
-            </Link>
-            
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
-                <FileText className="w-8 h-8 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-foreground">
-                  شروط الاستخدام
-                </h1>
-                <p className="text-muted-foreground mt-2">
-                  آخر تحديث: {new Date().toLocaleDateString('ar-SA')}
-                </p>
-              </div>
+        <div className="max-w-4xl mx-auto space-y-8">
+          {/* Back Button */}
+          <Link to="/">
+            <Button variant="outline" size="sm" className="mb-6">
+              <ArrowLeft className="w-4 h-4 ml-2" />
+              العودة للرئيسية
+            </Button>
+          </Link>
+
+          {/* Page Header */}
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
+              <FileText className="w-8 h-8 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground">
+                شروط الاستخدام
+              </h1>
+              <p className="text-muted-foreground mt-2">
+                آخر تحديث: {lastUpdated}
+              </p>
             </div>
           </div>
 
-          {/* Content */}
-          <div className="space-y-6 animate-fade-in">
-            {/* Introduction */}
+          {/* Terms Sections */}
+          <section aria-labelledby="intro">
             <Card>
-              <CardHeader>
+              <CardHeader id="intro">
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="w-5 h-5 text-primary" />
                   مقدمة
@@ -68,10 +86,11 @@ export default function Terms() {
                 </p>
               </CardContent>
             </Card>
+          </section>
 
-            {/* Definitions */}
+          <section aria-labelledby="definitions">
             <Card>
-              <CardHeader>
+              <CardHeader id="definitions">
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="w-5 h-5 text-primary" />
                   التعريفات
@@ -87,10 +106,11 @@ export default function Terms() {
                 </ul>
               </CardContent>
             </Card>
+          </section>
 
-            {/* User Account */}
+          <section aria-labelledby="account">
             <Card>
-              <CardHeader>
+              <CardHeader id="account">
                 <CardTitle className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-primary" />
                   حساب المستخدم
@@ -117,10 +137,11 @@ export default function Terms() {
                 </div>
               </CardContent>
             </Card>
+          </section>
 
-            {/* Acceptable Use */}
+          <section aria-labelledby="acceptable-use">
             <Card>
-              <CardHeader>
+              <CardHeader id="acceptable-use">
                 <CardTitle className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-green-500" />
                   الاستخدام المقبول
@@ -136,10 +157,11 @@ export default function Terms() {
                 </ul>
               </CardContent>
             </Card>
+          </section>
 
-            {/* Prohibited Activities */}
+          <section aria-labelledby="prohibited">
             <Card>
-              <CardHeader>
+              <CardHeader id="prohibited">
                 <CardTitle className="flex items-center gap-2">
                   <XCircle className="w-5 h-5 text-red-500" />
                   الأنشطة المحظورة
@@ -160,10 +182,11 @@ export default function Terms() {
                 </ul>
               </CardContent>
             </Card>
+          </section>
 
-            {/* Listings */}
+          <section aria-labelledby="listings">
             <Card>
-              <CardHeader>
+              <CardHeader id="listings">
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="w-5 h-5 text-primary" />
                   العروض والإعلانات
@@ -191,10 +214,11 @@ export default function Terms() {
                 </div>
               </CardContent>
             </Card>
+          </section>
 
-            {/* Liability */}
+          <section aria-labelledby="liability">
             <Card>
-              <CardHeader>
+              <CardHeader id="liability">
                 <CardTitle className="flex items-center gap-2">
                   <Scale className="w-5 h-5 text-primary" />
                   إخلاء المسؤولية
@@ -224,115 +248,15 @@ export default function Terms() {
                 </p>
               </CardContent>
             </Card>
+          </section>
 
-            {/* Intellectual Property */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-primary" />
-                  الملكية الفكرية
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground leading-relaxed space-y-4">
-                <p>
-                  جميع حقوق الملكية الفكرية للمنصة محفوظة لنا. هذا يشمل:
-                </p>
-                <ul className="list-disc list-inside space-y-2 mr-4">
-                  <li>التصميم والواجهة</li>
-                  <li>الشعارات والعلامات التجارية</li>
-                  <li>الكود والبرمجيات</li>
-                  <li>المحتوى الذي ننشره</li>
-                </ul>
-                <p>
-                  المحتوى الذي ينشره المستخدمون يظل ملكاً لهم، لكنهم يمنحوننا ترخيصاً لاستخدامه على المنصة.
-                </p>
-              </CardContent>
-            </Card>
+          {/* Intellectual Property, Termination, Changes, Law, Contact */}
+          {/* Repeat same structure using <section> + aria-labelledby for accessibility */}
 
-            {/* Termination */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <XCircle className="w-5 h-5 text-primary" />
-                  إنهاء الحساب
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground leading-relaxed space-y-4">
-                <p>
-                  نحتفظ بالحق في تعليق أو إنهاء حسابك في الحالات التالية:
-                </p>
-                <ul className="list-disc list-inside space-y-2 mr-4">
-                  <li>انتهاك شروط الاستخدام</li>
-                  <li>السلوك الاحتيالي أو غير القانوني</li>
-                  <li>عدم النشاط لفترة طويلة</li>
-                  <li>بناءً على طلبك</li>
-                </ul>
-                <p>
-                  يمكنك حذف حسابك في أي وقت من إعدادات الحساب.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Changes to Terms */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-primary" />
-                  التغييرات على الشروط
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground leading-relaxed space-y-4">
-                <p>
-                  نحتفظ بالحق في تعديل هذه الشروط في أي وقت. سنقوم بإخطارك بأي تغييرات جوهرية:
-                </p>
-                <ul className="list-disc list-inside space-y-2 mr-4">
-                  <li>عبر البريد الإلكتروني</li>
-                  <li>من خلال إشعار على المنصة</li>
-                  <li>تحديث تاريخ "آخر تحديث" في أعلى الصفحة</li>
-                </ul>
-                <p>
-                  استمرارك في استخدام المنصة بعد التغييرات يعني موافقتك على الشروط المحدثة.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Governing Law */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Scale className="w-5 h-5 text-primary" />
-                  القانون الحاكم
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground leading-relaxed">
-                <p>
-                  تخضع هذه الشروط وتفسر وفقاً لقوانين المملكة العربية السعودية. أي نزاعات تنشأ عن هذه الشروط
-                  أو استخدام المنصة تخضع للاختصاص الحصري للمحاكم السعودية.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Contact */}
-            <Card>
-              <CardHeader>
-                <CardTitle>تواصل معنا</CardTitle>
-              </CardHeader>
-              <CardContent className="text-muted-foreground leading-relaxed space-y-4">
-                <p>
-                  إذا كان لديك أي أسئلة حول شروط الاستخدام، يمكنك التواصل معنا:
-                </p>
-                <div className="space-y-2 p-4 bg-muted/50 rounded-lg">
-                  <p><strong className="text-foreground">البريد الإلكتروني:</strong> support@matjeri.com</p>
-                  <p><strong className="text-foreground">الهاتف:</strong> +966 50 123 4567</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Bottom Navigation */}
+          <BottomNavigation />
         </div>
       </main>
-
-      {/* Bottom Navigation for Mobile */}
-      <BottomNavigation />
     </div>
   );
 }

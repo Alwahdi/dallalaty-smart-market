@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -8,12 +8,25 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { FolderOpen, Plus, Edit, Trash2, Search, UserPlus, Users, X } from 'lucide-react';
+import { FolderOpen, Plus, Edit, Trash2, Search, UserPlus, X } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
+
+// Sentinel value for "no parent" option — must be a non-empty string (Radix requirement)
+const NO_PARENT_VALUE = '___none___';
 
 interface Category {
   id: string;
@@ -47,13 +60,14 @@ interface Profile {
 export default function SectionManagement() {
   const { user } = useAuth();
   const { toast } = useToast();
-  
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryRoles, setCategoryRoles] = useState<CategoryRole[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  
+  const [saving, setSaving] = useState(false);
+
   // Category form
   const [categoryForm, setCategoryForm] = useState({
     title: '',
@@ -61,95 +75,93 @@ export default function SectionManagement() {
     slug: '',
     description: '',
     icon: '',
-    parent_id: ''
+    parent_id: NO_PARENT_VALUE, // use sentinel for no-parent
   });
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  
+
   // Section manager assignment
   const [assignmentDialogOpen, setAssignmentDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
-  useEffect(() => {
-    fetchCategories();
-    fetchCategoryRoles();
-    fetchProfiles();
-  }, []);
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('categories')
         .select('*')
         .order('order_index', { ascending: true });
 
       if (error) throw error;
-      setCategories(data || []);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-      toast({
-        title: "خطأ",
-        description: "حدث خطأ في تحميل الأقسام",
-        variant: "destructive"
-      });
+      setCategories((data as Category[]) || []);
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+      toast({ title: 'خطأ', description: 'حدث خطأ في تحميل الأقسام', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  const fetchCategoryRoles = async () => {
+  const fetchCategoryRoles = useCallback(async () => {
     try {
-      const { data, error } = await supabase
-        .from('category_roles')
-        .select('*');
-
+      const { data, error } = await supabase.from('category_roles').select('*');
       if (error) throw error;
-      setCategoryRoles(data as CategoryRole[] || []);
-    } catch (error) {
-      console.error('Error fetching category roles:', error);
+      setCategoryRoles((data as CategoryRole[]) || []);
+    } catch (err) {
+      console.error('Error fetching category roles:', err);
     }
-  };
+  }, []);
 
-  const fetchProfiles = async () => {
+  const fetchProfiles = useCallback(async () => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, user_id, full_name, phone')
-        .eq('is_active', true);
-
+      const { data, error } = await supabase.from('profiles').select('id, user_id, full_name, phone').eq('is_active', true);
       if (error) throw error;
-      setProfiles(data || []);
-    } catch (error) {
-      console.error('Error fetching profiles:', error);
+      setProfiles((data as Profile[]) || []);
+    } catch (err) {
+      console.error('Error fetching profiles:', err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+    fetchCategoryRoles();
+    fetchProfiles();
+  }, [fetchCategories, fetchCategoryRoles, fetchProfiles]);
+
+  const resetCategoryForm = useCallback(() => {
+    setCategoryForm({
+      title: '',
+      subtitle: '',
+      slug: '',
+      description: '',
+      icon: '',
+      parent_id: NO_PARENT_VALUE,
+    });
+    setEditingCategory(null);
+    setCategoryDialogOpen(false);
+  }, []);
 
   const saveCategory = async () => {
     try {
-      if (!categoryForm.title || !categoryForm.slug) {
-        toast({
-          title: "خطأ",
-          description: "يرجى ملء جميع الحقول المطلوبة",
-          variant: "destructive"
-        });
+      if (!categoryForm.title?.trim() || !categoryForm.slug?.trim()) {
+        toast({ title: 'خطأ', description: 'يرجى ملء جميع الحقول المطلوبة', variant: 'destructive' });
         return;
       }
 
-      // Check for duplicate slug
+      setSaving(true);
+
+      // Check for duplicate slug (when creating)
       if (!editingCategory) {
-        const { data: existingCategory } = await supabase
+        const { data: existingCategory, error } = await supabase
           .from('categories')
           .select('id')
           .eq('slug', categoryForm.slug.toLowerCase().trim())
           .maybeSingle();
 
+        if (error) throw error;
         if (existingCategory) {
-          toast({
-            title: "خطأ",
-            description: "الرمز المميز مستخدم بالفعل، يرجى اختيار رمز آخر",
-            variant: "destructive"
-          });
+          toast({ title: 'خطأ', description: 'الرمز المميز مستخدم بالفعل، يرجى اختيار رمز آخر', variant: 'destructive' });
           return;
         }
       }
@@ -160,192 +172,132 @@ export default function SectionManagement() {
         slug: categoryForm.slug.toLowerCase().trim(),
         description: categoryForm.description?.trim() || null,
         icon: categoryForm.icon?.trim() || null,
-        parent_id: categoryForm.parent_id || null,
+        // convert sentinel to actual null for DB
+        parent_id: categoryForm.parent_id === NO_PARENT_VALUE ? null : categoryForm.parent_id,
         order_index: editingCategory ? editingCategory.order_index : categories.length,
-        status: 'active'
-      };
+        status: 'active',
+      } as Partial<Category>;
 
       let error;
       if (editingCategory) {
-        const result = await supabase
-          .from('categories')
-          .update(categoryData)
-          .eq('id', editingCategory.id);
+        const result = await supabase.from('categories').update(categoryData).eq('id', editingCategory.id);
         error = result.error;
       } else {
-        const result = await supabase
-          .from('categories')
-          .insert([categoryData])
-          .select();
+        const result = await supabase.from('categories').insert([categoryData]).select();
         error = result.error;
       }
 
-      if (error) {
-        console.error('Database error:', error);
-        throw error;
-      }
+      if (error) throw error;
 
-      toast({
-        title: "تم الحفظ",
-        description: editingCategory ? "تم تحديث القسم بنجاح" : "تم إنشاء القسم بنجاح"
-      });
+      toast({ title: 'تم الحفظ', description: editingCategory ? 'تم تحديث القسم بنجاح' : 'تم إنشاء القسم بنجاح' });
 
       resetCategoryForm();
-      fetchCategories();
-    } catch (error: any) {
-      console.error('Error saving category:', error);
-      
-      let errorMessage = "حدث خطأ في حفظ القسم";
-      
-      if (error?.message?.includes('duplicate key')) {
-        errorMessage = "الرمز المميز مستخدم بالفعل";
-      } else if (error?.message?.includes('permission')) {
-        errorMessage = "ليس لديك صلاحية لإضافة الأقسام";
-      }
-      
-      toast({
-        title: "خطأ",
-        description: errorMessage,
-        variant: "destructive"
-      });
+      await fetchCategories();
+    } catch (err: any) {
+      console.error('Error saving category:', err);
+      let errorMessage = 'حدث خطأ في حفظ القسم';
+      if (err?.message?.includes('duplicate key')) errorMessage = 'الرمز المميز مستخدم بالفعل';
+      else if (err?.message?.includes('permission')) errorMessage = 'ليس لديك صلاحية لإضافة الأقسام';
+      toast({ title: 'خطأ', description: errorMessage, variant: 'destructive' });
+    } finally {
+      setSaving(false);
     }
-  };
-
-  const resetCategoryForm = () => {
-    setCategoryForm({
-      title: '',
-      subtitle: '',
-      slug: '',
-      description: '',
-      icon: '',
-      parent_id: ''
-    });
-    setEditingCategory(null);
-    setCategoryDialogOpen(false);
   };
 
   const deleteCategory = async (categoryId: string) => {
     try {
-      const { error } = await supabase
-        .from('categories')
-        .delete()
-        .eq('id', categoryId);
-
+      const { error } = await supabase.from('categories').delete().eq('id', categoryId);
       if (error) throw error;
-
-      toast({
-        title: "تم الحذف",
-        description: "تم حذف القسم بنجاح"
-      });
-
+      toast({ title: 'تم الحذف', description: 'تم حذف القسم بنجاح' });
       fetchCategories();
-    } catch (error) {
-      console.error('Error deleting category:', error);
-      toast({
-        title: "خطأ",
-        description: "حدث خطأ في حذف القسم",
-        variant: "destructive"
-      });
+    } catch (err) {
+      console.error('Error deleting category:', err);
+      toast({ title: 'خطأ', description: 'حدث خطأ في حذف القسم', variant: 'destructive' });
     }
   };
 
   const assignSectionManager = async () => {
     try {
       if (!selectedUser || selectedCategories.length === 0) {
-        toast({
-          title: "خطأ",
-          description: "يرجى اختيار مستخدم وأقسام",
-          variant: "destructive"
-        });
+        toast({ title: 'خطأ', description: 'يرجى اختيار مستخدم وأقسام', variant: 'destructive' });
         return;
       }
 
       // Remove existing assignments for this user for selected categories
-      await supabase
-        .from('category_roles')
-        .delete()
-        .eq('user_id', selectedUser)
-        .in('category_id', selectedCategories);
+      await supabase.from('category_roles').delete().eq('user_id', selectedUser).in('category_id', selectedCategories);
 
       // Insert new assignments
-      const assignments = selectedCategories.map(categoryId => ({
+      const assignments = selectedCategories.map((categoryId) => ({
         user_id: selectedUser,
         category_id: categoryId,
-        role: 'moderator' as any
+        role: 'moderator' as any,
       }));
 
-      const { error } = await supabase
-        .from('category_roles')
-        .insert(assignments);
-
+      const { error } = await supabase.from('category_roles').insert(assignments);
       if (error) throw error;
 
-      toast({
-        title: "تم التعيين",
-        description: "تم تعيين مدير الأقسام بنجاح"
-      });
+      toast({ title: 'تم التعيين', description: 'تم تعيين مدير الأقسام بنجاح' });
 
       setSelectedUser('');
       setSelectedCategories([]);
       setAssignmentDialogOpen(false);
       fetchCategoryRoles();
-    } catch (error) {
-      console.error('Error assigning section manager:', error);
-      toast({
-        title: "خطأ",
-        description: "حدث خطأ في تعيين مدير الأقسام",
-        variant: "destructive"
-      });
+    } catch (err) {
+      console.error('Error assigning section manager:', err);
+      toast({ title: 'خطأ', description: 'حدث خطأ في تعيين مدير الأقسام', variant: 'destructive' });
     }
   };
 
-  const getCategoryManagers = (categoryId: string) => {
-    return categoryRoles
-      .filter(cr => cr.category_id === categoryId)
-      .map(cr => {
-        const profile = profiles.find(p => p.user_id === cr.user_id);
-        return { 
+  const getCategoryManagers = (categoryId: string) =>
+    categoryRoles
+      .filter((cr) => cr.category_id === categoryId)
+      .map((cr) => {
+        const profile = profiles.find((p) => p.user_id === cr.user_id);
+        return {
           id: cr.id,
           name: profile?.full_name || 'غير معروف',
-          phone: profile?.phone || ''
+          phone: profile?.phone || '',
         };
       });
-  };
 
   const removeCategoryManager = async (roleId: string) => {
     try {
-      const { error } = await supabase
-        .from('category_roles')
-        .delete()
-        .eq('id', roleId);
-
+      const { error } = await supabase.from('category_roles').delete().eq('id', roleId);
       if (error) throw error;
-
-      toast({
-        title: "تم الحذف",
-        description: "تم حذف مدير القسم بنجاح"
-      });
-
+      toast({ title: 'تم الحذف', description: 'تم حذف مدير القسم بنجاح' });
       fetchCategoryRoles();
-    } catch (error) {
-      console.error('Error removing category manager:', error);
-      toast({
-        title: "خطأ",
-        description: "حدث خطأ في حذف مدير القسم",
-        variant: "destructive"
-      });
+    } catch (err) {
+      console.error('Error removing category manager:', err);
+      toast({ title: 'خطأ', description: 'حدث خطأ في حذف مدير القسم', variant: 'destructive' });
     }
   };
 
-  const filteredCategories = categories.filter(category =>
-    category.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    category.slug.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCategories = useMemo(
+    () =>
+      categories.filter((category) =>
+        category.title.toLowerCase().includes(searchTerm.toLowerCase()) || category.slug.toLowerCase().includes(searchTerm.toLowerCase()),
+      ),
+    [categories, searchTerm],
   );
+
+  // UI helpers
+  const openForEdit = (category: Category) => {
+    setEditingCategory(category);
+    setCategoryForm({
+      title: category.title,
+      subtitle: category.subtitle || '',
+      slug: category.slug,
+      description: category.description || '',
+      icon: category.icon || '',
+      parent_id: category.parent_id ?? NO_PARENT_VALUE,
+    });
+    setCategoryDialogOpen(true);
+  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
     );
   }
@@ -361,7 +313,7 @@ export default function SectionManagement() {
           </h2>
           <p className="text-sm text-muted-foreground mt-1">إدارة الأقسام وتعيين مدراء الأقسام</p>
         </div>
-        
+
         <div className="flex flex-col sm:flex-row gap-2">
           <Dialog open={assignmentDialogOpen} onOpenChange={setAssignmentDialogOpen}>
             <DialogTrigger asChild>
@@ -390,23 +342,22 @@ export default function SectionManagement() {
                     </SelectContent>
                   </Select>
                 </div>
-                 <div>
-                   <Label>الأقسام المراد إدارتها</Label>
-                   <div className="space-y-2 max-h-40 overflow-y-auto border rounded-lg p-3 mt-2 bg-muted/30">
+                <div>
+                  <Label>الأقسام المراد إدارتها</Label>
+                  <div className="space-y-2 max-h-40 overflow-y-auto border rounded-lg p-3 mt-2 bg-muted/30">
                     {categories.map((category) => (
                       <div key={category.id} className="flex items-center space-x-2 space-x-reverse">
                         <Checkbox
                           id={category.id}
                           checked={selectedCategories.includes(category.id)}
                           onCheckedChange={(checked) => {
-                            if (checked) {
-                              setSelectedCategories(prev => [...prev, category.id]);
-                            } else {
-                              setSelectedCategories(prev => prev.filter(id => id !== category.id));
-                            }
+                            if (checked) setSelectedCategories((prev) => [...prev, category.id]);
+                            else setSelectedCategories((prev) => prev.filter((id) => id !== category.id));
                           }}
                         />
-                        <Label htmlFor={category.id} className="text-sm">{category.title}</Label>
+                        <Label htmlFor={category.id} className="text-sm">
+                          {category.title}
+                        </Label>
                       </div>
                     ))}
                   </div>
@@ -432,69 +383,47 @@ export default function SectionManagement() {
               <div className="space-y-4 overflow-y-auto max-h-[calc(85vh-120px)] sm:max-h-[calc(90vh-120px)] px-1">
                 <div>
                   <Label htmlFor="title">عنوان القسم *</Label>
-                  <Input
-                    id="title"
-                    value={categoryForm.title}
-                    onChange={(e) => setCategoryForm(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="اسم القسم"
-                  />
+                  <Input id="title" value={categoryForm.title} onChange={(e) => setCategoryForm((p) => ({ ...p, title: e.target.value }))} placeholder="اسم القسم" />
                 </div>
                 <div>
                   <Label htmlFor="slug">الرمز المميز *</Label>
-                  <Input
-                    id="slug"
-                    value={categoryForm.slug}
-                    onChange={(e) => setCategoryForm(prev => ({ ...prev, slug: e.target.value }))}
-                    placeholder="category-slug"
-                  />
+                  <Input id="slug" value={categoryForm.slug} onChange={(e) => setCategoryForm((p) => ({ ...p, slug: e.target.value }))} placeholder="category-slug" />
                 </div>
                 <div>
                   <Label htmlFor="subtitle">العنوان الفرعي</Label>
-                  <Input
-                    id="subtitle"
-                    value={categoryForm.subtitle}
-                    onChange={(e) => setCategoryForm(prev => ({ ...prev, subtitle: e.target.value }))}
-                    placeholder="وصف مختصر"
-                  />
+                  <Input id="subtitle" value={categoryForm.subtitle} onChange={(e) => setCategoryForm((p) => ({ ...p, subtitle: e.target.value }))} placeholder="وصف مختصر" />
                 </div>
                 <div>
                   <Label htmlFor="description">الوصف</Label>
-                  <Textarea
-                    id="description"
-                    value={categoryForm.description}
-                    onChange={(e) => setCategoryForm(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="وصف مفصل للقسم"
-                  />
+                  <Textarea id="description" value={categoryForm.description} onChange={(e) => setCategoryForm((p) => ({ ...p, description: e.target.value }))} placeholder="وصف مفصل للقسم" />
                 </div>
                 <div>
                   <Label htmlFor="icon">الأيقونة</Label>
-                  <Input
-                    id="icon"
-                    value={categoryForm.icon}
-                    onChange={(e) => setCategoryForm(prev => ({ ...prev, icon: e.target.value }))}
-                    placeholder="اسم الأيقونة"
-                  />
+                  <Input id="icon" value={categoryForm.icon} onChange={(e) => setCategoryForm((p) => ({ ...p, icon: e.target.value }))} placeholder="اسم الأيقونة" />
                 </div>
                 <div>
                   <Label htmlFor="parent">القسم الإب</Label>
-                  <Select 
-                    value={categoryForm.parent_id} 
-                    onValueChange={(value) => setCategoryForm(prev => ({ ...prev, parent_id: value }))}
+                  <Select
+                    value={categoryForm.parent_id}
+                    onValueChange={(value) => setCategoryForm((p) => ({ ...p, parent_id: value }))}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="اختر القسم الإب (اختياري)" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">بدون قسم إب</SelectItem>
-                      {categories.filter(cat => cat.id !== editingCategory?.id).map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          {category.title}
-                        </SelectItem>
-                      ))}
+                      {/* NOTE: value must NOT be an empty string. use sentinel NO_PARENT_VALUE */}
+                      <SelectItem value={NO_PARENT_VALUE}>بدون قسم إب</SelectItem>
+                      {categories
+                        .filter((cat) => cat.id !== editingCategory?.id)
+                        .map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.title}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 </div>
-                <Button onClick={saveCategory} className="w-full">
+                <Button onClick={saveCategory} className="w-full" disabled={saving}>
                   {editingCategory ? 'تحديث' : 'إضافة'}
                 </Button>
               </div>
@@ -508,12 +437,7 @@ export default function SectionManagement() {
         <CardContent className="pt-6">
           <div className="relative">
             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <Input
-              placeholder="البحث في الأقسام..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pr-10"
-            />
+            <Input placeholder="البحث في الأقسام..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pr-10" />
           </div>
         </CardContent>
       </Card>
@@ -546,26 +470,22 @@ export default function SectionManagement() {
                       <TableCell>
                         <div>
                           <div className="font-medium">{category.title}</div>
-                          {category.subtitle && (
-                            <div className="text-sm text-muted-foreground">{category.subtitle}</div>
-                          )}
+                          {category.subtitle && <div className="text-sm text-muted-foreground">{category.subtitle}</div>}
                         </div>
                       </TableCell>
                       <TableCell>
                         <code className="text-xs bg-muted px-1 py-0.5 rounded">{category.slug}</code>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={category.status === 'active' ? "default" : "secondary"}>
-                          {category.status === 'active' ? 'نشط' : 'غير نشط'}
-                        </Badge>
+                        <Badge variant={category.status === 'active' ? 'default' : 'secondary'}>{category.status === 'active' ? 'نشط' : 'غير نشط'}</Badge>
                       </TableCell>
                       <TableCell>
                         {managers.length > 0 ? (
                           <div className="flex flex-wrap gap-1">
                             {managers.map((manager) => (
-                              <Badge 
-                                key={manager.id} 
-                                variant="outline" 
+                              <Badge
+                                key={manager.id}
+                                variant="outline"
                                 className="text-xs cursor-pointer hover:bg-destructive hover:text-destructive-foreground transition-colors"
                                 onClick={() => removeCategoryManager(manager.id)}
                                 title="اضغط لحذف المدير"
@@ -579,27 +499,14 @@ export default function SectionManagement() {
                           <span className="text-muted-foreground text-sm">لا يوجد مدراء</span>
                         )}
                       </TableCell>
-                      <TableCell>
-                        {new Date(category.created_at).toLocaleDateString('ar-SA')}
-                      </TableCell>
+                      <TableCell>{new Date(category.created_at).toLocaleDateString('ar-SA')}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
                           <Button
                             variant="outline"
                             size="sm"
                             className="touch-manipulation h-8 w-8 p-0"
-                            onClick={() => {
-                              setEditingCategory(category);
-                              setCategoryForm({
-                                title: category.title,
-                                subtitle: category.subtitle || '',
-                                slug: category.slug,
-                                description: category.description || '',
-                                icon: category.icon || '',
-                                parent_id: category.parent_id || ''
-                              });
-                              setCategoryDialogOpen(true);
-                            }}
+                            onClick={() => openForEdit(category)}
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
@@ -612,15 +519,11 @@ export default function SectionManagement() {
                             <AlertDialogContent>
                               <AlertDialogHeader>
                                 <AlertDialogTitle>حذف القسم</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  هل أنت متأكد من حذف قسم "{category.title}"؟ لا يمكن التراجع عن هذا الإجراء.
-                                </AlertDialogDescription>
+                                <AlertDialogDescription>هل أنت متأكد من حذف قسم "{category.title}"؟ لا يمكن التراجع عن هذا الإجراء.</AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>إلغاء</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => deleteCategory(category.id)}>
-                                  حذف
-                                </AlertDialogAction>
+                                <AlertDialogAction onClick={() => deleteCategory(category.id)}>حذف</AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
@@ -644,14 +547,10 @@ export default function SectionManagement() {
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-sm">{category.title}</h3>
-                          {category.subtitle && (
-                            <p className="text-xs text-muted-foreground mt-0.5">{category.subtitle}</p>
-                          )}
-                          <code className="text-xs bg-muted px-1.5 py-0.5 rounded mt-1 inline-block">
-                            {category.slug}
-                          </code>
+                          {category.subtitle && <p className="text-xs text-muted-foreground mt-0.5">{category.subtitle}</p>}
+                          <code className="text-xs bg-muted px-1.5 py-0.5 rounded mt-1 inline-block">{category.slug}</code>
                         </div>
-                        <Badge variant={category.status === 'active' ? "default" : "secondary"} className="text-xs">
+                        <Badge variant={category.status === 'active' ? 'default' : 'secondary'} className="text-xs">
                           {category.status === 'active' ? 'نشط' : 'غير نشط'}
                         </Badge>
                       </div>
@@ -661,9 +560,9 @@ export default function SectionManagement() {
                           <p className="text-xs text-muted-foreground mb-1.5">المدراء:</p>
                           <div className="flex flex-wrap gap-1">
                             {managers.map((manager) => (
-                              <Badge 
-                                key={manager.id} 
-                                variant="outline" 
+                              <Badge
+                                key={manager.id}
+                                variant="outline"
                                 className="text-xs cursor-pointer hover:bg-destructive hover:text-destructive-foreground transition-colors touch-manipulation"
                                 onClick={() => removeCategoryManager(manager.id)}
                               >
@@ -676,27 +575,9 @@ export default function SectionManagement() {
                       )}
 
                       <div className="flex items-center justify-between pt-2 border-t">
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(category.created_at).toLocaleDateString('ar-SA')}
-                        </span>
+                        <span className="text-xs text-muted-foreground">{new Date(category.created_at).toLocaleDateString('ar-SA')}</span>
                         <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 px-3 touch-manipulation"
-                            onClick={() => {
-                              setEditingCategory(category);
-                              setCategoryForm({
-                                title: category.title,
-                                subtitle: category.subtitle || '',
-                                slug: category.slug,
-                                description: category.description || '',
-                                icon: category.icon || '',
-                                parent_id: category.parent_id || ''
-                              });
-                              setCategoryDialogOpen(true);
-                            }}
-                          >
+                          <Button variant="outline" size="sm" className="h-8 px-3 touch-manipulation" onClick={() => openForEdit(category)}>
                             <Edit className="w-3.5 h-3.5 ml-1" />
                             <span className="text-xs">تعديل</span>
                           </Button>
@@ -709,15 +590,11 @@ export default function SectionManagement() {
                             <AlertDialogContent>
                               <AlertDialogHeader>
                                 <AlertDialogTitle>حذف القسم</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  هل أنت متأكد من حذف "{category.title}"؟
-                                </AlertDialogDescription>
+                                <AlertDialogDescription>هل أنت متأكد من حذف "{category.title}"؟</AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>إلغاء</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => deleteCategory(category.id)}>
-                                  حذف
-                                </AlertDialogAction>
+                                <AlertDialogAction onClick={() => deleteCategory(category.id)}>حذف</AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
@@ -729,18 +606,14 @@ export default function SectionManagement() {
               );
             })}
           </div>
-          
+
           {filteredCategories.length === 0 && (
             <div className="text-center py-8">
               <FolderOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-semibold text-lg mb-2">لا توجد أقسام</h3>
-              <p className="text-muted-foreground mb-4">
-                {searchTerm ? 'لم يتم العثور على أقسام تطابق البحث' : 'لا توجد أقسام في النظام'}
-              </p>
+              <p className="text-muted-foreground mb-4">{searchTerm ? 'لم يتم العثور على أقسام تطابق البحث' : 'لا توجد أقسام في النظام'}</p>
               {!searchTerm && (
-                <Button onClick={() => setCategoryDialogOpen(true)}>
-                  إضافة قسم جديد
-                </Button>
+                <Button onClick={() => setCategoryDialogOpen(true)}>إضافة قسم جديد</Button>
               )}
             </div>
           )}

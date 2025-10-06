@@ -172,11 +172,10 @@ export default function SectionManagement() {
         slug: categoryForm.slug.toLowerCase().trim(),
         description: categoryForm.description?.trim() || null,
         icon: categoryForm.icon?.trim() || null,
-        // convert sentinel to actual null for DB
         parent_id: categoryForm.parent_id === NO_PARENT_VALUE ? null : categoryForm.parent_id,
         order_index: editingCategory ? editingCategory.order_index : categories.length,
         status: 'active',
-      } as Partial<Category>;
+      };
 
       let error;
       if (editingCategory) {

@@ -1,250 +1,213 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Home, Car, Sofa, MapPin, Smartphone, Package, ChevronRight } from "lucide-react";
+import * as Icons from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-interface CategoryOption {
+import { Skeleton } from "@/components/ui/skeleton";
+
+interface DbCategory {
   id: string;
   title: string;
-  count: number;
-  description: string;
-}
-
-interface Category {
-  title: string;
-  subtitle: string;
-  icon: any;
-  count: number;
-  gradient: string;
-  options?: CategoryOption[];
+  subtitle: string | null;
+  slug: string;
+  icon: string | null;
+  status: string;
+  order_index: number;
 }
 
 const ExploreSection = () => {
   const navigate = useNavigate();
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [dynamicCounts, setDynamicCounts] = useState<Record<string, number>>({});
-  const categories: Category[] = [
-    {
-      title: "شقق سكنية",
-      subtitle: "شقق للبيع والإيجار",
-      icon: Home,
-      count: 342,
-      gradient: "bg-gradient-card",
-      options: [
-        { id: "1-room", title: "غرفة واحدة", count: 45, description: "استوديو أو غرفة واحدة" },
-        { id: "2-rooms", title: "غرفتان", count: 89, description: "شقق بغرفتي نوم" },
-        { id: "3-rooms", title: "ثلاث غرف", count: 126, description: "شقق عائلية بثلاث غرف" },
-        { id: "4-plus-rooms", title: "أربع غرف أو أكثر", count: 82, description: "شقق كبيرة للعائلات الكبيرة" }
-      ]
-    },
-    {
-      title: "أراضي",
-      subtitle: "أراضي سكنية وتجارية",
-      icon: MapPin,
-      count: 156,
-      gradient: "bg-gradient-card",
-      options: [
-        { id: "residential", title: "أراضي سكنية", count: 89, description: "للإسكان الشخصي" },
-        { id: "commercial", title: "أراضي تجارية", count: 45, description: "للمشاريع التجارية" },
-        { id: "agricultural", title: "أراضي زراعية", count: 22, description: "للأنشطة الزراعية" }
-      ]
-    },
-    {
-      title: "سيارات",
-      subtitle: "سيارات جديدة ومستعملة",
-      icon: Car,
-      count: 248,
-      gradient: "bg-gradient-card",
-      options: [
-        { id: "new-cars", title: "سيارات جديدة", count: 78, description: "موديلات حديثة" },
-        { id: "used-cars", title: "سيارات مستعملة", count: 170, description: "بحالة ممتازة" }
-      ]
-    },
-    {
-      title: "أثاث منزلي",
-      subtitle: "أثاث وديكورات",
-      icon: Sofa,
-      count: 189,
-      gradient: "bg-gradient-card"
-    },
-    {
-      title: "إلكترونيات",
-      subtitle: "جوالات وأجهزة",
-      icon: Smartphone,
-      count: 98,
-      gradient: "bg-gradient-card"
-    },
-    {
-      title: "مستلزمات عامة",
-      subtitle: "مستعمل ومتنوع",
-      icon: Package,
-      count: 167,
-      gradient: "bg-gradient-card"
-    }
-  ];
+  const [categories, setCategories] = useState<DbCategory[]>([]);
+  const [counts, setCounts] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchCounts = async () => {
+    const fetchData = async () => {
       try {
-        const filters: Record<string, { category?: string; property_type?: string }> = {
-          'شقق سكنية': { category: 'real-estate' },
-          'أراضي': { property_type: 'land' },
-          'سيارات': { category: 'cars' },
-          'أثاث منزلي': { category: 'furniture' },
-          'إلكترونيات': { category: 'electronics' },
-          'مستلزمات عامة': { category: 'general' },
-        };
+        // Fetch categories from database
+        const { data: categoriesData, error: categoriesError } = await supabase
+          .from('categories')
+          .select('*')
+          .eq('status', 'active')
+          .is('parent_id', null)
+          .order('order_index', { ascending: true });
 
-        const entries = Object.entries(filters);
-        const results = await Promise.all(entries.map(async ([title, f]) => {
-          let query = supabase
-            .from('properties')
-            .select('*', { count: 'exact', head: true })
-            .eq('status', 'active');
-          if (f.category) query = query.eq('category', f.category);
-          if (f.property_type) query = query.eq('property_type', f.property_type);
-          const { count } = await query;
-          return [title, count || 0] as const;
-        }));
+        if (categoriesError) throw categoriesError;
 
-        const mapped: Record<string, number> = {};
-        results.forEach(([title, count]) => {
-          mapped[title] = count;
-        });
-        setDynamicCounts(mapped);
-      } catch (e) {
-        console.error('Failed to load category counts', e);
+        setCategories(categoriesData || []);
+
+        // Fetch counts for each category
+        if (categoriesData && categoriesData.length > 0) {
+          const countsPromises = categoriesData.map(async (cat) => {
+            const { count } = await supabase
+              .from('properties')
+              .select('*', { count: 'exact', head: true })
+              .eq('status', 'active')
+              .eq('category', cat.slug);
+            
+            return [cat.id, count || 0] as const;
+          });
+
+          const countsResults = await Promise.all(countsPromises);
+          const countsMap: Record<string, number> = {};
+          countsResults.forEach(([id, count]) => {
+            countsMap[id] = count;
+          });
+          setCounts(countsMap);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchCounts();
+
+    fetchData();
   }, []);
 
-  const handleCategoryClick = (category: Category) => {
-    if (category.options) {
-      setSelectedCategory(selectedCategory === category.title ? null : category.title);
-    } else {
-      navigate(`/properties?category=${encodeURIComponent(category.title)}`);
-    }
+  const getIconComponent = (iconName: string | null) => {
+    if (!iconName) return Icons.Package;
+    const Icon = (Icons as any)[iconName];
+    return Icon || Icons.Package;
   };
 
-  const handleOptionClick = (categoryTitle: string, option: CategoryOption) => {
-    navigate(`/properties?category=${encodeURIComponent(categoryTitle)}&subcategory=${encodeURIComponent(option.id)}`);
+  const handleCategoryClick = (category: DbCategory) => {
+    navigate(`/properties?category=${category.slug}`);
   };
 
-  const selectedCategoryData = categories.find(c => c.title === selectedCategory);
+  if (loading) {
+    return (
+      <section className="py-16 px-4 bg-background">
+        <div className="container mx-auto">
+          <div className="text-center mb-12">
+            <Skeleton className="h-10 w-64 mx-auto mb-4" />
+            <Skeleton className="h-6 w-96 mx-auto" />
+          </div>
+          <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
+            {[...Array(6)].map((_, i) => (
+              <Skeleton key={i} className="h-32 sm:h-40 md:h-48" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <section className="py-16 px-4 bg-background">
-      <div className="container mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 font-arabic">
+    <section className="py-12 sm:py-16 px-3 sm:px-4 bg-background relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 bg-gradient-hero opacity-30 pointer-events-none" />
+      <div className="absolute top-20 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl pointer-events-none" />
+      
+      <div className="container mx-auto relative z-10">
+        {/* Header */}
+        <div className="text-center mb-8 sm:mb-12 animate-fade-in">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4 font-arabic">
             استكشف جميع الأقسام
           </h2>
-          <p className="text-muted-foreground text-lg font-arabic">
+          <p className="text-muted-foreground text-base sm:text-lg font-arabic px-4">
             اختر القسم المناسب لك واستكشف أفضل العروض المتاحة
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {/* Categories Grid - 3 columns on mobile, 6 on desktop */}
+        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 md:gap-6 mb-8 sm:mb-12">
           {categories.map((category, index) => {
-            const IconComponent = category.icon;
-            const isExpanded = selectedCategory === category.title;
+            const IconComponent = getIconComponent(category.icon);
+            const count = counts[category.id] || 0;
+            const isHovered = hoveredCard === category.id;
             
             return (
-              <div key={index} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+              <div 
+                key={category.id} 
+                className="animate-fade-in"
+                style={{ animationDelay: `${index * 0.05}s` }}
+              >
                 <Card 
-                  className={`group cursor-pointer transition-all duration-300 hover:shadow-elegant hover:-translate-y-1 border-border/50 bg-card/80 backdrop-blur-sm ${
-                    isExpanded ? 'ring-2 ring-primary/50 shadow-glow' : ''
-                  }`}
+                  className={`group cursor-pointer transition-all duration-500 hover:shadow-elegant border-border/50 bg-card/80 backdrop-blur-sm overflow-hidden h-full
+                    ${isHovered ? 'scale-105 shadow-glow ring-2 ring-primary/30' : 'hover:scale-105'}
+                  `}
                   onClick={() => handleCategoryClick(category)}
+                  onMouseEnter={() => setHoveredCard(category.id)}
+                  onMouseLeave={() => setHoveredCard(null)}
                 >
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-2xl bg-gradient-primary shadow-glow">
-                          <IconComponent className="w-6 h-6 text-primary-foreground" />
-                        </div>
-                        <div className="text-right">
-                          <h3 className="font-bold text-foreground mb-1 font-arabic group-hover:text-primary transition-colors">
-                            {category.title}
-                          </h3>
-                          <p className="text-sm text-muted-foreground font-arabic">
-                            {category.subtitle}
-                          </p>
-                        </div>
+                  <CardContent className="p-3 sm:p-4 md:p-6 flex flex-col items-center text-center h-full relative">
+                    {/* Animated background gradient on hover */}
+                    <div className={`absolute inset-0 bg-gradient-primary opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
+                    
+                    {/* Icon */}
+                    <div className={`p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-gradient-primary mb-2 sm:mb-3 md:mb-4 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 relative z-10
+                      ${isHovered ? 'shadow-glow animate-pulse' : 'shadow-card'}
+                    `}>
+                      <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-primary-foreground" />
+                    </div>
+                    
+                    {/* Title */}
+                    <h3 className="font-bold text-foreground text-xs sm:text-sm md:text-base font-arabic group-hover:text-primary transition-colors duration-300 mb-1 sm:mb-2 line-clamp-2 relative z-10">
+                      {category.title}
+                    </h3>
+                    
+                    {/* Subtitle - hidden on mobile for space */}
+                    {category.subtitle && (
+                      <p className="hidden sm:block text-xs text-muted-foreground font-arabic mb-2 sm:mb-3 line-clamp-1 relative z-10">
+                        {category.subtitle}
+                      </p>
+                    )}
+                    
+                    {/* Count Badge */}
+                    <div className="mt-auto relative z-10">
+                      <div className={`inline-flex items-center justify-center px-2 sm:px-3 py-1 rounded-full bg-primary/10 border border-primary/20 transition-all duration-300 group-hover:bg-primary group-hover:border-primary
+                        ${isHovered ? 'scale-110' : ''}
+                      `}>
+                        <span className={`text-xs sm:text-sm font-bold font-arabic transition-colors duration-300
+                          ${isHovered ? 'text-primary-foreground' : 'text-primary'}
+                        `}>
+                          {count}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <div className="text-right">
-                          <div className="text-2xl font-bold text-primary font-arabic">
-                            {dynamicCounts[category.title] ?? category.count}
-                          </div>
-                          <div className="text-xs text-muted-foreground font-arabic">
-                            عرض متاح
-                          </div>
-                        </div>
-                        {category.options && (
-                          <ChevronRight 
-                            className={`w-5 h-5 text-muted-foreground transition-transform duration-300 ${
-                              isExpanded ? 'rotate-90' : ''
-                            }`} 
-                          />
-                        )}
-                      </div>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground font-arabic mt-1">
+                        عرض متاح
+                      </p>
+                    </div>
+
+                    {/* Hover indicator arrow */}
+                    <div className={`absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0`}>
+                      <Icons.ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
                     </div>
                   </CardContent>
                 </Card>
-
-                {/* Expandable Options */}
-                {isExpanded && selectedCategoryData?.options && (
-                  <div className="mt-4 space-y-3 animate-fade-in">
-                    {selectedCategoryData.options.map((option, optionIndex) => (
-                      <Card 
-                        key={option.id}
-                        className="group cursor-pointer transition-all duration-300 hover:shadow-md hover:bg-muted/50 border-border/30 bg-muted/20 backdrop-blur-sm ml-8"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOptionClick(selectedCategoryData.title, option);
-                        }}
-                        style={{ animationDelay: `${optionIndex * 0.1}s` }}
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div className="text-right flex-1">
-                              <h4 className="font-semibold text-foreground mb-1 font-arabic group-hover:text-primary transition-colors">
-                                {option.title}
-                              </h4>
-                              <p className="text-sm text-muted-foreground font-arabic">
-                                {option.description}
-                              </p>
-                            </div>
-                            <div className="text-left ml-4">
-                              <div className="text-lg font-bold text-primary font-arabic">
-                                {option.count}
-                              </div>
-                              <div className="text-xs text-muted-foreground font-arabic">
-                                عرض
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
               </div>
             );
           })}
         </div>
 
-        <div className="text-center">
+        {/* View All Button */}
+        <div className="text-center animate-fade-in">
           <Button 
             onClick={() => navigate('/properties')} 
-            className="bg-gradient-primary text-primary-foreground px-8 py-3 rounded-2xl font-semibold hover:shadow-glow transition-all duration-300 font-arabic"
+            size="lg"
+            className="bg-gradient-primary text-primary-foreground px-6 sm:px-8 md:px-10 py-4 sm:py-5 md:py-6 rounded-xl sm:rounded-2xl font-semibold text-sm sm:text-base md:text-lg hover:shadow-glow transition-all duration-500 font-arabic group hover:scale-105 active:scale-95"
           >
-            عرض جميع الأقسام
+            <span>عرض جميع الأقسام</span>
+            <Icons.ArrowLeft className="mr-2 w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:-translate-x-1" />
           </Button>
         </div>
+
+        {/* Empty State */}
+        {categories.length === 0 && !loading && (
+          <div className="text-center py-12 animate-fade-in">
+            <Icons.PackageOpen className="w-16 h-16 sm:w-20 sm:h-20 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2 font-arabic">
+              لا توجد أقسام متاحة حالياً
+            </h3>
+            <p className="text-muted-foreground font-arabic text-sm sm:text-base">
+              سنضيف المزيد من الأقسام قريباً
+            </p>
+          </div>
+        )}
       </div>
     </section>
   );

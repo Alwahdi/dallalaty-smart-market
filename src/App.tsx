@@ -13,7 +13,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
-import Properties from "./pages/Properties";
+import Properties from "./pages/PropertiesNew";
 import ProductDetail from "./pages/ProductDetail";
 import AccountSettings from "./pages/AccountSettings";
 import Favorites from "./pages/Favorites";

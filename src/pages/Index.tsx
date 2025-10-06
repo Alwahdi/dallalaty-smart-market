@@ -5,14 +5,11 @@ import Onboarding from "@/components/Onboarding";
 import HeaderNew from "@/components/HeaderNew";
 import HeaderMobile from "@/components/HeaderMobile";
 import BottomNavigation from "@/components/BottomNavigation";
-import Hero from "@/components/Hero";
 import ExploreSection from "@/components/ExploreSection";
-import SearchSection from "@/components/SearchSection";
 import PropertyCard from "@/components/PropertyCardNew";
 import PropertyCardSkeleton from "@/components/PropertyCardSkeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
-import heroImage from "@/assets/hero-apartment-backup.jpg";
 
 const Index = () => {
   const { user } = useAuth();
@@ -78,12 +75,6 @@ const Index = () => {
       <main className="pb-20 md:pb-0">
         {/* الأقسام الرئيسية - أول قسم في الصفحة */}
         <ExploreSection />
-
-        {/* القسم الترويجي */}
-        <Hero />
-
-        {/* البحث المتقدم */}
-        <SearchSection />
 
         {/* العروض المميزة */}
         <section className="py-16 px-4 bg-muted/30">

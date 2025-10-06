@@ -226,7 +226,16 @@ export function useNotifications() {
           console.log('New notification received:', payload);
           fetchNotifications();
           
-          // Send local notification for immediate feedback
+          // Show toast notification for 3 seconds when user is in app
+          if (payload.new && typeof window !== 'undefined') {
+            const { toast } = require('@/components/ui/sonner');
+            toast(payload.new.title as string, {
+              description: payload.new.message as string,
+              duration: 3000,
+            });
+          }
+          
+          // Send local notification for mobile
           if (payload.new) {
             sendLocalNotification(
               payload.new.title as string,

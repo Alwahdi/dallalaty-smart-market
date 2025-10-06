@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import appIcon from "@/assets/app-icon.png";
 
 interface HeaderMobileProps {
   isDark: boolean;
@@ -33,8 +34,8 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
         <div className="flex items-center justify-between">
           {/* الشعار */}
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
-            <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center shadow-glow flex-shrink-0">
-              <span className="text-lg font-bold text-primary-foreground">م</span>
+            <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+              <img src={appIcon} alt="App Icon" className="w-full h-full object-cover" />
             </div>
             <div className="text-right min-w-0">
               <h1 className="text-base sm:text-lg font-bold font-arabic bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent truncate">

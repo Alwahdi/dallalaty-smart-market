@@ -5,8 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, BarChart3, Users, FolderOpen, Bell, Shield, Home } from 'lucide-react';
-import appIcon from "@/assets/app-icon.png";
+import { ArrowRight, BarChart3, Users, FolderOpen, Bell, Building2, Shield, Home } from 'lucide-react';
 import AdminNotifications from '@/components/admin/AdminNotifications';
 import UserManagement from '@/components/admin/UserManagement';
 import SectionManagement from '@/components/admin/SectionManagement';
@@ -56,7 +55,7 @@ export default function AdminPanel() {
   const tabs = [
     { id: 'dashboard', label: 'لوحة المعلومات', icon: BarChart3, show: true },
     { id: 'users', label: 'إدارة المستخدمين', icon: Users, show: isAdmin },
-    { id: 'properties', label: 'إدارة العقارات', icon: () => <img src={appIcon} className="w-5 h-5" />, show: isAdmin || isPropertiesAdmin },
+    { id: 'properties', label: 'إدارة العقارات', icon: Building2, show: isAdmin || isPropertiesAdmin },
     { id: 'sections', label: 'إدارة الأقسام', icon: FolderOpen, show: isAdmin || isCategoriesAdmin },
     { id: 'notifications', label: 'الإشعارات', icon: Bell, show: isAdmin || isNotificationsAdmin }
   ];
@@ -106,7 +105,7 @@ export default function AdminPanel() {
               <div className="text-base sm:text-lg lg:text-2xl font-bold text-blue-600">{stats.properties.toLocaleString('ar')}</div>
             </div>
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500/10 rounded-lg flex items-center justify-center group-hover:bg-blue-500/20 transition-colors duration-300 flex-shrink-0">
-              <img src={appIcon} className="h-5 w-5" />
+              <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
             </div>
           </CardHeader>
           <CardContent className="relative pt-0 p-3 sm:p-6">
@@ -230,7 +229,7 @@ export default function AdminPanel() {
                 onClick={() => setActiveTab('properties')}
               >
                 <div className="w-9 h-9 sm:w-10 sm:h-10 bg-blue-500/10 rounded-xl flex items-center justify-center group-hover:bg-blue-500/20 transition-colors duration-200 flex-shrink-0">
-                  <img src={appIcon} className="w-5 h-5" />
+                  <Building2 className="w-4 h-4 sm:w-5 sm:w-5 text-blue-500" />
                 </div>
                 <div className="text-right flex-1 min-w-0">
                   <div className="font-semibold text-xs sm:text-sm">إدارة العقارات</div>

@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import NotificationCenter from '@/components/NotificationCenter';
 import { supabase } from '@/integrations/supabase/client';
-import appIcon from "@/assets/app-icon.png";
 
 interface HeaderProps {
   isDark: boolean;
@@ -47,8 +46,8 @@ const Header = ({ isDark, toggleTheme }: HeaderProps) => {
         <div className="flex items-center justify-between">
           {/* الشعار */}
           <Link to="/" className="flex items-center space-x-2 rtl:space-x-reverse">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden shadow-glow">
-              <img src={appIcon} alt="App Icon" className="w-full h-full object-cover" />
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shadow-glow">
+              <Building2 className="w-6 h-6 text-primary" />
             </div>
             <div className="text-right">
               <h1 className="text-xl font-bold font-arabic bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">

@@ -1,5 +1,4 @@
-import { Home, Heart } from "lucide-react";
-import appIcon from "@/assets/app-icon.png";
+import { Home, Heart, Building2 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -22,7 +21,7 @@ const BottomNavigation = () => {
       badge: null,
     },
     {
-      icon: () => <img src={appIcon} alt="العقارات" className="w-5 h-5" />,
+      icon: Building2,
       label: "العقارات",
       path: "/properties",
       badge: null,

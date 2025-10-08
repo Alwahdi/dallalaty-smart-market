@@ -11,8 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, Search, Eye, ImagePlus } from 'lucide-react';
-import appIcon from "@/assets/app-icon.png";
+import { Plus, Edit, Trash2, Search, Eye, ImagePlus, Building2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import MediaUpload from '@/components/MediaUpload';
@@ -326,7 +325,7 @@ export default function PropertyManagement() {
       <div className="flex flex-col gap-3">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
-            <img src={appIcon} alt="إدارة العقارات" className="w-6 h-6 sm:w-7 sm:h-7 drop-shadow-md" />
+            <Building2 className="w-6 h-6 sm:w-7 sm:h-7 text-primary drop-shadow-md" />
             إدارة العقارات
           </h2>
           <p className="text-sm text-muted-foreground mt-1">إدارة جميع العقارات والإعلانات في النظام</p>
@@ -750,7 +749,7 @@ export default function PropertyManagement() {
           
           {filteredProperties.length === 0 && (
             <div className="text-center py-8">
-              <img src={appIcon} alt="لا توجد عقارات" className="w-16 h-16 opacity-50 mx-auto mb-4" />
+              <Building2 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-semibold text-lg mb-2">لا توجد عقارات</h3>
               <p className="text-muted-foreground mb-4">
                 {searchTerm ? 'لم يتم العثور على عقارات تطابق البحث' : 'لا توجد عقارات في النظام'}

@@ -8,7 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Phone, Mail, User, Building2 } from 'lucide-react';
+import { Loader2, Phone, Mail, User } from 'lucide-react';
+import appIcon from "@/assets/app-icon.png";
 
 export default function Auth() {
   const { user, signIn, signUp, loading: authLoading } = useAuth();
@@ -111,7 +112,7 @@ export default function Auth() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <Building2 className="h-12 w-12 text-primary" />
+            <img src={appIcon} alt="متجر إب الشامل" className="h-16 w-16 drop-shadow-lg" />
           </div>
           <h1 className="text-3xl font-bold text-foreground">متجر إب الشامل</h1>
           <p className="text-muted-foreground mt-2">منصة العقارات الذكية</p>

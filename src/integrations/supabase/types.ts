@@ -250,6 +250,7 @@ export type Database = {
           status: string
           title: string
           updated_at: string
+          videos: string[] | null
           year: number | null
         }
         Insert: {
@@ -283,6 +284,7 @@ export type Database = {
           status?: string
           title: string
           updated_at?: string
+          videos?: string[] | null
           year?: number | null
         }
         Update: {
@@ -316,6 +318,7 @@ export type Database = {
           status?: string
           title?: string
           updated_at?: string
+          videos?: string[] | null
           year?: number | null
         }
         Relationships: []

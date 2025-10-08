@@ -11,10 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Building2, Plus, Edit, Trash2, Search, Eye, ImagePlus } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Eye, ImagePlus } from 'lucide-react';
+import appIcon from "@/assets/app-icon.png";
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import ImageUpload from '@/components/ImageUpload';
+import MediaUpload from '@/components/MediaUpload';
 
 interface Property {
   id: string;
@@ -30,6 +31,7 @@ interface Property {
   area_sqm?: number;
   description?: string;
   images?: string[];
+  videos?: string[];
   amenities?: string[];
   status: string;
   agent_name?: string;
@@ -77,6 +79,7 @@ export default function PropertyManagement() {
     status: 'active'
   });
   const [propertyImages, setPropertyImages] = useState<string[]>([]);
+  const [propertyVideos, setPropertyVideos] = useState<string[]>([]);
   const [propertyDialogOpen, setPropertyDialogOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
 
@@ -149,7 +152,8 @@ export default function PropertyManagement() {
         category: propertyForm.category || null,
         status: propertyForm.status,
         agent_id: user?.id || null,
-        images: propertyImages
+        images: propertyImages,
+        videos: propertyVideos
       };
 
       let error;
@@ -256,6 +260,7 @@ export default function PropertyManagement() {
       status: 'active'
     });
     setPropertyImages([]);
+    setPropertyVideos([]);
     setEditingProperty(null);
   };
 
@@ -280,6 +285,7 @@ export default function PropertyManagement() {
       status: property.status
     });
     setPropertyImages(property.images || []);
+    setPropertyVideos(property.videos || []);
     setPropertyDialogOpen(true);
   };
 
@@ -320,7 +326,7 @@ export default function PropertyManagement() {
       <div className="flex flex-col gap-3">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
-            <Building2 className="w-5 h-5 sm:w-6 sm:h-6" />
+            <img src={appIcon} alt="إدارة العقارات" className="w-6 h-6 sm:w-7 sm:h-7 drop-shadow-md" />
             إدارة العقارات
           </h2>
           <p className="text-sm text-muted-foreground mt-1">إدارة جميع العقارات والإعلانات في النظام</p>
@@ -470,13 +476,16 @@ export default function PropertyManagement() {
               <div className="md:col-span-2">
                 <Label className="flex items-center gap-2">
                   <ImagePlus className="w-4 h-4" />
-                  صور العقار
+                  الوسائط (صور وفيديو)
                 </Label>
                 <div className="mt-2">
-                  <ImageUpload
+                  <MediaUpload
                     images={propertyImages}
+                    videos={propertyVideos}
                     onImagesChange={setPropertyImages}
+                    onVideosChange={setPropertyVideos}
                     maxImages={10}
+                    maxVideos={2}
                     bucketName="properties"
                     folder="property-images"
                   />
@@ -741,7 +750,7 @@ export default function PropertyManagement() {
           
           {filteredProperties.length === 0 && (
             <div className="text-center py-8">
-              <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <img src={appIcon} alt="لا توجد عقارات" className="w-16 h-16 opacity-50 mx-auto mb-4" />
               <h3 className="font-semibold text-lg mb-2">لا توجد عقارات</h3>
               <p className="text-muted-foreground mb-4">
                 {searchTerm ? 'لم يتم العثور على عقارات تطابق البحث' : 'لا توجد عقارات في النظام'}

@@ -26,7 +26,8 @@ import {
   Loader2,
   ImageIcon,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Play
 } from 'lucide-react';
 import HeaderNew from '@/components/HeaderNew';
 import HeaderMobile from '@/components/HeaderMobile';
@@ -49,6 +50,7 @@ interface Property {
   city: string;
   neighborhood: string;
   images: string[];
+  videos?: string[];
   amenities: string[];
   listing_type: string;
   agent_name: string;
@@ -232,14 +234,20 @@ export default function ProductDetail() {
   };
 
   const nextImage = () => {
-    if (property && property.images.length > 1) {
-      setCurrentImageIndex((prev) => (prev + 1) % property.images.length);
+    if (property) {
+      const totalMedia = (property.videos?.length || 0) + property.images.length;
+      if (totalMedia > 1) {
+        setCurrentImageIndex((prev) => (prev + 1) % totalMedia);
+      }
     }
   };
 
   const prevImage = () => {
-    if (property && property.images.length > 1) {
-      setCurrentImageIndex((prev) => (prev - 1 + property.images.length) % property.images.length);
+    if (property) {
+      const totalMedia = (property.videos?.length || 0) + property.images.length;
+      if (totalMedia > 1) {
+        setCurrentImageIndex((prev) => (prev - 1 + totalMedia) % totalMedia);
+      }
     }
   };
 
@@ -299,25 +307,34 @@ export default function ProductDetail() {
         </Button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Images Section */}
+          {/* Images & Videos Section */}
           <div className="lg:col-span-2">
             <div className="relative bg-card rounded-2xl overflow-hidden shadow-card">
-              {property.images && property.images.length > 0 ? (
+              {((property.images && property.images.length > 0) || (property.videos && property.videos.length > 0)) ? (
                 <>
                   <div className="relative aspect-video">
-                    <img
-                      src={property.images[currentImageIndex]}
-                      alt={property.title}
-                      className="w-full h-full object-cover"
-                    />
+                    {property.videos && property.videos.length > 0 && currentImageIndex < property.videos.length ? (
+                      <video
+                        src={property.videos[currentImageIndex]}
+                        className="w-full h-full object-cover"
+                        controls
+                        playsInline
+                      />
+                    ) : (
+                      <img
+                        src={property.images[currentImageIndex - (property.videos?.length || 0)]}
+                        alt={property.title}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
                     
                     {/* Navigation Arrows */}
-                    {property.images.length > 1 && (
+                    {((property.videos?.length || 0) + property.images.length) > 1 && (
                       <>
                         <Button
                           variant="secondary"
                           size="icon"
-                          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-background/80 backdrop-blur-sm"
+                          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background touch-manipulation"
                           onClick={prevImage}
                         >
                           <ChevronLeft className="w-4 h-4" />
@@ -325,7 +342,7 @@ export default function ProductDetail() {
                         <Button
                           variant="secondary"
                           size="icon"
-                          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-background/80 backdrop-blur-sm"
+                          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background touch-manipulation"
                           onClick={nextImage}
                         >
                           <ChevronRight className="w-4 h-4" />
@@ -333,24 +350,42 @@ export default function ProductDetail() {
                       </>
                     )}
 
-                    {/* Image Counter */}
-                    {property.images.length > 1 && (
+                    {/* Media Counter */}
+                    {((property.videos?.length || 0) + property.images.length) > 1 && (
                       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-background/80 backdrop-blur-sm rounded-full px-3 py-1 text-sm">
-                        {currentImageIndex + 1} من {property.images.length}
+                        {currentImageIndex + 1} من {(property.videos?.length || 0) + property.images.length}
                       </div>
                     )}
                   </div>
 
                   {/* Thumbnail Gallery */}
-                  {property.images.length > 1 && (
+                  {((property.videos?.length || 0) + property.images.length) > 1 && (
                     <div className="p-4">
-                      <div className="flex gap-2 overflow-x-auto">
+                      <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                        {property.videos?.map((video, index) => (
+                          <button
+                            key={`video-${index}`}
+                            onClick={() => setCurrentImageIndex(index)}
+                            className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 touch-manipulation ${
+                              index === currentImageIndex ? 'border-primary' : 'border-transparent'
+                            }`}
+                          >
+                            <video
+                              src={video}
+                              className="w-full h-full object-cover"
+                              muted
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                              <Play className="w-4 h-4 text-white" />
+                            </div>
+                          </button>
+                        ))}
                         {property.images.map((image, index) => (
                           <button
-                            key={index}
-                            onClick={() => setCurrentImageIndex(index)}
-                            className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${
-                              index === currentImageIndex ? 'border-primary' : 'border-transparent'
+                            key={`image-${index}`}
+                            onClick={() => setCurrentImageIndex((property.videos?.length || 0) + index)}
+                            className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 touch-manipulation ${
+                              (property.videos?.length || 0) + index === currentImageIndex ? 'border-primary' : 'border-transparent'
                             }`}
                           >
                             <img

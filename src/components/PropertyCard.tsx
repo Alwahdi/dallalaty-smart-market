@@ -13,6 +13,7 @@ interface PropertyCardProps {
   type: "rent" | "sale";
   status: "new" | "used";
   images: string[];
+  videos?: string[];
   isLiked: boolean;
   onLike: () => void;
   onShare: () => void;
@@ -29,71 +30,86 @@ const PropertyCard = ({
   bathrooms, 
   type, 
   status, 
-  images, 
+  images,
+  videos = [],
   isLiked, 
   onLike, 
   onShare, 
   onContact, 
   onClick 
 }: PropertyCardProps) => {
+  const hasMedia = images.length > 0 || videos.length > 0;
+  const firstMedia = videos.length > 0 ? videos[0] : images[0];
   return (
     <div className="group cursor-pointer bg-gradient-card rounded-2xl overflow-hidden shadow-card hover:shadow-elegant transition-all duration-500 border border-border/30 hover:border-primary/30">
-      {/* صورة العقار */}
+      {/* صورة/فيديو العقار */}
       <div className="relative overflow-hidden">
-        <div 
-          className="w-full h-48 bg-cover bg-center transform group-hover:scale-110 transition-transform duration-700"
-          style={{ backgroundImage: `url(${images[0]})` }}
-        >
-          {/* طبقة التحسين */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        {videos.length > 0 ? (
+          <div className="relative w-full h-48">
+            <video
+              src={videos[0]}
+              className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+              muted
+              playsInline
+              loop
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </div>
+        ) : (
+          <div 
+            className="w-full h-48 bg-cover bg-center transform group-hover:scale-110 transition-transform duration-700"
+            style={{ backgroundImage: `url(${images[0]})` }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </div>
+        )}
           
-          {/* شارات الحالة */}
-          <div className="absolute top-3 right-3 flex flex-col space-y-2">
-            <Badge 
-              variant={type === 'rent' ? 'secondary' : 'default'}
-              className="bg-primary/90 text-primary-foreground backdrop-blur-sm font-arabic"
-            >
-              {type === 'rent' ? 'للإيجار' : 'للبيع'}
-            </Badge>
-            <Badge 
-              variant="outline"
-              className="bg-background/90 backdrop-blur-sm font-arabic"
-            >
-              {status === 'new' ? 'جديد' : 'مستعمل'}
-            </Badge>
-          </div>
+        {/* شارات الحالة */}
+        <div className="absolute top-3 right-3 flex flex-col space-y-2">
+          <Badge 
+            variant={type === 'rent' ? 'secondary' : 'default'}
+            className="bg-primary/90 text-primary-foreground backdrop-blur-sm font-arabic"
+          >
+            {type === 'rent' ? 'للإيجار' : 'للبيع'}
+          </Badge>
+          <Badge 
+            variant="outline"
+            className="bg-background/90 backdrop-blur-sm font-arabic"
+          >
+            {status === 'new' ? 'جديد' : 'مستعمل'}
+          </Badge>
+        </div>
 
-          {/* أزرار التفاعل */}
-          <div className="absolute top-3 left-3 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <Button
-              size="icon"
-              variant="secondary"
-              className="w-8 h-8 bg-background/80 backdrop-blur-sm hover:bg-background"
-              onClick={(e) => {
-                e.stopPropagation();
-                onLike();
-              }}
-            >
-              <Heart className={`w-4 h-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
-            </Button>
-            <Button
-              size="icon"
-              variant="secondary"
-              className="w-8 h-8 bg-background/80 backdrop-blur-sm hover:bg-background"
-              onClick={(e) => {
-                e.stopPropagation();
-                onShare();
-              }}
-            >
-              <Share2 className="w-4 h-4" />
-            </Button>
-          </div>
+        {/* أزرار التفاعل */}
+        <div className="absolute top-3 left-3 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <Button
+            size="icon"
+            variant="secondary"
+            className="w-8 h-8 bg-background/80 backdrop-blur-sm hover:bg-background"
+            onClick={(e) => {
+              e.stopPropagation();
+              onLike();
+            }}
+          >
+            <Heart className={`w-4 h-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+          </Button>
+          <Button
+            size="icon"
+            variant="secondary"
+            className="w-8 h-8 bg-background/80 backdrop-blur-sm hover:bg-background"
+            onClick={(e) => {
+              e.stopPropagation();
+              onShare();
+            }}
+          >
+            <Share2 className="w-4 h-4" />
+          </Button>
+        </div>
 
-          {/* عداد المشاهدات */}
-          <div className="absolute bottom-3 left-3 flex items-center space-x-1 rtl:space-x-reverse bg-black/50 text-white px-2 py-1 rounded-lg text-xs backdrop-blur-sm">
-            <Eye className="w-3 h-3" />
-            <span className="font-arabic">١٢٠</span>
-          </div>
+        {/* عداد المشاهدات */}
+        <div className="absolute bottom-3 left-3 flex items-center space-x-1 rtl:space-x-reverse bg-black/50 text-white px-2 py-1 rounded-lg text-xs backdrop-blur-sm">
+          <Eye className="w-3 h-3" />
+          <span className="font-arabic">١٢٠</span>
         </div>
       </div>
 

@@ -293,48 +293,44 @@ export default function AdminPanel() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5" dir="rtl">
       {/* Mobile Header with Tab Navigation */}
-      <div className="lg:hidden sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border/50">
-        <div className="flex items-center justify-between p-4">
+      <div className="lg:hidden sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border/50 shadow-sm">
+        <div className="flex items-center justify-between px-3 py-3">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => navigate('/')}
-            className="hover:bg-primary/10"
+            className="hover:bg-primary/10 touch-manipulation h-10 w-10"
           >
-            <ArrowRight className="w-5 h-5" />
+            <Home className="w-5 h-5" />
           </Button>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
-              <Shield className="w-4 h-4 text-primary-foreground" />
+            <div className="w-9 h-9 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-md">
+              <Shield className="w-5 h-5 text-primary-foreground" />
             </div>
-            <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+            <h1 className="text-base font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
               لوحة الإدارة
             </h1>
           </div>
-          <div className="w-9" /> {/* Spacer for balance */}
+          <div className="w-10" /> {/* Spacer for balance */}
         </div>
         
         {/* Mobile Tab Navigation */}
-        <div className="flex overflow-x-auto scrollbar-hide pb-2 px-2 gap-1.5">
+        <div className="flex overflow-x-auto scrollbar-hide pb-3 px-3 gap-2">
           {visibleTabs.map((tab) => {
             const Icon = tab.icon;
             return (
-              <Button
+              <button
                 key={tab.id}
-                variant={activeTab === tab.id ? "default" : "outline"}
-                size="sm"
-                className={`
-                  whitespace-nowrap gap-1.5 min-w-fit transition-all duration-200 touch-manipulation
-                  ${activeTab === tab.id 
-                    ? 'bg-primary text-primary-foreground shadow-md scale-105' 
-                    : 'bg-background/80 hover:bg-primary/10 border-border/50'
-                  }
-                `}
                 onClick={() => setActiveTab(tab.id)}
+                className={`flex flex-col items-center justify-center min-w-[80px] px-4 py-3 rounded-xl whitespace-nowrap transition-all duration-300 touch-manipulation ${
+                  activeTab === tab.id 
+                    ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-md shadow-primary/30 scale-105' 
+                    : 'bg-background/80 text-muted-foreground hover:bg-primary/10 active:scale-95'
+                }`}
               >
-                <Icon className="w-3.5 h-3.5 flex-shrink-0" />
-                <span className="text-xs font-medium">{tab.label}</span>
-              </Button>
+                <Icon className={`w-5 h-5 mb-1.5 transition-transform ${activeTab === tab.id ? 'scale-110' : ''}`} />
+                <span className="text-xs font-semibold">{tab.label}</span>
+              </button>
             );
           })}
         </div>

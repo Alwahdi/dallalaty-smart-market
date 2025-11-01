@@ -316,53 +316,85 @@ export default function SectionManagement() {
         <div className="flex flex-col sm:flex-row gap-2">
           <Dialog open={assignmentDialogOpen} onOpenChange={setAssignmentDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2 w-full sm:w-auto touch-manipulation">
-                <UserPlus className="w-4 h-4" />
-                <span className="text-sm">تعيين مدير أقسام</span>
+              <Button variant="outline" className="gap-2 w-full sm:w-auto touch-manipulation h-11">
+                <UserPlus className="w-5 h-5" />
+                <span>تعيين مدير أقسام</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md max-h-[85vh] sm:max-h-[90vh]">
-              <DialogHeader>
-                <DialogTitle>تعيين مدير أقسام</DialogTitle>
+            <DialogContent className="max-w-md w-[95vw] max-h-[90vh] flex flex-col gap-0 p-0">
+              <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b sticky top-0 bg-background z-10">
+                <DialogTitle className="text-lg sm:text-xl">تعيين مدير أقسام</DialogTitle>
+                <p className="text-sm text-muted-foreground mt-1">اختر مستخدم والأقسام التي سيديرها</p>
               </DialogHeader>
-              <div className="space-y-4 overflow-y-auto max-h-[calc(85vh-120px)] sm:max-h-[calc(90vh-120px)] px-1">
-                <div>
-                  <Label htmlFor="user-select">المستخدم</Label>
-                  <Select value={selectedUser} onValueChange={setSelectedUser}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="اختر مستخدم..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {profiles.map((profile) => (
-                        <SelectItem key={profile.id} value={profile.user_id}>
-                          {profile.full_name} ({profile.phone})
-                        </SelectItem>
+              <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
+                <div className="space-y-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="user-select" className="text-base font-semibold flex items-center gap-2">
+                      <UserPlus className="w-4 h-4" />
+                      المستخدم
+                    </Label>
+                    <Select value={selectedUser} onValueChange={setSelectedUser}>
+                      <SelectTrigger className="h-12 text-base">
+                        <SelectValue placeholder="اختر مستخدم..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {profiles.map((profile) => (
+                          <SelectItem key={profile.id} value={profile.user_id} className="text-base py-3">
+                            <div className="flex flex-col items-start">
+                              <span className="font-medium">{profile.full_name}</span>
+                              <span className="text-xs text-muted-foreground">{profile.phone}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-base font-semibold flex items-center gap-2">
+                      <FolderOpen className="w-4 h-4" />
+                      الأقسام المراد إدارتها
+                      {selectedCategories.length > 0 && (
+                        <Badge variant="secondary" className="mr-auto">
+                          {selectedCategories.length} محدد
+                        </Badge>
+                      )}
+                    </Label>
+                    <div className="space-y-2.5 max-h-64 overflow-y-auto border rounded-lg p-3 bg-muted/30">
+                      {categories.map((category) => (
+                        <label 
+                          key={category.id} 
+                          htmlFor={category.id}
+                          className="flex items-center gap-3 p-3 rounded-md hover:bg-background/60 cursor-pointer transition-colors touch-manipulation border border-transparent data-[checked=true]:border-primary/50 data-[checked=true]:bg-primary/5"
+                          data-checked={selectedCategories.includes(category.id)}
+                        >
+                          <Checkbox
+                            id={category.id}
+                            checked={selectedCategories.includes(category.id)}
+                            onCheckedChange={(checked) => {
+                              if (checked) setSelectedCategories((prev) => [...prev, category.id]);
+                              else setSelectedCategories((prev) => prev.filter((id) => id !== category.id));
+                            }}
+                            className="h-5 w-5"
+                          />
+                          <div className="flex-1">
+                            <div className="font-medium text-sm">{category.title}</div>
+                            {category.subtitle && (
+                              <div className="text-xs text-muted-foreground mt-0.5">{category.subtitle}</div>
+                            )}
+                          </div>
+                        </label>
                       ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>الأقسام المراد إدارتها</Label>
-                  <div className="space-y-2 max-h-40 overflow-y-auto border rounded-lg p-3 mt-2 bg-muted/30">
-                    {categories.map((category) => (
-                      <div key={category.id} className="flex items-center space-x-2 space-x-reverse">
-                        <Checkbox
-                          id={category.id}
-                          checked={selectedCategories.includes(category.id)}
-                          onCheckedChange={(checked) => {
-                            if (checked) setSelectedCategories((prev) => [...prev, category.id]);
-                            else setSelectedCategories((prev) => prev.filter((id) => id !== category.id));
-                          }}
-                        />
-                        <Label htmlFor={category.id} className="text-sm">
-                          {category.title}
-                        </Label>
-                      </div>
-                    ))}
+                    </div>
                   </div>
                 </div>
-                <Button onClick={assignSectionManager} className="w-full" disabled={!selectedUser || selectedCategories.length === 0}>
-                  تعيين مدير الأقسام
+              </div>
+              <div className="px-4 sm:px-6 py-4 border-t sticky bottom-0 bg-background">
+                <Button 
+                  onClick={assignSectionManager} 
+                  className="w-full h-12 text-base" 
+                  disabled={!selectedUser || selectedCategories.length === 0}
+                >
+                  تعيين ({selectedCategories.length} {selectedCategories.length === 1 ? 'قسم' : 'أقسام'})
                 </Button>
               </div>
             </DialogContent>
@@ -370,60 +402,114 @@ export default function SectionManagement() {
 
           <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={() => resetCategoryForm()} className="gap-2 w-full sm:w-auto touch-manipulation">
-                <Plus className="w-4 h-4" />
-                <span className="text-sm">إضافة قسم</span>
+              <Button onClick={() => resetCategoryForm()} className="gap-2 w-full sm:w-auto touch-manipulation h-11">
+                <Plus className="w-5 h-5" />
+                <span>إضافة قسم</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md max-h-[85vh] sm:max-h-[90vh]">
-              <DialogHeader>
-                <DialogTitle>{editingCategory ? 'تحديث القسم' : 'إضافة قسم جديد'}</DialogTitle>
+            <DialogContent className="max-w-md w-[95vw] max-h-[90vh] flex flex-col gap-0 p-0">
+              <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b sticky top-0 bg-background z-10">
+                <DialogTitle className="text-lg sm:text-xl">{editingCategory ? 'تحديث القسم' : 'إضافة قسم جديد'}</DialogTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {editingCategory ? 'قم بتحديث معلومات القسم' : 'أضف قسم جديد للنظام'}
+                </p>
               </DialogHeader>
-              <div className="space-y-4 overflow-y-auto max-h-[calc(85vh-120px)] sm:max-h-[calc(90vh-120px)] px-1">
-                <div>
-                  <Label htmlFor="title">عنوان القسم *</Label>
-                  <Input id="title" value={categoryForm.title} onChange={(e) => setCategoryForm((p) => ({ ...p, title: e.target.value }))} placeholder="اسم القسم" />
+              <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
+                <div className="space-y-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="title" className="text-sm font-semibold">عنوان القسم *</Label>
+                    <Input 
+                      id="title" 
+                      value={categoryForm.title} 
+                      onChange={(e) => setCategoryForm((p) => ({ ...p, title: e.target.value }))} 
+                      placeholder="مثال: العقارات" 
+                      className="h-12 text-base"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="slug" className="text-sm font-semibold">الرمز المميز *</Label>
+                    <Input 
+                      id="slug" 
+                      value={categoryForm.slug} 
+                      onChange={(e) => setCategoryForm((p) => ({ ...p, slug: e.target.value }))} 
+                      placeholder="مثال: real-estate" 
+                      className="h-12 text-base font-mono"
+                      dir="ltr"
+                    />
+                    <p className="text-xs text-muted-foreground">يستخدم في الروابط والعناوين (حروف إنجليزية وشرطات فقط)</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="subtitle" className="text-sm font-semibold">العنوان الفرعي</Label>
+                    <Input 
+                      id="subtitle" 
+                      value={categoryForm.subtitle} 
+                      onChange={(e) => setCategoryForm((p) => ({ ...p, subtitle: e.target.value }))} 
+                      placeholder="وصف قصير يظهر تحت العنوان" 
+                      className="h-12 text-base"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description" className="text-sm font-semibold">الوصف</Label>
+                    <Textarea 
+                      id="description" 
+                      value={categoryForm.description} 
+                      onChange={(e) => setCategoryForm((p) => ({ ...p, description: e.target.value }))} 
+                      placeholder="وصف مفصل للقسم" 
+                      className="min-h-24 text-base resize-none"
+                      rows={4}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="icon" className="text-sm font-semibold">الأيقونة</Label>
+                    <Input 
+                      id="icon" 
+                      value={categoryForm.icon} 
+                      onChange={(e) => setCategoryForm((p) => ({ ...p, icon: e.target.value }))} 
+                      placeholder="Home, Building, Car, etc." 
+                      className="h-12 text-base font-mono"
+                      dir="ltr"
+                    />
+                    <p className="text-xs text-muted-foreground">اسم الأيقونة من مكتبة Lucide Icons</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="parent" className="text-sm font-semibold">القسم الأب</Label>
+                    <Select
+                      value={categoryForm.parent_id}
+                      onValueChange={(value) => setCategoryForm((p) => ({ ...p, parent_id: value }))}
+                    >
+                      <SelectTrigger className="h-12 text-base">
+                        <SelectValue placeholder="اختر القسم الأب (اختياري)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={NO_PARENT_VALUE} className="text-base">بدون قسم أب</SelectItem>
+                        {categories
+                          .filter((cat) => cat.id !== editingCategory?.id)
+                          .map((category) => (
+                            <SelectItem key={category.id} value={category.id} className="text-base">
+                              {category.title}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">حدد قسم أب لجعل هذا القسم فرعياً منه</p>
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="slug">الرمز المميز *</Label>
-                  <Input id="slug" value={categoryForm.slug} onChange={(e) => setCategoryForm((p) => ({ ...p, slug: e.target.value }))} placeholder="category-slug" />
-                </div>
-                <div>
-                  <Label htmlFor="subtitle">العنوان الفرعي</Label>
-                  <Input id="subtitle" value={categoryForm.subtitle} onChange={(e) => setCategoryForm((p) => ({ ...p, subtitle: e.target.value }))} placeholder="وصف مختصر" />
-                </div>
-                <div>
-                  <Label htmlFor="description">الوصف</Label>
-                  <Textarea id="description" value={categoryForm.description} onChange={(e) => setCategoryForm((p) => ({ ...p, description: e.target.value }))} placeholder="وصف مفصل للقسم" />
-                </div>
-                <div>
-                  <Label htmlFor="icon">الأيقونة</Label>
-                  <Input id="icon" value={categoryForm.icon} onChange={(e) => setCategoryForm((p) => ({ ...p, icon: e.target.value }))} placeholder="اسم الأيقونة" />
-                </div>
-                <div>
-                  <Label htmlFor="parent">القسم الإب</Label>
-                  <Select
-                    value={categoryForm.parent_id}
-                    onValueChange={(value) => setCategoryForm((p) => ({ ...p, parent_id: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="اختر القسم الإب (اختياري)" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {/* NOTE: value must NOT be an empty string. use sentinel NO_PARENT_VALUE */}
-                      <SelectItem value={NO_PARENT_VALUE}>بدون قسم إب</SelectItem>
-                      {categories
-                        .filter((cat) => cat.id !== editingCategory?.id)
-                        .map((category) => (
-                          <SelectItem key={category.id} value={category.id}>
-                            {category.title}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button onClick={saveCategory} className="w-full" disabled={saving}>
-                  {editingCategory ? 'تحديث' : 'إضافة'}
+              </div>
+              <div className="px-4 sm:px-6 py-4 border-t sticky bottom-0 bg-background flex gap-3">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setCategoryDialogOpen(false)} 
+                  className="flex-1 h-12 text-base"
+                  disabled={saving}
+                >
+                  إلغاء
+                </Button>
+                <Button 
+                  onClick={saveCategory} 
+                  className="flex-1 h-12 text-base" 
+                  disabled={saving}
+                >
+                  {saving ? 'جاري الحفظ...' : editingCategory ? 'تحديث' : 'إضافة'}
                 </Button>
               </div>
             </DialogContent>
@@ -536,68 +622,115 @@ export default function SectionManagement() {
           </div>
 
           {/* Mobile Card View */}
-          <div className="md:hidden space-y-3 px-2">
+          <div className="md:hidden space-y-4 px-1">
             {filteredCategories.map((category) => {
               const managers = getCategoryManagers(category.id);
               return (
-                <Card key={category.id} className="overflow-hidden">
-                  <CardContent className="p-4">
-                    <div className="space-y-3">
-                      <div className="flex items-start justify-between gap-2">
+                <Card key={category.id} className="overflow-hidden border-2 hover:border-primary/20 transition-all">
+                  <CardContent className="p-0">
+                    {/* Header Section */}
+                    <div className="p-4 bg-gradient-to-br from-primary/5 to-transparent border-b">
+                      <div className="flex items-start justify-between gap-3 mb-2">
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-sm">{category.title}</h3>
-                          {category.subtitle && <p className="text-xs text-muted-foreground mt-0.5">{category.subtitle}</p>}
-                          <code className="text-xs bg-muted px-1.5 py-0.5 rounded mt-1 inline-block">{category.slug}</code>
+                          <h3 className="font-bold text-base mb-1 flex items-center gap-2">
+                            {category.icon && (
+                              <span className="text-primary">{category.icon}</span>
+                            )}
+                            {category.title}
+                          </h3>
+                          {category.subtitle && (
+                            <p className="text-sm text-muted-foreground leading-snug">{category.subtitle}</p>
+                          )}
                         </div>
-                        <Badge variant={category.status === 'active' ? 'default' : 'secondary'} className="text-xs">
-                          {category.status === 'active' ? 'نشط' : 'غير نشط'}
+                        <Badge 
+                          variant={category.status === 'active' ? 'default' : 'secondary'} 
+                          className="text-xs shrink-0"
+                        >
+                          {category.status === 'active' ? '🟢 نشط' : '⚪️ غير نشط'}
                         </Badge>
                       </div>
+                      <code className="text-xs bg-background/80 px-2 py-1 rounded border inline-block font-mono" dir="ltr">
+                        {category.slug}
+                      </code>
+                    </div>
 
-                      {managers.length > 0 && (
-                        <div>
-                          <p className="text-xs text-muted-foreground mb-1.5">المدراء:</p>
-                          <div className="flex flex-wrap gap-1">
-                            {managers.map((manager) => (
-                              <Badge
-                                key={manager.id}
-                                variant="outline"
-                                className="text-xs cursor-pointer hover:bg-destructive hover:text-destructive-foreground transition-colors touch-manipulation"
-                                onClick={() => removeCategoryManager(manager.id)}
-                              >
-                                {manager.name}
-                                <X className="w-3 h-3 mr-1" />
-                              </Badge>
-                            ))}
-                          </div>
+                    {/* Managers Section */}
+                    <div className="p-4 border-b bg-muted/30">
+                      <div className="flex items-center gap-2 mb-2">
+                        <UserPlus className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm font-semibold text-muted-foreground">
+                          مدراء القسم {managers.length > 0 && `(${managers.length})`}
+                        </span>
+                      </div>
+                      {managers.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {managers.map((manager) => (
+                            <Badge
+                              key={manager.id}
+                              variant="outline"
+                              className="text-xs cursor-pointer hover:bg-destructive/10 hover:text-destructive hover:border-destructive transition-all touch-manipulation py-1.5 px-3"
+                              onClick={() => removeCategoryManager(manager.id)}
+                            >
+                              <span className="font-medium">{manager.name}</span>
+                              <X className="w-3.5 h-3.5 mr-1.5 opacity-60" />
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-3 text-xs text-muted-foreground bg-background/50 rounded-md border border-dashed">
+                          لا يوجد مدراء لهذا القسم
                         </div>
                       )}
+                    </div>
 
-                      <div className="flex items-center justify-between pt-2 border-t">
-                        <span className="text-xs text-muted-foreground">{new Date(category.created_at).toLocaleDateString('ar-SA')}</span>
-                        <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm" className="h-8 px-3 touch-manipulation" onClick={() => openForEdit(category)}>
-                            <Edit className="w-3.5 h-3.5 ml-1" />
-                            <span className="text-xs">تعديل</span>
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="destructive" size="sm" className="h-8 w-8 p-0 touch-manipulation">
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>حذف القسم</AlertDialogTitle>
-                                <AlertDialogDescription>هل أنت متأكد من حذف "{category.title}"؟</AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>إلغاء</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => deleteCategory(category.id)}>حذف</AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
+                    {/* Actions Section */}
+                    <div className="p-3 flex items-center justify-between bg-background">
+                      <span className="text-xs text-muted-foreground flex items-center gap-1">
+                        <span>📅</span>
+                        {new Date(category.created_at).toLocaleDateString('ar-SA', { 
+                          year: 'numeric', 
+                          month: 'short', 
+                          day: 'numeric' 
+                        })}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="h-9 px-4 touch-manipulation" 
+                          onClick={() => openForEdit(category)}
+                        >
+                          <Edit className="w-4 h-4 ml-1.5" />
+                          <span className="text-sm">تعديل</span>
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button 
+                              variant="destructive" 
+                              size="sm" 
+                              className="h-9 w-9 p-0 touch-manipulation"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent className="w-[90vw] max-w-md">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>حذف القسم</AlertDialogTitle>
+                              <AlertDialogDescription className="text-base leading-relaxed">
+                                هل أنت متأكد من حذف قسم <strong>"{category.title}"</strong>؟ لا يمكن التراجع عن هذا الإجراء.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter className="gap-2 sm:gap-2">
+                              <AlertDialogCancel className="h-11 flex-1">إلغاء</AlertDialogCancel>
+                              <AlertDialogAction 
+                                onClick={() => deleteCategory(category.id)}
+                                className="h-11 flex-1"
+                              >
+                                حذف
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                   </CardContent>

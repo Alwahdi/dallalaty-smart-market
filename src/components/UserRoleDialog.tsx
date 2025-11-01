@@ -100,64 +100,108 @@ export default function UserRoleDialog({ userId, userEmail, currentRoles, onRole
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
+        <Button variant="outline" size="sm" className="gap-2 h-9 px-3 touch-manipulation">
           <Settings className="w-4 h-4" />
-          إدارة الصلاحيات
+          <span className="hidden sm:inline">إدارة الصلاحيات</span>
+          <span className="sm:hidden">الصلاحيات</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md" dir="rtl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-right">
-            <Shield className="w-5 h-5 text-primary" />
+      <DialogContent className="max-w-md w-[95vw] max-h-[90vh] flex flex-col gap-0 p-0" dir="rtl">
+        <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b sticky top-0 bg-background z-10">
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <div className="w-9 h-9 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg flex items-center justify-center">
+              <Shield className="w-5 h-5 text-primary" />
+            </div>
             إدارة صلاحيات المستخدم
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-6">
-          {/* User Info */}
-          <div className="p-4 bg-muted/50 rounded-lg">
-            <p className="text-sm text-muted-foreground">المستخدم</p>
-            <p className="font-medium">{userEmail}</p>
-            <div className="flex flex-wrap gap-1 mt-2">
-              {currentRoles.map(role => (
-                <Badge key={role} variant="secondary" className="text-xs">
-                  {AVAILABLE_ROLES.find(r => r.value === role)?.label || role}
-                </Badge>
-              ))}
-            </div>
-          </div>
-
-          {/* Roles Selection */}
-          <div className="space-y-4">
-            <h4 className="font-medium">اختر الصلاحيات:</h4>
-            {AVAILABLE_ROLES.map(role => (
-              <div key={role.value} className="flex items-start space-x-3 rtl:space-x-reverse">
-                <Checkbox
-                  id={role.value}
-                  checked={selectedRoles.includes(role.value)}
-                  onCheckedChange={(checked) => handleRoleToggle(role.value, !!checked)}
-                />
-                <div className="flex-1 text-right">
-                  <label htmlFor={role.value} className="text-sm font-medium cursor-pointer">
-                    {role.label}
-                  </label>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {role.description}
-                  </p>
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
+          <div className="space-y-5">
+            {/* User Info */}
+            <div className="p-4 bg-gradient-to-br from-primary/5 to-transparent rounded-xl border-2 border-primary/10">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
+                  <Shield className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-muted-foreground mb-1">المستخدم</p>
+                  <p className="font-semibold text-sm truncate">{userEmail}</p>
                 </div>
               </div>
-            ))}
-          </div>
+              {currentRoles.length > 0 && (
+                <>
+                  <p className="text-xs text-muted-foreground mb-2">الصلاحيات الحالية:</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {currentRoles.map(role => (
+                      <Badge key={role} variant="secondary" className="text-xs font-medium">
+                        {AVAILABLE_ROLES.find(r => r.value === role)?.label || role}
+                      </Badge>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
 
-          {/* Actions */}
-          <div className="flex gap-2 pt-4">
-            <Button onClick={handleSave} disabled={loading} className="flex-1">
-              {loading ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : "حفظ التغييرات"}
-            </Button>
-            <Button variant="outline" onClick={() => setOpen(false)} disabled={loading}>
-              إلغاء
-            </Button>
+            {/* Roles Selection */}
+            <div className="space-y-3">
+              <h4 className="font-bold text-base flex items-center gap-2">
+                <span>⚙️</span>
+                اختر الصلاحيات الجديدة:
+              </h4>
+              <div className="space-y-2">
+                {AVAILABLE_ROLES.map(role => (
+                  <label 
+                    key={role.value}
+                    htmlFor={role.value}
+                    className="flex items-start gap-3 p-4 rounded-xl border-2 hover:border-primary/30 cursor-pointer transition-all touch-manipulation bg-muted/30 data-[checked=true]:border-primary/50 data-[checked=true]:bg-primary/5"
+                    data-checked={selectedRoles.includes(role.value)}
+                  >
+                    <Checkbox
+                      id={role.value}
+                      checked={selectedRoles.includes(role.value)}
+                      onCheckedChange={(checked) => handleRoleToggle(role.value, !!checked)}
+                      className="mt-0.5 h-5 w-5"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-sm mb-1">
+                        {role.label}
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {role.description}
+                      </p>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
           </div>
+        </div>
+
+        {/* Actions */}
+        <div className="px-4 sm:px-6 py-4 border-t sticky bottom-0 bg-background flex gap-3">
+          <Button 
+            variant="outline" 
+            onClick={() => setOpen(false)} 
+            disabled={loading}
+            className="flex-1 h-12 text-base"
+          >
+            إلغاء
+          </Button>
+          <Button 
+            onClick={handleSave} 
+            disabled={loading} 
+            className="flex-1 h-12 text-base"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+                جاري الحفظ...
+              </>
+            ) : (
+              'حفظ التغييرات'
+            )}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

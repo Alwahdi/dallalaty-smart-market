@@ -22,23 +22,19 @@ interface Property {
   id: string;
   title: string;
   price: number;
-  property_type: string;
   listing_type: string;
   location: string;
   city: string;
   neighborhood?: string;
-  bedrooms?: number;
-  bathrooms?: number;
-  area_sqm?: number;
   description?: string;
   images?: string[];
   videos?: string[];
-  amenities?: string[];
   status: string;
   agent_name?: string;
   agent_phone?: string;
   agent_email?: string;
   category?: string;
+  custom_data?: Record<string, any>;
   created_at: string;
   updated_at: string;
 }
@@ -65,14 +61,10 @@ export default function PropertyManagement() {
   const [propertyForm, setPropertyForm] = useState({
     title: '',
     price: '',
-    property_type: '',
     listing_type: 'للبيع',
     location: '',
     city: '',
     neighborhood: '',
-    bedrooms: '',
-    bathrooms: '',
-    area_sqm: '',
     description: '',
     agent_name: '',
     agent_phone: '',
@@ -105,7 +97,7 @@ export default function PropertyManagement() {
       console.error('Error fetching properties:', error);
       toast({
         title: "خطأ",
-        description: "حدث خطأ في تحميل العقارات",
+        description: "حدث خطأ في تحميل العناصر",
         variant: "destructive"
       });
     } finally {
@@ -186,7 +178,7 @@ export default function PropertyManagement() {
       console.error('Error saving property:', error);
       toast({
         title: "خطأ",
-        description: "حدث خطأ في حفظ العقار",
+        description: "حدث خطأ في حفظ العنصر",
         variant: "destructive"
       });
     }
@@ -203,7 +195,7 @@ export default function PropertyManagement() {
 
       toast({
         title: "تم الحذف",
-        description: "تم حذف العقار بنجاح"
+        description: "تم حذف العنصر بنجاح"
       });
 
       fetchProperties();
@@ -211,7 +203,7 @@ export default function PropertyManagement() {
       console.error('Error deleting property:', error);
       toast({
         title: "خطأ",
-        description: "حدث خطأ في حذف العقار",
+        description: "حدث خطأ في حذف العنصر",
         variant: "destructive"
       });
     }
@@ -228,7 +220,7 @@ export default function PropertyManagement() {
 
       toast({
         title: "تم التحديث",
-        description: "تم تحديث حالة العقار بنجاح"
+        description: "تم تحديث حالة العنصر بنجاح"
       });
 
       fetchProperties();
@@ -236,7 +228,7 @@ export default function PropertyManagement() {
       console.error('Error updating property status:', error);
       toast({
         title: "خطأ",
-        description: "حدث خطأ في تحديث حالة العقار",
+        description: "حدث خطأ في تحديث حالة العنصر",
         variant: "destructive"
       });
     }
@@ -246,14 +238,10 @@ export default function PropertyManagement() {
     setPropertyForm({
       title: '',
       price: '',
-      property_type: '',
       listing_type: 'للبيع',
       location: '',
       city: '',
       neighborhood: '',
-      bedrooms: '',
-      bathrooms: '',
-      area_sqm: '',
       description: '',
       agent_name: '',
       agent_phone: '',
@@ -273,14 +261,10 @@ export default function PropertyManagement() {
     setPropertyForm({
       title: property.title,
       price: property.price.toString(),
-      property_type: property.property_type,
       listing_type: property.listing_type,
       location: property.location,
       city: property.city,
       neighborhood: property.neighborhood || '',
-      bedrooms: property.bedrooms?.toString() || '',
-      bathrooms: property.bathrooms?.toString() || '',
-      area_sqm: property.area_sqm?.toString() || '',
       description: property.description || '',
       agent_name: property.agent_name || '',
       agent_phone: property.agent_phone || '',
@@ -290,7 +274,7 @@ export default function PropertyManagement() {
     });
     setPropertyImages(property.images || []);
     setPropertyVideos(property.videos || []);
-    setCustomData((property as any).custom_data || {});
+    setCustomData(property.custom_data || {});
     
     // Find and set the selected category
     const cat = categories.find(c => c.slug === property.category);

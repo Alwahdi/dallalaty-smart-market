@@ -15,6 +15,8 @@ import { Plus, Edit, Trash2, Search, Eye, ImagePlus, Building2 } from 'lucide-re
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import MediaUpload from '@/components/MediaUpload';
+import DynamicFormFields from './DynamicFormFields';
+import { CustomField } from './CustomFieldsEditor';
 
 interface Property {
   id: string;
@@ -45,6 +47,7 @@ interface Category {
   id: string;
   title: string;
   slug: string;
+  custom_fields?: CustomField[];
 }
 
 export default function PropertyManagement() {
@@ -79,6 +82,8 @@ export default function PropertyManagement() {
   });
   const [propertyImages, setPropertyImages] = useState<string[]>([]);
   const [propertyVideos, setPropertyVideos] = useState<string[]>([]);
+  const [customData, setCustomData] = useState<Record<string, any>>({});
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [propertyDialogOpen, setPropertyDialogOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
 
@@ -112,11 +117,14 @@ export default function PropertyManagement() {
     try {
       const { data, error } = await supabase
         .from('categories')
-        .select('id, title, slug')
+        .select('id, title, slug, custom_fields')
         .eq('status', 'active');
 
       if (error) throw error;
-      setCategories(data || []);
+      setCategories((data as any[])?.map(cat => ({
+        ...cat,
+        custom_fields: Array.isArray(cat.custom_fields) ? cat.custom_fields : []
+      })) || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -124,7 +132,8 @@ export default function PropertyManagement() {
 
   const saveProperty = async () => {
     try {
-      if (!propertyForm.title || !propertyForm.price || !propertyForm.location) {
+      if (!propertyForm.title || !propertyForm.price || !propertyForm.listing_type || 
+          !propertyForm.location || !propertyForm.city || !propertyForm.category) {
         toast({
           title: "خطأ",
           description: "يرجى ملء جميع الحقول المطلوبة",
@@ -134,50 +143,44 @@ export default function PropertyManagement() {
       }
 
       const propertyData = {
-        title: propertyForm.title,
+        ...propertyForm,
         price: parseFloat(propertyForm.price),
-        property_type: propertyForm.property_type,
-        listing_type: propertyForm.listing_type,
-        location: propertyForm.location,
-        city: propertyForm.city,
-        neighborhood: propertyForm.neighborhood || null,
         bedrooms: propertyForm.bedrooms ? parseInt(propertyForm.bedrooms) : null,
         bathrooms: propertyForm.bathrooms ? parseInt(propertyForm.bathrooms) : null,
         area_sqm: propertyForm.area_sqm ? parseFloat(propertyForm.area_sqm) : null,
-        description: propertyForm.description || null,
-        agent_name: propertyForm.agent_name || null,
-        agent_phone: propertyForm.agent_phone || null,
-        agent_email: propertyForm.agent_email || null,
-        category: propertyForm.category || null,
-        status: propertyForm.status,
-        agent_id: user?.id || null,
         images: propertyImages,
-        videos: propertyVideos
+        videos: propertyVideos,
+        agent_id: user?.id,
+        custom_data: customData
       };
 
-      let error;
       if (editingProperty) {
-        const result = await supabase
+        const { error } = await supabase
           .from('properties')
           .update(propertyData)
           .eq('id', editingProperty.id);
-        error = result.error;
+
+        if (error) throw error;
+
+        toast({
+          title: "تم التحديث",
+          description: "تم تحديث العقار بنجاح"
+        });
       } else {
-        const result = await supabase
+        const { error } = await supabase
           .from('properties')
           .insert([propertyData]);
-        error = result.error;
+
+        if (error) throw error;
+
+        toast({
+          title: "تم الإضافة",
+          description: "تم إضافة العقار بنجاح"
+        });
       }
 
-      if (error) throw error;
-
-      toast({
-        title: "تم الحفظ",
-        description: editingProperty ? "تم تحديث العقار بنجاح" : "تم إضافة العقار بنجاح"
-      });
-
-      resetForm();
       setPropertyDialogOpen(false);
+      resetForm();
       fetchProperties();
     } catch (error) {
       console.error('Error saving property:', error);
@@ -260,6 +263,8 @@ export default function PropertyManagement() {
     });
     setPropertyImages([]);
     setPropertyVideos([]);
+    setCustomData({});
+    setSelectedCategory(null);
     setEditingProperty(null);
   };
 
@@ -285,6 +290,12 @@ export default function PropertyManagement() {
     });
     setPropertyImages(property.images || []);
     setPropertyVideos(property.videos || []);
+    setCustomData((property as any).custom_data || {});
+    
+    // Find and set the selected category
+    const cat = categories.find(c => c.slug === property.category);
+    setSelectedCategory(cat || null);
+    
     setPropertyDialogOpen(true);
   };
 
@@ -452,10 +463,15 @@ export default function PropertyManagement() {
                 />
               </div>
               <div>
-                <Label htmlFor="category" className="text-sm sm:text-base">القسم</Label>
+                <Label htmlFor="category" className="text-sm sm:text-base">القسم *</Label>
                 <Select 
                   value={propertyForm.category} 
-                  onValueChange={(value) => setPropertyForm(prev => ({ ...prev, category: value }))}
+                  onValueChange={(value) => {
+                    setPropertyForm(prev => ({ ...prev, category: value }));
+                    const cat = categories.find(c => c.slug === value);
+                    setSelectedCategory(cat || null);
+                    setCustomData({}); // Reset custom data when category changes
+                  }}
                 >
                   <SelectTrigger className="h-11 sm:h-10 text-base sm:text-sm mt-1.5">
                     <SelectValue placeholder="اختر القسم" />
@@ -469,6 +485,22 @@ export default function PropertyManagement() {
                   </SelectContent>
                 </Select>
               </div>
+              
+              {/* Dynamic Custom Fields */}
+              {selectedCategory && selectedCategory.custom_fields && selectedCategory.custom_fields.length > 0 && (
+                <div className="md:col-span-2 space-y-4 border-t pt-4">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-5 h-5 text-primary" />
+                    <h4 className="font-semibold text-base">حقول {selectedCategory.title}</h4>
+                  </div>
+                  <DynamicFormFields
+                    fields={selectedCategory.custom_fields}
+                    values={customData}
+                    onChange={(name, value) => setCustomData(prev => ({ ...prev, [name]: value }))}
+                  />
+                </div>
+              )}
+              
               <div className="md:col-span-2">
                 <Label htmlFor="description" className="text-sm sm:text-base">الوصف</Label>
                 <Textarea

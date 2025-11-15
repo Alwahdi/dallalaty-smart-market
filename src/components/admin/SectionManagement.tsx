@@ -24,6 +24,7 @@ import { FolderOpen, Plus, Edit, Trash2, Search, UserPlus, X } from 'lucide-reac
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
+import CustomFieldsEditor, { CustomField } from './CustomFieldsEditor';
 
 // Sentinel value for "no parent" option — must be a non-empty string (Radix requirement)
 const NO_PARENT_VALUE = '___none___';
@@ -40,6 +41,7 @@ interface Category {
   status: string;
   created_at: string;
   updated_at: string;
+  custom_fields?: CustomField[];
 }
 
 interface CategoryRole {
@@ -77,6 +79,7 @@ export default function SectionManagement() {
     icon: '',
     parent_id: NO_PARENT_VALUE, // use sentinel for no-parent
   });
+  const [customFields, setCustomFields] = useState<CustomField[]>([]);
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
@@ -94,7 +97,10 @@ export default function SectionManagement() {
         .order('order_index', { ascending: true });
 
       if (error) throw error;
-      setCategories((data as Category[]) || []);
+      setCategories((data as any[])?.map(cat => ({
+        ...cat,
+        custom_fields: Array.isArray(cat.custom_fields) ? cat.custom_fields : []
+      })) || []);
     } catch (err) {
       console.error('Error fetching categories:', err);
       toast({ title: 'خطأ', description: 'حدث خطأ في تحميل الأقسام', variant: 'destructive' });
@@ -138,6 +144,7 @@ export default function SectionManagement() {
       icon: '',
       parent_id: NO_PARENT_VALUE,
     });
+    setCustomFields([]);
     setEditingCategory(null);
     setCategoryDialogOpen(false);
   }, []);
@@ -290,6 +297,7 @@ export default function SectionManagement() {
       icon: category.icon || '',
       parent_id: category.parent_id ?? NO_PARENT_VALUE,
     });
+    setCustomFields(category.custom_fields || []);
     setCategoryDialogOpen(true);
   };
 
@@ -492,6 +500,23 @@ export default function SectionManagement() {
                       </SelectContent>
                     </Select>
                     <p className="text-xs text-muted-foreground">حدد قسم أب لجعل هذا القسم فرعياً منه</p>
+                  </div>
+                  
+                  {/* Custom Fields Editor */}
+                  <div className="space-y-3 pt-4 border-t">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-semibold">الحقول المخصصة</h4>
+                      <Badge variant="secondary" className="text-xs">
+                        {customFields.length} حقل
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      حدد الحقول التي سيتم عرضها عند إضافة عنصر في هذا القسم
+                    </p>
+                    <CustomFieldsEditor 
+                      fields={customFields}
+                      onChange={setCustomFields}
+                    />
                   </div>
                 </div>
               </div>

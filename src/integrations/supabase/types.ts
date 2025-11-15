@@ -17,6 +17,7 @@ export type Database = {
       categories: {
         Row: {
           created_at: string
+          custom_fields: Json | null
           description: string | null
           icon: string | null
           id: string
@@ -30,6 +31,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          custom_fields?: Json | null
           description?: string | null
           icon?: string | null
           id?: string
@@ -43,6 +45,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          custom_fields?: Json | null
           description?: string | null
           icon?: string | null
           id?: string
@@ -234,6 +237,7 @@ export type Database = {
           color: string | null
           condition: string | null
           created_at: string
+          custom_data: Json | null
           description: string | null
           id: string
           images: string[] | null
@@ -268,6 +272,7 @@ export type Database = {
           color?: string | null
           condition?: string | null
           created_at?: string
+          custom_data?: Json | null
           description?: string | null
           id?: string
           images?: string[] | null
@@ -302,6 +307,7 @@ export type Database = {
           color?: string | null
           condition?: string | null
           created_at?: string
+          custom_data?: Json | null
           description?: string | null
           id?: string
           images?: string[] | null
@@ -367,10 +373,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_admin: {
-        Args: { _user_id: string }
-        Returns: boolean
-      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role:

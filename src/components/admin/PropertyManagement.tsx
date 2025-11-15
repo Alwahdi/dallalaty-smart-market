@@ -17,27 +17,9 @@ import { Textarea } from '@/components/ui/textarea';
 import MediaUpload from '@/components/MediaUpload';
 import DynamicFormFields from './DynamicFormFields';
 import { CustomField } from './CustomFieldsEditor';
+import { Tables } from '@/integrations/supabase/types';
 
-interface Property {
-  id: string;
-  title: string;
-  price: number;
-  listing_type: string;
-  location: string;
-  city: string;
-  neighborhood?: string;
-  description?: string;
-  images?: string[];
-  videos?: string[];
-  status: string;
-  agent_name?: string;
-  agent_phone?: string;
-  agent_email?: string;
-  category?: string;
-  custom_data?: Record<string, any>;
-  created_at: string;
-  updated_at: string;
-}
+type Property = Tables<'properties'>;
 
 interface Category {
   id: string;
@@ -137,9 +119,7 @@ export default function PropertyManagement() {
       const propertyData = {
         ...propertyForm,
         price: parseFloat(propertyForm.price),
-        bedrooms: propertyForm.bedrooms ? parseInt(propertyForm.bedrooms) : null,
-        bathrooms: propertyForm.bathrooms ? parseInt(propertyForm.bathrooms) : null,
-        area_sqm: propertyForm.area_sqm ? parseFloat(propertyForm.area_sqm) : null,
+        property_type: propertyForm.category || 'عام',
         images: propertyImages,
         videos: propertyVideos,
         agent_id: user?.id,
@@ -156,7 +136,7 @@ export default function PropertyManagement() {
 
         toast({
           title: "تم التحديث",
-          description: "تم تحديث العقار بنجاح"
+          description: "تم تحديث العنصر بنجاح"
         });
       } else {
         const { error } = await supabase
@@ -167,7 +147,7 @@ export default function PropertyManagement() {
 
         toast({
           title: "تم الإضافة",
-          description: "تم إضافة العقار بنجاح"
+          description: "تم إضافة العنصر بنجاح"
         });
       }
 
@@ -274,7 +254,7 @@ export default function PropertyManagement() {
     });
     setPropertyImages(property.images || []);
     setPropertyVideos(property.videos || []);
-    setCustomData(property.custom_data || {});
+    setCustomData((property.custom_data as Record<string, any>) || {});
     
     // Find and set the selected category
     const cat = categories.find(c => c.slug === property.category);
@@ -321,21 +301,21 @@ export default function PropertyManagement() {
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
             <Building2 className="w-6 h-6 sm:w-7 sm:h-7 text-primary drop-shadow-md" />
-            إدارة العقارات
+            إدارة العناصر
           </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-1">إدارة جميع العقارات والإعلانات في النظام</p>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">إدارة جميع العناصر والإعلانات في النظام</p>
         </div>
         
         <Dialog open={propertyDialogOpen} onOpenChange={setPropertyDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={resetForm} className="gap-2 w-full sm:w-auto touch-manipulation h-11 sm:h-10 text-base sm:text-sm font-semibold shadow-sm">
               <Plus className="w-5 h-5 sm:w-4 sm:h-4" />
-              <span>إضافة عقار جديد</span>
+              <span>إضافة عنصر جديد</span>
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-4xl h-[95vh] sm:h-auto sm:max-h-[90vh] p-0 gap-0">
             <DialogHeader className="p-4 sm:p-6 pb-3 border-b sticky top-0 bg-background z-10">
-              <DialogTitle className="text-lg sm:text-xl">{editingProperty ? 'تحديث العقار' : 'إضافة عقار جديد'}</DialogTitle>
+              <DialogTitle className="text-lg sm:text-xl">{editingProperty ? 'تحديث العنصر' : 'إضافة عنصر جديد'}</DialogTitle>
             </DialogHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 overflow-y-auto p-4 sm:p-6 pt-4">
               <div>
@@ -359,25 +339,7 @@ export default function PropertyManagement() {
                   className="h-11 sm:h-10 text-base sm:text-sm mt-1.5"
                 />
               </div>
-              <div>
-                <Label htmlFor="property_type" className="text-sm sm:text-base">نوع العقار</Label>
-                <Select 
-                  value={propertyForm.property_type} 
-                  onValueChange={(value) => setPropertyForm(prev => ({ ...prev, property_type: value }))}
-                >
-                  <SelectTrigger className="h-11 sm:h-10 text-base sm:text-sm mt-1.5">
-                    <SelectValue placeholder="اختر نوع العقار" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="شقة">شقة</SelectItem>
-                    <SelectItem value="فيلا">فيلا</SelectItem>
-                    <SelectItem value="بيت">بيت</SelectItem>
-                    <SelectItem value="أرض">أرض</SelectItem>
-                    <SelectItem value="مكتب">مكتب</SelectItem>
-                    <SelectItem value="محل">محل تجاري</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+
               <div>
                 <Label htmlFor="listing_type" className="text-sm sm:text-base">نوع العرض</Label>
                 <Select 
@@ -413,39 +375,7 @@ export default function PropertyManagement() {
                   className="h-11 sm:h-10 text-base sm:text-sm mt-1.5"
                 />
               </div>
-              <div>
-                <Label htmlFor="bedrooms" className="text-sm sm:text-base">عدد غرف النوم</Label>
-                <Input
-                  id="bedrooms"
-                  type="number"
-                  value={propertyForm.bedrooms}
-                  onChange={(e) => setPropertyForm(prev => ({ ...prev, bedrooms: e.target.value }))}
-                  placeholder="3"
-                  className="h-11 sm:h-10 text-base sm:text-sm mt-1.5"
-                />
-              </div>
-              <div>
-                <Label htmlFor="bathrooms" className="text-sm sm:text-base">عدد دورات المياه</Label>
-                <Input
-                  id="bathrooms"
-                  type="number"
-                  value={propertyForm.bathrooms}
-                  onChange={(e) => setPropertyForm(prev => ({ ...prev, bathrooms: e.target.value }))}
-                  placeholder="2"
-                  className="h-11 sm:h-10 text-base sm:text-sm mt-1.5"
-                />
-              </div>
-              <div>
-                <Label htmlFor="area" className="text-sm sm:text-base">المساحة (متر مربع)</Label>
-                <Input
-                  id="area"
-                  type="number"
-                  value={propertyForm.area_sqm}
-                  onChange={(e) => setPropertyForm(prev => ({ ...prev, area_sqm: e.target.value }))}
-                  placeholder="120"
-                  className="h-11 sm:h-10 text-base sm:text-sm mt-1.5"
-                />
-              </div>
+              
               <div>
                 <Label htmlFor="category" className="text-sm sm:text-base">القسم *</Label>
                 <Select 
@@ -580,7 +510,7 @@ export default function PropertyManagement() {
                 <TableRow>
                   <TableHead>العنوان</TableHead>
                   <TableHead>السعر</TableHead>
-                  <TableHead>النوع</TableHead>
+                  <TableHead>القسم</TableHead>
                   <TableHead>الموقع</TableHead>
                   <TableHead>الحالة</TableHead>
                   <TableHead>تاريخ الإضافة</TableHead>
@@ -596,7 +526,7 @@ export default function PropertyManagement() {
                     <TableCell>
                       {property.price.toLocaleString('ar-SA')} ريال
                     </TableCell>
-                    <TableCell>{property.property_type}</TableCell>
+                    <TableCell>{categories.find(c => c.slug === property.category)?.title || property.category}</TableCell>
                     <TableCell className="max-w-32 truncate">{property.location}</TableCell>
                     <TableCell>
                       <Select 
@@ -646,9 +576,9 @@ export default function PropertyManagement() {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>حذف العقار</AlertDialogTitle>
+                              <AlertDialogTitle>حذف العنصر</AlertDialogTitle>
                               <AlertDialogDescription>
-                                هل أنت متأكد من حذف هذا العقار؟ لا يمكن التراجع عن هذا الإجراء.
+                                هل أنت متأكد من حذف هذا العنصر؟ لا يمكن التراجع عن هذا الإجراء.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -725,31 +655,13 @@ export default function PropertyManagement() {
                     {/* Property Details */}
                     <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm bg-muted/30 p-3 rounded-lg">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-muted-foreground text-xs">النوع:</span>
-                        <span className="font-medium">{property.property_type}</span>
+                        <span className="text-muted-foreground text-xs">القسم:</span>
+                        <span className="font-medium">{categories.find(c => c.slug === property.category)?.title || property.category}</span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <span className="text-muted-foreground text-xs">المدينة:</span>
                         <span className="font-medium truncate">{property.city}</span>
                       </div>
-                      {property.bedrooms && (
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-muted-foreground text-xs">غرف النوم:</span>
-                          <span className="font-medium">{property.bedrooms}</span>
-                        </div>
-                      )}
-                      {property.bathrooms && (
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-muted-foreground text-xs">الحمامات:</span>
-                          <span className="font-medium">{property.bathrooms}</span>
-                        </div>
-                      )}
-                      {property.area_sqm && (
-                        <div className="flex items-center gap-1.5 col-span-2">
-                          <span className="text-muted-foreground text-xs">المساحة:</span>
-                          <span className="font-medium">{property.area_sqm} م²</span>
-                        </div>
-                      )}
                     </div>
 
                     {/* Footer Actions */}

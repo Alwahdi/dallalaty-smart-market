@@ -70,11 +70,11 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "your-project-id-here"
+        "projectId": "4b174694-3c76-48f2-a332-f8fd156bdc89"
       }
     },
     "updates": {
-      "url": "https://u.expo.dev/your-project-id-here"
+      "url": "https://u.expo.dev/4b174694-3c76-48f2-a332-f8fd156bdc89"
     },
     "runtimeVersion": {
       "policy": "appVersion"

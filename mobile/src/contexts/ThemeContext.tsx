@@ -33,14 +33,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem(THEME_STORAGE_KEY, newTheme);
   }, []);
 
-  const toggleTheme = useCallback(() => {
-    const newTheme = isDark ? 'light' : 'dark';
-    setTheme(newTheme);
-  }, []);
-
   const isDark = theme === 'system'
     ? systemColorScheme === 'dark'
     : theme === 'dark';
+
+  const toggleTheme = useCallback(() => {
+    setTheme(isDark ? 'light' : 'dark');
+  }, [isDark, setTheme]);
 
   const colors = isDark ? Colors.dark : Colors.light;
 

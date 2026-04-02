@@ -13,6 +13,7 @@ Notifications.setNotificationHandler({
     shouldPlaySound: true,
     shouldSetBadge: true,
     shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlayAudioInSilentMode: false,
   }),
 });
@@ -113,8 +114,8 @@ export function useNotifications() {
     });
 
     return () => {
-      Notifications.removeNotificationSubscription(notificationListener);
-      Notifications.removeNotificationSubscription(responseListener);
+      notificationListener.remove();
+      responseListener.remove();
     };
   }, [user, fetchNotifications]);
 

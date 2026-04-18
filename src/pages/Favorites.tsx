@@ -109,7 +109,7 @@ export default function Favorites() {
                 </Link>
                 <Link to="/properties?category=real-estate">
                   <Button variant="outline" className="font-arabic">
-                    عقارات
+                    عناصر
                   </Button>
                 </Link>
                 <Link to="/properties?category=cars">

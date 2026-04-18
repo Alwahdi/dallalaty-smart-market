@@ -19,6 +19,7 @@ import AccountSettings from "./pages/AccountSettings";
 import Favorites from "./pages/Favorites";
 import NotFound from "./pages/NotFound";
 import AdminPanel from "./pages/AdminPanel";
+import MerchantDashboard from "./pages/MerchantDashboard";
 import CacheManager from "@/components/CacheManager";
 import BackHandler from "@/components/BackHandler";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -53,6 +54,7 @@ const App = () => (
             <Route path="/product/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
             <Route path="/account" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
             <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
+            <Route path="/merchant" element={<ProtectedRoute><MerchantDashboard /></ProtectedRoute>} />
             <Route path="/admin" element={
               <ProtectedRoute>
                 <AdminGuard>

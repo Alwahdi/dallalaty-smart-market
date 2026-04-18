@@ -81,10 +81,10 @@ const Index = () => {
           <div className="container mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 font-arabic">
-                العروض المميزة
+                أحدث العناصر
               </h2>
               <p className="text-muted-foreground text-lg font-arabic">
-                أحدث وأفضل العروض العقارية المتاحة حالياً
+                أحدث وأفضل الإعلانات المتاحة حالياً
               </p>
             </div>
 
@@ -101,14 +101,14 @@ const Index = () => {
                 ))
               ) : (
                 <div className="col-span-full text-center py-12">
-                  <p className="text-muted-foreground text-lg">لا توجد عروض متاحة حالياً</p>
+                  <p className="text-muted-foreground text-lg">لا توجد إعلانات متاحة حالياً</p>
                 </div>
               )}
             </div>
 
             <div className="text-center mt-12">
               <Link to="/properties" className="bg-gradient-primary text-primary-foreground px-8 py-3 rounded-2xl font-semibold hover:shadow-glow transition-all duration-300 font-arabic inline-block">
-                عرض المزيد من العقارات
+                عرض المزيد من الإعلانات
               </Link>
             </div>
           </div>
@@ -130,7 +130,7 @@ const Index = () => {
                 },
                 {
                   title: "تنوع كبير",
-                  description: "آلاف العروض في جميع التصنيفات",
+                  description: "آلاف الإعلانات في جميع الأقسام",
                   icon: "🏘️"
                 },
                 {
@@ -160,7 +160,7 @@ const Index = () => {
                 متجر إب الشامل
               </h3>
               <p className="text-muted-foreground font-arabic">
-                متجرك الذكي للأقسام والعروض. نربط بين الدلالين والمشترين بكل سهولة وأمان.
+                متجرك الذكي للأقسام والإعلانات. نربط بين البائعين والمشترين بكل سهولة وأمان.
               </p>
             </div>
 
@@ -170,7 +170,7 @@ const Index = () => {
               <ul className="space-y-2">
                 <li>
                   <Link to="/properties" className="text-muted-foreground hover:text-primary transition-colors font-arabic">
-                    تصفح العروض
+                    تصفح الإعلانات
                   </Link>
                 </li>
                 <li>
@@ -179,7 +179,7 @@ const Index = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/account-settings" className="text-muted-foreground hover:text-primary transition-colors font-arabic">
+                  <Link to="/account" className="text-muted-foreground hover:text-primary transition-colors font-arabic">
                     الحساب
                   </Link>
                 </li>

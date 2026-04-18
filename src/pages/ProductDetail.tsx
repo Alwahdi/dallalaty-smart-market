@@ -42,7 +42,6 @@ interface Property {
   neighborhood: string;
   images: string[];
   videos?: string[];
-  amenities?: string[];
   listing_type: string;
   agent_name: string;
   agent_phone: string;

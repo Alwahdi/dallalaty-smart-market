@@ -15,21 +15,18 @@ import { SwipeToDelete } from '@/components/SwipeToDelete';
 interface Property {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   price: number;
-  location: string;
-  city: string;
-  property_type: string;
-  listing_type: string;
-  bedrooms: number;
-  bathrooms: number;
-  area_sqm: number;
-  neighborhood: string;
+  location?: string;
+  city?: string;
+  neighborhood?: string;
+  category?: string;
+  listing_type?: string;
   images: string[];
-  amenities: string[];
-  agent_name: string;
-  agent_phone: string;
-  agent_email: string;
+  agent_name?: string;
+  agent_phone?: string;
+  agent_email?: string;
+  custom_data?: Record<string, any>;
 }
 
 export default function Favorites() {

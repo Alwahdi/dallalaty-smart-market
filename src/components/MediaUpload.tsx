@@ -215,17 +215,19 @@ export default function MediaUpload({
     }
   };
 
+  const extractStoragePath = (publicUrl: string): string | null => {
+    const marker = `/object/public/${bucketName}/`;
+    const idx = publicUrl.indexOf(marker);
+    if (idx === -1) return null;
+    return publicUrl.substring(idx + marker.length);
+  };
+
   const handleRemoveImage = async (imageUrl: string, index: number) => {
     try {
-      const urlParts = imageUrl.split('/');
-      const fileName = urlParts.slice(-2).join('/');
-
-      const { error } = await supabase.storage
-        .from(bucketName)
-        .remove([fileName]);
-
-      if (error) {
-        console.warn('Could not delete file from storage:', error);
+      const path = extractStoragePath(imageUrl);
+      if (path) {
+        const { error } = await supabase.storage.from(bucketName).remove([path]);
+        if (error) console.warn('Could not delete file from storage:', error);
       }
 
       const newImages = images.filter((_, i) => i !== index);
@@ -234,7 +236,6 @@ export default function MediaUpload({
       toast({
         title: "تم الحذف",
         description: "تم حذف الصورة بنجاح",
-        className: "bg-green-50 border-green-200 text-green-800"
       });
     } catch (error: any) {
       console.error('Error removing image:', error);
@@ -243,17 +244,11 @@ export default function MediaUpload({
 
   const handleRemoveVideo = async (videoUrl: string, index: number) => {
     if (!onVideosChange) return;
-    
     try {
-      const urlParts = videoUrl.split('/');
-      const fileName = urlParts.slice(-3).join('/');
-
-      const { error } = await supabase.storage
-        .from(bucketName)
-        .remove([fileName]);
-
-      if (error) {
-        console.warn('Could not delete file from storage:', error);
+      const path = extractStoragePath(videoUrl);
+      if (path) {
+        const { error } = await supabase.storage.from(bucketName).remove([path]);
+        if (error) console.warn('Could not delete file from storage:', error);
       }
 
       const newVideos = videos.filter((_, i) => i !== index);
@@ -262,7 +257,6 @@ export default function MediaUpload({
       toast({
         title: "تم الحذف",
         description: "تم حذف الفيديو بنجاح",
-        className: "bg-green-50 border-green-200 text-green-800"
       });
     } catch (error: any) {
       console.error('Error removing video:', error);

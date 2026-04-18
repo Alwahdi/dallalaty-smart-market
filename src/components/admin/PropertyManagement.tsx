@@ -439,8 +439,8 @@ export default function PropertyManagement() {
                     onVideosChange={setPropertyVideos}
                     maxImages={10}
                     maxVideos={2}
-                    bucketName="properties"
-                    folder="property-images"
+                    bucketName="property-images"
+                    folder={user?.id || 'anon'}
                   />
                 </div>
               </div>

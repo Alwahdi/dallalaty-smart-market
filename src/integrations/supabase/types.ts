@@ -126,6 +126,13 @@ export type Database = {
             referencedRelation: "properties"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "favorites_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "public_properties"
+            referencedColumns: ["id"]
+          },
         ]
       }
       notifications: {
@@ -310,7 +317,93 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          full_name: string | null
+          location: string | null
+          user_id: string | null
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          full_name?: string | null
+          location?: string | null
+          user_id?: string | null
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          full_name?: string | null
+          location?: string | null
+          user_id?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      public_properties: {
+        Row: {
+          agent_id: string | null
+          agent_name: string | null
+          category: string | null
+          city: string | null
+          created_at: string | null
+          custom_data: Json | null
+          description: string | null
+          id: string | null
+          images: string[] | null
+          listing_type: string | null
+          location: string | null
+          neighborhood: string | null
+          price: number | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+          videos: string[] | null
+        }
+        Insert: {
+          agent_id?: string | null
+          agent_name?: string | null
+          category?: string | null
+          city?: string | null
+          created_at?: string | null
+          custom_data?: Json | null
+          description?: string | null
+          id?: string | null
+          images?: string[] | null
+          listing_type?: string | null
+          location?: string | null
+          neighborhood?: string | null
+          price?: number | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          videos?: string[] | null
+        }
+        Update: {
+          agent_id?: string | null
+          agent_name?: string | null
+          category?: string | null
+          city?: string | null
+          created_at?: string | null
+          custom_data?: Json | null
+          description?: string | null
+          id?: string | null
+          images?: string[] | null
+          listing_type?: string | null
+          location?: string | null
+          neighborhood?: string | null
+          price?: number | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          videos?: string[] | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_category_role: {

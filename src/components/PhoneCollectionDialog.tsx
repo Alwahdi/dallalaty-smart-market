@@ -140,16 +140,7 @@ export default function PhoneCollectionDialog({
             </p>
           </div>
 
-          <div className="pt-4 flex flex-col-reverse sm:flex-row gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full sm:w-auto"
-              onClick={onClose}
-              disabled={loading}
-            >
-              تخطّي الآن
-            </Button>
+          <div className="pt-4">
             <Button
               type="submit"
               className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80"

@@ -14,16 +14,263 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      categories: {
+        Row: {
+          created_at: string
+          custom_fields: Json | null
+          description: string | null
+          icon: string | null
+          id: string
+          order_index: number
+          parent_id: string | null
+          slug: string
+          status: string
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          custom_fields?: Json | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          order_index?: number
+          parent_id?: string | null
+          slug: string
+          status?: string
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          custom_fields?: Json | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          order_index?: number
+          parent_id?: string | null
+          slug?: string
+          status?: string
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      favorites: {
+        Row: {
+          created_at: string
+          id: string
+          property_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          property_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          property_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          link: string | null
+          message: string | null
+          read: boolean
+          title: string
+          type: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          link?: string | null
+          message?: string | null
+          read?: boolean
+          title: string
+          type?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          link?: string | null
+          message?: string | null
+          read?: boolean
+          title?: string
+          type?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      properties: {
+        Row: {
+          agent_email: string | null
+          agent_id: string | null
+          agent_name: string | null
+          agent_phone: string | null
+          category: string
+          city: string | null
+          created_at: string
+          custom_data: Json | null
+          description: string | null
+          id: string
+          images: string[] | null
+          listing_type: string | null
+          location: string | null
+          neighborhood: string | null
+          price: number
+          status: string
+          title: string
+          updated_at: string
+          videos: string[] | null
+        }
+        Insert: {
+          agent_email?: string | null
+          agent_id?: string | null
+          agent_name?: string | null
+          agent_phone?: string | null
+          category: string
+          city?: string | null
+          created_at?: string
+          custom_data?: Json | null
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          listing_type?: string | null
+          location?: string | null
+          neighborhood?: string | null
+          price?: number
+          status?: string
+          title: string
+          updated_at?: string
+          videos?: string[] | null
+        }
+        Update: {
+          agent_email?: string | null
+          agent_id?: string | null
+          agent_name?: string | null
+          agent_phone?: string | null
+          category?: string
+          city?: string | null
+          created_at?: string
+          custom_data?: Json | null
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          listing_type?: string | null
+          location?: string | null
+          neighborhood?: string | null
+          price?: number
+          status?: string
+          title?: string
+          updated_at?: string
+          videos?: string[] | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "admin"
+        | "properties_admin"
+        | "categories_admin"
+        | "notifications_admin"
+        | "moderator"
+        | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +397,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: [
+        "admin",
+        "properties_admin",
+        "categories_admin",
+        "notifications_admin",
+        "moderator",
+        "user",
+      ],
+    },
   },
 } as const

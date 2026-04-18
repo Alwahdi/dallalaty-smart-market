@@ -228,7 +228,7 @@ export default function Auth() {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       required
-                      placeholder="05xxxxxxxx"
+                      placeholder="7xxxxxxxx (يمن)"
                       dir="ltr"
                     />
                   </div>

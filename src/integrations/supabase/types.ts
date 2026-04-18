@@ -67,6 +67,38 @@ export type Database = {
           },
         ]
       }
+      category_roles: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "category_roles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       favorites: {
         Row: {
           created_at: string
@@ -98,6 +130,7 @@ export type Database = {
       }
       notifications: {
         Row: {
+          action_url: string | null
           created_at: string
           id: string
           link: string | null
@@ -105,9 +138,11 @@ export type Database = {
           read: boolean
           title: string
           type: string | null
+          updated_at: string
           user_id: string | null
         }
         Insert: {
+          action_url?: string | null
           created_at?: string
           id?: string
           link?: string | null
@@ -115,9 +150,11 @@ export type Database = {
           read?: boolean
           title: string
           type?: string | null
+          updated_at?: string
           user_id?: string | null
         }
         Update: {
+          action_url?: string | null
           created_at?: string
           id?: string
           link?: string | null
@@ -125,6 +162,7 @@ export type Database = {
           read?: boolean
           title?: string
           type?: string | null
+          updated_at?: string
           user_id?: string | null
         }
         Relationships: []
@@ -132,33 +170,54 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           created_at: string
           email: string | null
           full_name: string | null
           id: string
+          is_active: boolean
+          location: string | null
           phone: string | null
+          push_token: string | null
+          suspended_at: string | null
+          suspended_by: string | null
           updated_at: string
           user_id: string
+          website: string | null
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id?: string
+          is_active?: boolean
+          location?: string | null
           phone?: string | null
+          push_token?: string | null
+          suspended_at?: string | null
+          suspended_by?: string | null
           updated_at?: string
           user_id: string
+          website?: string | null
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id?: string
+          is_active?: boolean
+          location?: string | null
           phone?: string | null
+          push_token?: string | null
+          suspended_at?: string | null
+          suspended_by?: string | null
           updated_at?: string
           user_id?: string
+          website?: string | null
         }
         Relationships: []
       }
@@ -254,6 +313,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_category_role: {
+        Args: {
+          _category_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

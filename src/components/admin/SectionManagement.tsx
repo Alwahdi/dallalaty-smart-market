@@ -423,13 +423,6 @@ export default function SectionManagement() {
                 </p>
               </DialogHeader>
               <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 min-h-0">
-              <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b bg-background min-w-0">
-                <DialogTitle className="text-lg sm:text-xl">{editingCategory ? 'تحديث القسم' : 'إضافة قسم جديد'}</DialogTitle>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {editingCategory ? 'قم بتحديث معلومات القسم' : 'أضف قسم جديد للنظام'}
-                </p>
-              </DialogHeader>
-              <div className="overflow-y-auto px-4 sm:px-6 py-4 min-h-0">
                 <div className="space-y-5">
                   <div className="space-y-2">
                     <Label htmlFor="title" className="text-sm font-semibold">عنوان القسم *</Label>

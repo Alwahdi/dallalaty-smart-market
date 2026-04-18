@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { lovable } from '@/integrations/lovable';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -51,12 +51,11 @@ export default function Auth() {
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    const result = await lovable.auth.signInWithOAuth('google', {
+      redirect_uri: `${window.location.origin}/auth/callback`,
     });
-    if (error) {
-      toast({ title: 'خطأ في تسجيل الدخول', description: error.message, variant: 'destructive' });
+    if (result.error) {
+      toast({ title: 'خطأ في تسجيل الدخول', description: (result.error as Error).message, variant: 'destructive' });
       setGoogleLoading(false);
     }
   };

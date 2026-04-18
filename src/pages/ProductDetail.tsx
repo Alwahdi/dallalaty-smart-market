@@ -221,17 +221,8 @@ export default function ProductDetail() {
   };
 
   const getCategoryLabel = (category: string) => {
-    const labels: { [key: string]: string } = {
-      'real-estate': 'عقارات',
-      'cars': 'سيارات',
-      'furniture': 'أثاث',
-      'electronics': 'إلكترونيات',
-      'clothes': 'ملابس',
-      'books': 'كتب',
-      'sports': 'رياضة',
-      'other': 'أخرى'
-    };
-    return labels[category] || category;
+    if (categoryLabel) return categoryLabel;
+    return category;
   };
 
   const nextImage = () => {
@@ -470,102 +461,19 @@ export default function ProductDetail() {
               </CardContent>
             </Card>
 
-            {/* Property Details */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-bold mb-4 font-arabic">المواصفات</h3>
-                <div className="space-y-3">
-                  {property.category === 'real-estate' && (
-                    <>
-                      {property.bedrooms && (
-                        <div className="flex items-center justify-between">
-                          <span className="flex items-center text-muted-foreground font-arabic">
-                            <Bed className="w-4 h-4 ml-2" />
-                            غرف النوم
-                          </span>
-                          <span className="font-semibold">{property.bedrooms}</span>
-                        </div>
-                      )}
-                      {property.bathrooms && (
-                        <div className="flex items-center justify-between">
-                          <span className="flex items-center text-muted-foreground font-arabic">
-                            <Bath className="w-4 h-4 ml-2" />
-                            دورات المياه
-                          </span>
-                          <span className="font-semibold">{property.bathrooms}</span>
-                        </div>
-                      )}
-                      {property.area_sqm && (
-                        <div className="flex items-center justify-between">
-                          <span className="flex items-center text-muted-foreground font-arabic">
-                            <Home className="w-4 h-4 ml-2" />
-                            المساحة
-                          </span>
-                          <span className="font-semibold">{property.area_sqm} م²</span>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {property.category === 'cars' && (
-                    <>
-                      {property.brand && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-muted-foreground font-arabic">الماركة</span>
-                          <span className="font-semibold">{property.brand}</span>
-                        </div>
-                      )}
-                      {property.model && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-muted-foreground font-arabic">الموديل</span>
-                          <span className="font-semibold">{property.model}</span>
-                        </div>
-                      )}
-                      {property.year && (
-                        <div className="flex items-center justify-between">
-                          <span className="flex items-center text-muted-foreground font-arabic">
-                            <Calendar className="w-4 h-4 ml-2" />
-                            السنة
-                          </span>
-                          <span className="font-semibold">{property.year}</span>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {property.color && (
-                    <div className="flex items-center justify-between">
-                      <span className="flex items-center text-muted-foreground font-arabic">
-                        <Palette className="w-4 h-4 ml-2" />
-                        اللون
-                      </span>
-                      <span className="font-semibold">{property.color}</span>
-                    </div>
-                  )}
-
-                  {property.condition && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground font-arabic">الحالة</span>
-                      <Badge variant="outline">
-                        {property.condition === 'new' ? 'جديد' : 
-                         property.condition === 'excellent' ? 'ممتاز' :
-                         property.condition === 'good' ? 'جيد' : property.condition}
-                      </Badge>
-                    </div>
-                  )}
-
-                  {property.size && (
-                    <div className="flex items-center justify-between">
-                      <span className="flex items-center text-muted-foreground font-arabic">
-                        <Package className="w-4 h-4 ml-2" />
-                        الحجم
-                      </span>
-                      <span className="font-semibold">{property.size}</span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            {/* Dynamic Specs from category custom fields */}
+            {categoryFields.length > 0 && property.custom_data && Object.keys(property.custom_data).length > 0 && (
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-bold mb-4 font-arabic">المواصفات</h3>
+                  <DynamicPropertyDisplay
+                    fields={categoryFields}
+                    data={property.custom_data}
+                    variant="detail"
+                  />
+                </CardContent>
+              </Card>
+            )}
 
             {/* Agent Info */}
             <Card>

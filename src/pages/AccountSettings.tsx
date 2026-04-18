@@ -674,8 +674,8 @@ export default function AccountSettings() {
                       </p>
                     </div>
                     
-                    <select className="w-full p-2 border rounded-md bg-background font-arabic" dir="rtl">
-                      <option value="ar" selected>العربية</option>
+                    <select defaultValue="ar" className="w-full p-2 border rounded-md bg-background font-arabic" dir="rtl">
+                      <option value="ar">العربية</option>
                       <option value="en">English</option>
                     </select>
                   </div>

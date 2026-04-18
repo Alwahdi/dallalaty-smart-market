@@ -371,7 +371,7 @@ export default function PropertyManagement() {
                   id="city"
                   value={propertyForm.city}
                   onChange={(e) => setPropertyForm(prev => ({ ...prev, city: e.target.value }))}
-                  placeholder="الرياض، جدة، الدمام..."
+                  placeholder="صنعاء، عدن، تعز، الحديدة..."
                   className="h-11 sm:h-10 text-base sm:text-sm mt-1.5"
                 />
               </div>

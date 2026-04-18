@@ -306,8 +306,8 @@ export default function Terms() {
               </CardHeader>
               <CardContent className="text-muted-foreground leading-relaxed">
                 <p>
-                  تخضع هذه الشروط وتفسر وفقاً لقوانين المملكة العربية السعودية. أي نزاعات تنشأ عن هذه الشروط
-                  أو استخدام المنصة تخضع للاختصاص الحصري للمحاكم السعودية.
+                  تخضع هذه الشروط وتفسر وفقاً لقوانين الجمهورية اليمنية. أي نزاعات تنشأ عن هذه الشروط
+                  أو استخدام المنصة تخضع للاختصاص الحصري للمحاكم اليمنية.
                 </p>
               </CardContent>
             </Card>
@@ -323,7 +323,7 @@ export default function Terms() {
                 </p>
                 <div className="space-y-2 p-4 bg-muted/50 rounded-lg">
                   <p><strong className="text-foreground">البريد الإلكتروني:</strong> support@matjeri.com</p>
-                  <p><strong className="text-foreground">الهاتف:</strong> +966 50 123 4567</p>
+                  <p><strong className="text-foreground">الهاتف:</strong> +967 7XX XXX XXX</p>
                 </div>
               </CardContent>
             </Card>

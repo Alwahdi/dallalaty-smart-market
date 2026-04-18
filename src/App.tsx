@@ -28,6 +28,7 @@ const Favorites = lazy(() => import("./pages/Favorites"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
 const MerchantDashboard = lazy(() => import("./pages/MerchantDashboard"));
+import MerchantGuard from "@/components/MerchantGuard";
 
 const queryClient = new QueryClient();
 
@@ -65,7 +66,12 @@ const App = () => (
               <Route path="/product/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
               <Route path="/account" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
               <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
-              <Route path="/merchant" element={<ProtectedRoute><MerchantDashboard /></ProtectedRoute>} />
+              <Route path="/merchant" element={
+                <ProtectedRoute><MerchantGuard><MerchantDashboard /></MerchantGuard></ProtectedRoute>
+              } />
+              <Route path="/merchant/:merchantId" element={
+                <ProtectedRoute><MerchantGuard><MerchantDashboard /></MerchantGuard></ProtectedRoute>
+              } />
               <Route path="/admin" element={
                 <ProtectedRoute>
                   <AdminGuard>

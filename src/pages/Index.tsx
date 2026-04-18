@@ -8,6 +8,9 @@ import BottomNavigation from "@/components/BottomNavigation";
 import ExploreSection from "@/components/ExploreSection";
 import PropertyCard from "@/components/PropertyCardNew";
 import PropertyCardSkeleton from "@/components/PropertyCardSkeleton";
+import FloatingAddButton from "@/components/FloatingAddButton";
+import { useMerchantContext } from "@/hooks/useMerchantContext";
+import { Store, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 
@@ -15,6 +18,7 @@ const Index = () => {
   const { user } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const { hasMerchantAccess } = useMerchantContext();
 
   // Show onboarding for new users
   useEffect(() => {
@@ -73,6 +77,27 @@ const Index = () => {
       </div>
       
       <main className="pb-20 md:pb-0">
+        {/* بانر ترحيب التاجر */}
+        {hasMerchantAccess && (
+          <div className="container mx-auto px-4 pt-4">
+            <Link
+              to="/merchant"
+              className="flex items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-l from-primary/10 to-primary/5 border border-primary/20 hover:border-primary/40 hover:shadow-md transition-all group"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+                  <Store className="w-5 h-5 text-primary" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="font-bold text-foreground font-arabic truncate">أهلاً بك في لوحة التاجر</h3>
+                  <p className="text-xs text-muted-foreground font-arabic truncate">أدر منتجاتك وموظفيك من مكان واحد</p>
+                </div>
+              </div>
+              <ArrowLeft className="w-5 h-5 text-primary shrink-0 group-hover:-translate-x-1 transition-transform" />
+            </Link>
+          </div>
+        )}
+
         {/* الأقسام الرئيسية - أول قسم في الصفحة */}
         <ExploreSection />
 
@@ -212,6 +237,7 @@ const Index = () => {
 
       {/* Bottom Navigation for Mobile */}
       <BottomNavigation />
+      <FloatingAddButton />
     </div>
   );
 };

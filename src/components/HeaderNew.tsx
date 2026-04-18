@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { Moon, Sun, Menu, Heart, User, Search, Building2, LogOut, Settings, Bell, Shield } from "lucide-react";
+import { Moon, Sun, Menu, Heart, User, Search, Building2, LogOut, Settings, Bell, Shield, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
+import { useMerchantContext } from "@/hooks/useMerchantContext";
 import { Link, useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
@@ -27,6 +28,7 @@ const Header = ({ isDark, toggleTheme }: HeaderProps) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const { isAnyAdmin } = useRoles();
+  const { hasMerchantAccess } = useMerchantContext();
 
   const handleSignOut = async () => {
     await signOut();
@@ -120,6 +122,12 @@ const Header = ({ isDark, toggleTheme }: HeaderProps) => {
                     <Heart className="mr-2 h-4 w-4" />
                     <span className="font-arabic">المفضلات</span>
                   </DropdownMenuItem>
+                  {hasMerchantAccess && (
+                    <DropdownMenuItem onClick={() => navigate('/merchant')}>
+                      <Store className="mr-2 h-4 w-4" />
+                      <span className="font-arabic text-primary">لوحة التاجر</span>
+                    </DropdownMenuItem>
+                  )}
                   {isAnyAdmin && (
                     <DropdownMenuItem onClick={() => navigate('/admin')}>
                       <Shield className="mr-2 h-4 w-4" />

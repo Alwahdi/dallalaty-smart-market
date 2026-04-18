@@ -1,20 +1,23 @@
-import { Home, Heart, LayoutGrid } from "lucide-react";
+import { Home, Heart, LayoutGrid, Store } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useMerchantContext } from "@/hooks/useMerchantContext";
 import { Badge } from "@/components/ui/badge";
 
 const BottomNavigation = () => {
   const location = useLocation();
   const { favorites } = useFavorites();
+  const { hasMerchantAccess } = useMerchantContext();
 
   if (location.pathname.startsWith('/admin')) {
     return null;
   }
 
   const navItems = [
-    { icon: Home, label: "الرئيسية", path: "/", badge: null },
+    { icon: Home, label: "الرئيسية", path: "/", badge: null as number | null },
     { icon: LayoutGrid, label: "العناصر", path: "/properties", badge: null },
+    ...(hasMerchantAccess ? [{ icon: Store, label: "متجري", path: "/merchant", badge: null }] : []),
     { icon: Heart, label: "المفضلة", path: "/favorites", badge: favorites.length > 0 ? favorites.length : null },
   ];
 
@@ -23,7 +26,9 @@ const BottomNavigation = () => {
       <div className="flex items-center justify-around py-2.5 px-2">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname === item.path;
+          const isActive = item.path === '/'
+            ? location.pathname === '/'
+            : location.pathname.startsWith(item.path);
           
           return (
             <Link

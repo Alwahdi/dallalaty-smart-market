@@ -42,7 +42,9 @@ interface UserProfile {
   phone: string | null;
   avatar_url: string | null;
   bio: string | null;
-  location: string | null;
+  city: string | null;
+  latitude: number | null;
+  longitude: number | null;
   website: string | null;
 }
 
@@ -51,13 +53,13 @@ export default function AccountSettings() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [locating, setLocating] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [formData, setFormData] = useState({
     full_name: '',
     phone: '',
     bio: '',
-    location: '',
     website: ''
   });
   const [passwordData, setPasswordData] = useState({
@@ -98,7 +100,6 @@ export default function AccountSettings() {
           full_name: data.full_name || '',
           phone: data.phone || '',
           bio: data.bio || '',
-          location: data.location || '',
           website: data.website || ''
         });
       }
@@ -187,12 +188,21 @@ export default function AccountSettings() {
           full_name: formData.full_name.trim(),
           phone: formData.phone?.trim() || null,
           bio: formData.bio?.trim() || null,
-          location: formData.location?.trim() || null,
           website: formData.website?.trim() || null,
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes('PHONE_ALREADY_USED') || (error as any).code === '23505') {
+          toast({
+            title: "رقم الهاتف مستخدم",
+            description: "هذا الرقم مسجّل بحساب آخر. الرجاء استخدام رقم مختلف.",
+            variant: "destructive"
+          });
+          return;
+        }
+        throw error;
+      }
 
       toast({
         title: "✅ تم الحفظ",

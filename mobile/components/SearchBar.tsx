@@ -50,7 +50,6 @@ export default function SearchBar({
           placeholderTextColor={colors.textMuted}
           returnKeyType="search"
           textAlign="right"
-          writingDirection="rtl"
         />
         {value.length > 0 && (
           <Pressable onPress={() => onChangeText('')} hitSlop={8}>

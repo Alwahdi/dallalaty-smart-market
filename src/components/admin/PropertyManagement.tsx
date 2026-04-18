@@ -433,6 +433,8 @@ export default function PropertyManagement() {
                 </Label>
                 <div className="mt-2">
                   <MediaUpload
+                    bucketName="property-images"
+                    folder={user?.id || 'anon'}
                     images={propertyImages}
                     videos={propertyVideos}
                     onImagesChange={setPropertyImages}

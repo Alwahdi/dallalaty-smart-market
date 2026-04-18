@@ -28,7 +28,8 @@ import {
   CheckCircle2,
   Settings,
   Sun,
-  Moon
+  Moon,
+  LocateFixed
 } from 'lucide-react';
 import HeaderNew from '@/components/HeaderNew';
 import HeaderMobile from '@/components/HeaderMobile';
@@ -64,10 +65,8 @@ export default function AccountSettings() {
     confirmPassword: ''
   });
 
-  // Redirect unauthenticated users
-  if (!user && !authLoading) {
-    return <Navigate to="/auth" replace />;
-  }
+  // NOTE: Do NOT early-return here. React requires all hooks to run on every
+  // render. We perform the auth gate inside JSX at the bottom instead.
 
   const toggleTheme = () => {
     setIsDark(!isDark);
@@ -178,26 +177,20 @@ export default function AccountSettings() {
         return;
       }
 
-      if (!formData.phone?.trim()) {
-        toast({
-          title: "خطأ",
-          description: "رقم الهاتف مطلوب",
-          variant: "destructive"
-        });
-        return;
-      }
+      // Phone is now optional in profile updates (it can be added later)
+      // Removed mandatory check to allow saving other fields independently
 
       const { error } = await supabase
         .from('profiles')
         .upsert({
           user_id: user.id,
           full_name: formData.full_name.trim(),
-          phone: formData.phone.trim(),
+          phone: formData.phone?.trim() || null,
           bio: formData.bio?.trim() || null,
           location: formData.location?.trim() || null,
           website: formData.website?.trim() || null,
           updated_at: new Date().toISOString()
-        });
+        }, { onConflict: 'user_id' });
 
       if (error) throw error;
 
@@ -296,6 +289,11 @@ export default function AccountSettings() {
       setLoading(false);
     }
   };
+
+  // Auth gate AFTER all hooks (avoids "hooks after early return" lint).
+  if (!user && !authLoading) {
+    return <Navigate to="/auth" replace />;
+  }
 
   if (authLoading || loading) {
     return (
@@ -399,15 +397,14 @@ export default function AccountSettings() {
                     <div className="space-y-2">
                       <Label htmlFor="phone" className="flex items-center gap-2 font-arabic">
                         <Phone className="w-4 h-4" />
-                        رقم الهاتف (لا يمكن التعديل)
+                        رقم الهاتف
                       </Label>
                       <Input
                         id="phone"
                         value={formData.phone}
-                        disabled
+                        onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
                         placeholder="05xxxxxxxx"
                         dir="ltr"
-                        className="bg-muted cursor-not-allowed"
                       />
                     </div>
 
@@ -431,12 +428,52 @@ export default function AccountSettings() {
                         <MapPin className="w-4 h-4" />
                         الموقع
                       </Label>
-                      <Input
-                        id="location"
-                        value={formData.location}
-                        onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                        placeholder="الرياض، السعودية"
-                      />
+                      <div className="flex gap-2">
+                        <Input
+                          id="location"
+                          value={formData.location}
+                          onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                          placeholder="الرياض، السعودية"
+                          className="flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          title="تحديد موقعي تلقائياً"
+                          onClick={() => {
+                            if (!('geolocation' in navigator)) {
+                              toast({ title: 'غير مدعوم', description: 'متصفحك لا يدعم تحديد الموقع', variant: 'destructive' });
+                              return;
+                            }
+                            navigator.geolocation.getCurrentPosition(
+                              async (pos) => {
+                                try {
+                                  const { latitude, longitude } = pos.coords;
+                                  const res = await fetch(
+                                    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=ar`,
+                                    { headers: { 'User-Agent': 'lovable-app' } },
+                                  );
+                                  const json = await res.json();
+                                  const a = json?.address ?? {};
+                                  const city = a.city || a.town || a.village || a.county || a.state || '';
+                                  const country = a.country || '';
+                                  const label = [city, country].filter(Boolean).join('، ') ||
+                                    `${latitude.toFixed(3)}, ${longitude.toFixed(3)}`;
+                                  setFormData(prev => ({ ...prev, location: label }));
+                                  toast({ title: '✅ تم التحديد', description: `موقعك: ${label}` });
+                                } catch (e: any) {
+                                  toast({ title: 'خطأ', description: e?.message || 'فشل قراءة الموقع', variant: 'destructive' });
+                                }
+                              },
+                              (err) => toast({ title: 'تعذّر تحديد الموقع', description: err.message, variant: 'destructive' }),
+                              { enableHighAccuracy: true, timeout: 8000 },
+                            );
+                          }}
+                        >
+                          <LocateFixed className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
 
                     <div className="space-y-2">
@@ -610,7 +647,7 @@ export default function AccountSettings() {
                     
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <Label className="font-arabic">إشعارات العروض الجديدة</Label>
+                        <Label className="font-arabic">إشعارات الإعلانات الجديدة</Label>
                         <input type="checkbox" defaultChecked className="rounded" />
                       </div>
                       
@@ -637,8 +674,8 @@ export default function AccountSettings() {
                       </p>
                     </div>
                     
-                    <select className="w-full p-2 border rounded-md bg-background font-arabic" dir="rtl">
-                      <option value="ar" selected>العربية</option>
+                    <select defaultValue="ar" className="w-full p-2 border rounded-md bg-background font-arabic" dir="rtl">
+                      <option value="ar">العربية</option>
                       <option value="en">English</option>
                     </select>
                   </div>

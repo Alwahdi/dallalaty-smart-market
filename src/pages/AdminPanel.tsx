@@ -99,7 +99,7 @@ export default function AdminPanel() {
           <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
             <div className="space-y-1">
-              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">العقارات</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">العناصر</CardTitle>
               <div className="text-base sm:text-lg lg:text-2xl font-bold text-blue-600">{stats.properties.toLocaleString('ar')}</div>
             </div>
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500/10 rounded-lg flex items-center justify-center group-hover:bg-blue-500/20 transition-colors duration-300 flex-shrink-0">
@@ -107,7 +107,7 @@ export default function AdminPanel() {
             </div>
           </CardHeader>
           <CardContent className="relative pt-0 p-3 sm:p-6">
-            <p className="text-[10px] sm:text-xs text-muted-foreground">عقار منشور</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">عنصر منشور</p>
           </CardContent>
         </Card>
         
@@ -178,7 +178,7 @@ export default function AdminPanel() {
                 )}
                 {isPropertiesAdmin && !isAdmin && (
                   <Badge variant="secondary" className="bg-blue-500/10 text-blue-600 border-blue-500/20 text-[10px] sm:text-xs px-2 py-1">
-                    مدير العقارات
+                    مدير العناصر
                   </Badge>
                 )}
                 {isCategoriesAdmin && !isAdmin && (
@@ -231,8 +231,8 @@ export default function AdminPanel() {
                   <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
                 </div>
                 <div className="flex-1 min-w-0 pt-0.5">
-                  <div className="font-bold text-xs sm:text-sm text-foreground mb-0.5">إدارة العقارات</div>
-                  <div className="text-[10px] sm:text-xs text-muted-foreground leading-relaxed">إضافة وتحرير العقارات</div>
+                  <div className="font-bold text-xs sm:text-sm text-foreground mb-0.5">إدارة العناصر</div>
+                  <div className="text-[10px] sm:text-xs text-muted-foreground leading-relaxed">إضافة وتحرير الإعلانات</div>
                 </div>
               </button>
             )}

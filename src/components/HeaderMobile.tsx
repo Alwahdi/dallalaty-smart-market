@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Moon, Sun, Search, Bell, User, Shield, Building2 } from "lucide-react";
+import { Moon, Sun, Search, Bell, User, Shield, Building2, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
@@ -79,7 +79,7 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
                   إعدادات الحساب
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/favorites')} className="font-arabic touch-manipulation">
-                  <Bell className="w-4 h-4 ml-2" />
+                  <Heart className="w-4 h-4 ml-2" />
                   المفضلة
                 </DropdownMenuItem>
                 {isAnyAdmin && (
@@ -106,7 +106,7 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
             <div className="relative">
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input 
-                placeholder="ابحث عن شقق، أراضي، سيارات..."
+                placeholder="ابحث عن الإعلانات والعناصر..."
                 className="pr-10 bg-background/80 border-border/50 font-arabic"
                 dir="rtl"
                 autoFocus

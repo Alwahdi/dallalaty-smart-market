@@ -60,21 +60,24 @@ export default function UserManagement() {
 
       if (rolesError) throw rolesError;
 
-      // Fetch emails from auth.users using admin API
-      const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
-      
-      if (authError) {
-        console.error('Error fetching auth users:', authError);
-      }
-
-      // Create a map of user_id to email
+      // Fetch emails via secure edge function (admins only).
+      // The previous direct call to supabase.auth.admin.listUsers() from the
+      // browser always returns 403 because it requires service_role.
       const emailMap: Map<string, string> = new Map();
-      const authUsers = authData?.users || [];
-      authUsers.forEach(u => {
-        if (u.email) {
-          emailMap.set(u.id, u.email);
+      try {
+        const { data: edgeData, error: edgeErr } = await supabase.functions.invoke(
+          'admin-list-users',
+        );
+        if (edgeErr) {
+          console.warn('admin-list-users edge call failed:', edgeErr);
+        } else if (edgeData?.users) {
+          (edgeData.users as Array<{ id: string; email: string | null }>).forEach((u) => {
+            if (u.email) emailMap.set(u.id, u.email);
+          });
         }
-      });
+      } catch (e) {
+        console.warn('admin-list-users threw:', e);
+      }
 
       // Combine the data
       const usersWithRoles: UserProfile[] = (profilesData || []).map(profile => ({
@@ -130,7 +133,7 @@ export default function UserManagement() {
   const getRoleLabel = (role: string) => {
     const roleLabels: Record<string, string> = {
       'admin': 'مدير عام',
-      'properties_admin': 'مدير العقارات',
+      'properties_admin': 'مدير العناصر',
       'categories_admin': 'مدير الأقسام',
       'notifications_admin': 'مدير الإشعارات',
       'moderator': 'مشرف',

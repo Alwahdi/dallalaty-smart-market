@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Moon, Sun, Search, Bell, User, Shield, Building2, Heart } from "lucide-react";
+import { Moon, Sun, Search, Bell, User, Shield, Building2, Heart, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import NotificationCenter from "@/components/NotificationCenter";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
+import { useMerchantContext } from "@/hooks/useMerchantContext";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 
@@ -21,6 +22,7 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { isAnyAdmin, loading: rolesLoading } = useRoles();
+  const { hasMerchantAccess } = useMerchantContext();
 
   const handleSignOut = async () => {
     await signOut();
@@ -82,6 +84,15 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
                   <Heart className="w-4 h-4 ml-2" />
                   المفضلة
                 </DropdownMenuItem>
+                {hasMerchantAccess && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate('/merchant')} className="font-arabic text-primary font-medium touch-manipulation">
+                      <Store className="w-4 h-4 ml-2" />
+                      لوحة التاجر
+                    </DropdownMenuItem>
+                  </>
+                )}
                 {isAnyAdmin && (
                   <>
                     <DropdownMenuSeparator />

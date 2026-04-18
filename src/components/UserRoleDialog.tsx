@@ -107,7 +107,7 @@ export default function UserRoleDialog({ userId, userEmail, currentRoles, onRole
           <span className="sm:hidden">الصلاحيات</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md w-[95vw] max-h-[90vh] flex flex-col gap-0 p-0" dir="rtl">
+      <DialogContent className="max-w-md w-[calc(100vw-2rem)] sm:w-full max-h-[85vh] flex flex-col gap-0 p-0 overflow-hidden" dir="rtl">
         <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b sticky top-0 bg-background z-10">
           <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
             <div className="w-9 h-9 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg flex items-center justify-center">

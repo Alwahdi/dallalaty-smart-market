@@ -442,6 +442,10 @@ export type Database = {
       }
     }
     Functions: {
+      can_view_agent_contact: {
+        Args: { _property_agent_id: string }
+        Returns: boolean
+      }
       get_employer_merchant_ids: {
         Args: { _employee_id: string }
         Returns: string[]

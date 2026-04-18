@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "دلالتي - السوق الذكي",
+    "slug": "dallalaty-smart-market",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "dallalaty",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#D4A843"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dallalaty.smartmarket",
+      "infoPlist": {
+        "CFBundleDevelopmentRegion": "ar"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#D4A843"
+      },
+      "package": "com.dallalaty.smartmarket",
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-secure-store"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

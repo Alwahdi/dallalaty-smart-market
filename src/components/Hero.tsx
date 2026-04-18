@@ -26,10 +26,10 @@ const Hero = () => {
               </span>
             </h1>
             <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-4 font-arabic">
-              منصتك الذكية للعروض العقارية
+              منصتك الذكية للعناصر والإعلانات
             </h2>
             <p className="text-lg md:text-xl text-muted-foreground font-arabic max-w-2xl mx-auto leading-relaxed">
-              اكتشف أفضل العروض العقارية والمستلزمات في مكان واحد. شقق، أراضي، أثاث، سيارات، ومستعمل بأسعار مميزة
+              اكتشف أفضل العناصر والمستلزمات في اليمن. منتجات، سيارات، أثاث، إلكترونيات بأسعار مميزة
             </p>
           </div>
 
@@ -53,7 +53,7 @@ const Hero = () => {
           {/* إحصائيات سريعة */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 animate-fade-in" style={{ animationDelay: '0.3s' }}>
             {[
-              { number: '١٠٠٠+', label: 'عقار متاح' },
+              { number: '١٠٠٠+', label: 'عنصر متاح' },
               { number: '٥٠٠+', label: 'دلال معتمد' },
               { number: '٢٠٠٠+', label: 'عميل راضي' },
               { number: '٢٤/٧', label: 'دعم فني' }

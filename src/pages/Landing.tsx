@@ -69,7 +69,7 @@ const Landing = () => {
                   <span className="text-foreground">للعروض المميزة</span>
                 </h1>
                 <p className="text-xl text-muted-foreground leading-relaxed max-w-lg">
-                  اكتشف أفضل العروض العقارية والمستلزمات في مكان واحد. شقق، أراضي، أثاث، سيارات، ومستعمل بأسعار لا تُقاوم
+                  اكتشف أفضل العناصر والمستلزمات في اليمن. سيارات، أثاث، إلكترونيات والمزيد بأسعار لا تُقاوم
                 </p>
               </div>
 

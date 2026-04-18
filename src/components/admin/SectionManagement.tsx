@@ -430,7 +430,7 @@ export default function SectionManagement() {
                       id="title" 
                       value={categoryForm.title} 
                       onChange={(e) => setCategoryForm((p) => ({ ...p, title: e.target.value }))} 
-                      placeholder="مثال: العقارات" 
+                      placeholder="مثال: السيارات" 
                       className="h-12 text-base"
                     />
                   </div>

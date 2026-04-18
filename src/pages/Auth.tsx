@@ -114,7 +114,7 @@ export default function Auth() {
             <Building2 className="h-16 w-16 text-primary drop-shadow-lg" />
           </div>
           <h1 className="text-3xl font-bold text-foreground">متجر إب الشامل</h1>
-          <p className="text-muted-foreground mt-2">منصة العقارات الذكية</p>
+          <p className="text-muted-foreground mt-2">منصة العناصر والإعلانات الذكية</p>
         </div>
 
         <Card>

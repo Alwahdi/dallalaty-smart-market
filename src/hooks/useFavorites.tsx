@@ -76,7 +76,7 @@ export const useFavorites = () => {
     if (!user) {
       toast({
         title: "يجب تسجيل الدخول",
-        description: "يجب تسجيل الدخول لإضافة العقارات للمفضلة",
+        description: "يجب تسجيل الدخول لإضافة العناصر للمفضلة",
         variant: "destructive"
       });
       return false;
@@ -94,7 +94,7 @@ export const useFavorites = () => {
         if (error.code === '23505') { // Unique constraint violation
           toast({
             title: "تنبيه",
-            description: "هذا العقار موجود بالفعل في المفضلة",
+            description: "هذا العنصر موجود بالفعل في المفضلة",
             variant: "default"
           });
           return false;
@@ -143,7 +143,7 @@ export const useFavorites = () => {
       
       toast({
         title: "🗑️ تم الحذف",
-        description: "تم حذف العقار من المفضلة",
+        description: "تم حذف العنصر من المفضلة",
         className: "bg-red-50 border-red-200 text-red-800"
       });
 

@@ -137,7 +137,7 @@ export default function Favorites() {
                     }}
                     deleteConfirmation={{
                       title: "إزالة من المفضلة",
-                      description: "هل أنت متأكد من أنك تريد إزالة هذا العقار من قائمة المفضلات؟"
+                      description: "هل أنت متأكد من أنك تريد إزالة هذا العنصر من قائمة المفضلات؟"
                     }}
                   >
                     <div className="relative group">

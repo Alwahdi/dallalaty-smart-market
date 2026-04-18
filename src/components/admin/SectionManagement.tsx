@@ -415,14 +415,14 @@ export default function SectionManagement() {
                 <span>إضافة قسم</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md w-[95vw] max-h-[90vh] flex flex-col gap-0 p-0">
-              <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b sticky top-0 bg-background z-10">
+            <DialogContent className="max-w-md w-[calc(100vw-2rem)] sm:w-[95vw] max-h-[90vh] !grid-cols-1 !grid-rows-[auto_1fr_auto] !gap-0 !p-0 overflow-hidden">
+              <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b bg-background min-w-0">
                 <DialogTitle className="text-lg sm:text-xl">{editingCategory ? 'تحديث القسم' : 'إضافة قسم جديد'}</DialogTitle>
                 <p className="text-sm text-muted-foreground mt-1">
                   {editingCategory ? 'قم بتحديث معلومات القسم' : 'أضف قسم جديد للنظام'}
                 </p>
               </DialogHeader>
-              <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
+              <div className="overflow-y-auto px-4 sm:px-6 py-4 min-h-0">
                 <div className="space-y-5">
                   <div className="space-y-2">
                     <Label htmlFor="title" className="text-sm font-semibold">عنوان القسم *</Label>
@@ -520,7 +520,7 @@ export default function SectionManagement() {
                   </div>
                 </div>
               </div>
-              <div className="px-4 sm:px-6 py-4 border-t sticky bottom-0 bg-background flex gap-3">
+              <div className="px-4 sm:px-6 py-4 border-t bg-background flex gap-3">
                 <Button 
                   variant="outline" 
                   onClick={() => setCategoryDialogOpen(false)} 

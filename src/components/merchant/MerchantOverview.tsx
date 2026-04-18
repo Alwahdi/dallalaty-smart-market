@@ -118,7 +118,7 @@ export default function MerchantOverview({
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm truncate">{p.title}</p>
-                    <p className="text-xs text-muted-foreground">{p.price.toLocaleString('ar-YE')} ريال</p>
+                    <p className="text-xs text-muted-foreground">{formatPrice(p.price, (p as any).currency)}</p>
                   </div>
                   <span className={`text-xs px-2 py-0.5 rounded-full ${
                     p.status === 'active' ? 'bg-green-500/10 text-green-600' : 'bg-muted text-muted-foreground'

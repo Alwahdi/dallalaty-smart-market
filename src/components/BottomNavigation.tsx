@@ -1,4 +1,4 @@
-import { Home, Heart, Building2 } from "lucide-react";
+import { Home, Heart, LayoutGrid } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -8,30 +8,14 @@ const BottomNavigation = () => {
   const location = useLocation();
   const { favorites } = useFavorites();
 
-  // Hide bottom nav on admin pages
   if (location.pathname.startsWith('/admin')) {
     return null;
   }
 
   const navItems = [
-    {
-      icon: Home,
-      label: "الرئيسية",
-      path: "/",
-      badge: null,
-    },
-    {
-      icon: Building2,
-      label: "العقارات",
-      path: "/properties",
-      badge: null,
-    },
-    {
-      icon: Heart,
-      label: "المفضلة",
-      path: "/favorites",
-      badge: favorites.length > 0 ? favorites.length : null,
-    },
+    { icon: Home, label: "الرئيسية", path: "/", badge: null },
+    { icon: LayoutGrid, label: "العناصر", path: "/properties", badge: null },
+    { icon: Heart, label: "المفضلة", path: "/favorites", badge: favorites.length > 0 ? favorites.length : null },
   ];
 
   return (
@@ -53,23 +37,14 @@ const BottomNavigation = () => {
               )}
             >
               <div className="relative">
-                <Icon className={cn(
-                  "w-5 h-5 mb-1 transition-all duration-300",
-                  isActive ? "scale-110 drop-shadow-md" : ""
-                )} />
+                <Icon className={cn("w-5 h-5 mb-1 transition-all duration-300", isActive ? "scale-110 drop-shadow-md" : "")} />
                 {item.badge && (
-                  <Badge 
-                    variant="destructive" 
-                    className="absolute -top-2 -right-2 h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center text-[10px] animate-pulse font-medium"
-                  >
+                  <Badge variant="destructive" className="absolute -top-2 -right-2 h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center text-[10px] animate-pulse font-medium">
                     {item.badge > 99 ? '99+' : item.badge}
                   </Badge>
                 )}
               </div>
-              <span className={cn(
-                "text-[11px] font-arabic font-medium text-center leading-tight transition-all duration-300",
-                isActive && "font-semibold"
-              )}>
+              <span className={cn("text-[11px] font-arabic font-medium text-center leading-tight transition-all duration-300", isActive && "font-semibold")}>
                 {item.label}
               </span>
             </Link>

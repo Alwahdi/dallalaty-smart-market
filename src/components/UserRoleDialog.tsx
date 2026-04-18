@@ -17,7 +17,8 @@ interface UserRoleDialogProps {
 
 const AVAILABLE_ROLES: { value: UserRole; label: string; description: string }[] = [
   { value: 'admin', label: 'مدير عام', description: 'صلاحيات كاملة على النظام' },
-  { value: 'properties_admin', label: 'مدير العقارات', description: 'إدارة العقارات فقط' },
+  { value: 'properties_admin', label: 'مدير العناصر', description: 'إدارة العناصر فقط' },
+  { value: 'merchant', label: 'تاجر', description: 'يقدر ينشر منتجاته ويضيف موظفين بصلاحيات' },
   { value: 'categories_admin', label: 'مدير الأقسام', description: 'إدارة الأقسام والتصنيفات' },
   { value: 'notifications_admin', label: 'مدير الإشعارات', description: 'إرسال الإشعارات للمستخدمين' },
   { value: 'moderator', label: 'مشرف', description: 'صلاحيات إشراف محدودة' },

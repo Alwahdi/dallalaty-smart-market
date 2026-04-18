@@ -75,13 +75,13 @@ const Header = ({ isDark, toggleTheme }: HeaderProps) => {
 
           {/* الأزرار الجانبية */}
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
-            {/* زر العقارات */}
+            {/* زر العناصر */}
             <Button 
               variant="ghost" 
               className="hidden sm:flex font-arabic hover:bg-accent/50"
               asChild
             >
-              <Link to="/properties">جميع الإعلانات</Link>
+              <Link to="/properties">جميع العناصر</Link>
             </Button>
 
             {/* الإشعارات */}

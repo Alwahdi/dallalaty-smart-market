@@ -319,7 +319,7 @@ export default function PropertyManagement() {
             </DialogHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 overflow-y-auto p-4 sm:p-6 pt-4">
               <div>
-                <Label htmlFor="title" className="text-sm sm:text-base">عنوان العقار *</Label>
+                <Label htmlFor="title" className="text-sm sm:text-base">عنوان العنصر *</Label>
                 <Input
                   id="title"
                   value={propertyForm.title}
@@ -421,7 +421,7 @@ export default function PropertyManagement() {
                   id="description"
                   value={propertyForm.description}
                   onChange={(e) => setPropertyForm(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="وصف مفصل للعقار..."
+                  placeholder="وصف مفصل للعنصر..."
                   rows={4}
                   className="text-base sm:text-sm mt-1.5 resize-none"
                 />
@@ -460,13 +460,13 @@ export default function PropertyManagement() {
                   id="agent_phone"
                   value={propertyForm.agent_phone}
                   onChange={(e) => setPropertyForm(prev => ({ ...prev, agent_phone: e.target.value }))}
-                  placeholder="05xxxxxxxx"
+                  placeholder="7xxxxxxxx (يمن)"
                   className="h-11 sm:h-10 text-base sm:text-sm mt-1.5"
                 />
               </div>
               <div className="md:col-span-2 sticky bottom-0 bg-background pt-4 pb-2 border-t mt-2">
                 <Button onClick={saveProperty} className="w-full h-12 sm:h-10 text-base sm:text-sm font-semibold shadow-md">
-                  {editingProperty ? 'تحديث العقار' : 'إضافة العقار'}
+                  {editingProperty ? 'تحديث العنصر' : 'إضافة العنصر'}
                 </Button>
               </div>
             </div>
@@ -482,7 +482,7 @@ export default function PropertyManagement() {
               <div className="flex-1 relative">
                 <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 sm:w-5 sm:h-5" />
                 <Input
-                  placeholder="البحث في العقارات..."
+                  placeholder="البحث في العناصر..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pr-10 h-11 sm:h-10 text-base sm:text-sm"
@@ -687,7 +687,7 @@ export default function PropertyManagement() {
                           </AlertDialogTrigger>
                           <AlertDialogContent className="max-w-[90vw] sm:max-w-lg">
                             <AlertDialogHeader>
-                              <AlertDialogTitle className="text-lg">حذف العقار</AlertDialogTitle>
+                              <AlertDialogTitle className="text-lg">حذف العنصر</AlertDialogTitle>
                               <AlertDialogDescription className="text-base">
                                 هل أنت متأكد من حذف "{property.title}"؟ لا يمكن التراجع عن هذا الإجراء.
                               </AlertDialogDescription>
@@ -714,16 +714,16 @@ export default function PropertyManagement() {
           {filteredProperties.length === 0 && (
             <div className="text-center py-12 px-4">
               <Building2 className="w-16 h-16 sm:w-20 sm:h-20 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-semibold text-lg sm:text-xl mb-2">لا توجد عقارات</h3>
+              <h3 className="font-semibold text-lg sm:text-xl mb-2">لا توجد عناصر</h3>
               <p className="text-sm sm:text-base text-muted-foreground mb-6">
-                {searchTerm ? 'لم يتم العثور على عقارات تطابق البحث' : 'لا توجد عقارات في النظام'}
+                {searchTerm ? 'لم يتم العثور على عناصر تطابق البحث' : 'لا توجد عناصر في النظام'}
               </p>
               {!searchTerm && (
                 <Button 
                   onClick={() => setPropertyDialogOpen(true)}
                   className="h-11 sm:h-10 px-6 font-semibold"
                 >
-                  إضافة عقار جديد
+                  إضافة عنصر جديد
                 </Button>
               )}
             </div>

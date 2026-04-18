@@ -4,8 +4,8 @@ import { useAuth } from './useAuth';
 
 /**
  * Captures the user's geolocation once after first sign-in and stores
- * the city/coordinates into their profile. Skips silently if the user
- * already has a location set or denies permission.
+ * latitude, longitude, and city into their profile (Yemen-only, GPS only).
+ * Skips if the user already has coordinates set or denies permission.
  */
 export function useAutoLocation() {
   const { user } = useAuth();
@@ -21,14 +21,13 @@ export function useAutoLocation() {
 
     (async () => {
       try {
-        // Skip if user already has a location
         const { data: profile } = await supabase
           .from('profiles')
-          .select('location')
+          .select('latitude, longitude, city')
           .eq('user_id', user.id)
           .maybeSingle();
 
-        if (profile?.location && profile.location.trim().length > 0) {
+        if (profile?.latitude && profile?.longitude) {
           localStorage.setItem(STORAGE_KEY, 'done');
           return;
         }
@@ -37,48 +36,33 @@ export function useAutoLocation() {
           async (position) => {
             const { latitude, longitude } = position.coords;
             try {
-              // Reverse geocode using free OpenStreetMap Nominatim
               const res = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=ar`,
-                { headers: { 'User-Agent': 'lovable-app' } },
+                `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=ar&countrycodes=ye`,
               );
               const json = await res.json();
               const addr = json?.address ?? {};
-              const city =
-                addr.city ||
-                addr.town ||
-                addr.village ||
-                addr.county ||
-                addr.state ||
-                '';
-              const country = addr.country || '';
-              const label = [city, country].filter(Boolean).join('، ') ||
-                `${latitude.toFixed(3)}, ${longitude.toFixed(3)}`;
+              const city = addr.city || addr.town || addr.village || addr.county || addr.state || '';
 
               await supabase
                 .from('profiles')
-                .update({ location: label })
+                .update({ latitude, longitude, city })
                 .eq('user_id', user.id);
 
               localStorage.setItem(STORAGE_KEY, 'done');
             } catch (err) {
               console.warn('Reverse geocode failed:', err);
-              // Save at least the coordinates as fallback
               await supabase
                 .from('profiles')
-                .update({
-                  location: `${latitude.toFixed(3)}, ${longitude.toFixed(3)}`,
-                })
+                .update({ latitude, longitude })
                 .eq('user_id', user.id);
               localStorage.setItem(STORAGE_KEY, 'done');
             }
           },
           (err) => {
-            // User denied or error — don't prompt again this session
             console.info('Geolocation declined:', err.message);
             localStorage.setItem(STORAGE_KEY, 'done');
           },
-          { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 600000 },
         );
       } catch (err) {
         console.warn('useAutoLocation error:', err);

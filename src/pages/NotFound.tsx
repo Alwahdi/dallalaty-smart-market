@@ -37,7 +37,7 @@ const NotFound = () => {
           
           <Link to="/properties">
             <Button variant="outline" className="w-full font-arabic">
-              تصفح العقارات
+              تصفح العناصر
             </Button>
           </Link>
         </div>

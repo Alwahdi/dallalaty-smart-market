@@ -87,7 +87,7 @@ export default function PhoneCollectionDialog({
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="05xxxxxxxx"
+              placeholder="7xxxxxxxx (يمن)"
               dir="ltr"
               className="text-center"
             />

@@ -609,7 +609,7 @@ export default function SectionManagement() {
                           <span className="text-muted-foreground text-sm">لا يوجد مدراء</span>
                         )}
                       </TableCell>
-                      <TableCell>{new Date(category.created_at).toLocaleDateString('ar-SA')}</TableCell>
+                      <TableCell>{new Date(category.created_at).toLocaleDateString('ar-YE')}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
                           <Button
@@ -712,7 +712,7 @@ export default function SectionManagement() {
                     <div className="p-3 flex items-center justify-between bg-background">
                       <span className="text-xs text-muted-foreground flex items-center gap-1">
                         <span>📅</span>
-                        {new Date(category.created_at).toLocaleDateString('ar-SA', { 
+                        {new Date(category.created_at).toLocaleDateString('ar-YE', { 
                           year: 'numeric', 
                           month: 'short', 
                           day: 'numeric' 

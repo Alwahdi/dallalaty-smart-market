@@ -35,7 +35,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ar-SA', {
+    return new Intl.NumberFormat('ar-YE', {
       style: 'currency',
       currency: 'SAR',
       minimumFractionDigits: 0

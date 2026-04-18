@@ -212,7 +212,7 @@ export default function ProductDetail() {
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ar-SA', {
+    return new Intl.NumberFormat('ar-YE', {
       style: 'currency',
       currency: 'SAR',
       minimumFractionDigits: 0

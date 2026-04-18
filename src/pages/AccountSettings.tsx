@@ -65,10 +65,8 @@ export default function AccountSettings() {
     confirmPassword: ''
   });
 
-  // Redirect unauthenticated users
-  if (!user && !authLoading) {
-    return <Navigate to="/auth" replace />;
-  }
+  // NOTE: Do NOT early-return here. React requires all hooks to run on every
+  // render. We perform the auth gate inside JSX at the bottom instead.
 
   const toggleTheme = () => {
     setIsDark(!isDark);

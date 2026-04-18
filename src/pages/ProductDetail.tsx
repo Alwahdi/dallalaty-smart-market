@@ -6,19 +6,12 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { 
-  ArrowLeft, 
-  Heart, 
-  Share2, 
-  MessageCircle, 
-  MapPin, 
-  Bed, 
-  Bath, 
-  Home,
-  Car,
-  Calendar,
-  Palette,
-  Package,
+import {
+  ArrowLeft,
+  Heart,
+  Share2,
+  MessageCircle,
+  MapPin,
   Phone,
   Mail,
   User,
@@ -35,6 +28,8 @@ import BottomNavigation from '@/components/BottomNavigation';
 import { useTheme } from '@/hooks/useTheme';
 import { useFavoritesCache } from '@/hooks/useLocalStorage';
 import { useRouteTracking } from '@/hooks/useRouteTracking';
+import DynamicPropertyDisplay from '@/components/DynamicPropertyDisplay';
+import type { CustomField } from '@/components/admin/CustomFieldsEditor';
 
 interface Property {
   id: string;
@@ -42,27 +37,17 @@ interface Property {
   description: string;
   price: number;
   category: string;
-  property_type: string;
-  bedrooms?: number;
-  bathrooms?: number;
-  area_sqm?: number;
   location: string;
   city: string;
   neighborhood: string;
   images: string[];
   videos?: string[];
-  amenities: string[];
+  amenities?: string[];
   listing_type: string;
   agent_name: string;
   agent_phone: string;
   agent_email: string;
-  brand?: string;
-  model?: string;
-  year?: number;
-  condition?: string;
-  size?: string;
-  color?: string;
-  material?: string;
+  custom_data?: Record<string, any>;
   created_at: string;
   updated_at: string;
 }
@@ -79,6 +64,8 @@ export default function ProductDetail() {
   useRouteTracking();
   
   const [property, setProperty] = useState<Property | null>(null);
+  const [categoryFields, setCategoryFields] = useState<CustomField[]>([]);
+  const [categoryLabel, setCategoryLabel] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -106,11 +93,25 @@ export default function ProductDetail() {
         .single();
 
       if (error) throw error;
-      setProperty(data);
+      setProperty(data as any);
+
+      // Fetch category custom fields for dynamic display
+      if (data?.category) {
+        const { data: cat } = await supabase
+          .from('categories')
+          .select('name_ar, custom_fields')
+          .eq('slug', data.category)
+          .maybeSingle();
+        if (cat) {
+          setCategoryLabel(cat.name_ar || data.category);
+          const fields = (cat.custom_fields as any) || [];
+          setCategoryFields(Array.isArray(fields) ? fields : []);
+        }
+      }
     } catch (error: any) {
       toast({
         title: "خطأ",
-        description: "فشل في تحميل تفاصيل العرض",
+        description: "فشل في تحميل تفاصيل العنصر",
         variant: "destructive"
       });
       navigate('/properties');

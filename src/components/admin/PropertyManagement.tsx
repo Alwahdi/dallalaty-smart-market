@@ -13,6 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Edit, Trash2, Search, Eye, ImagePlus, Building2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
+import { CURRENCIES, CurrencyCode, formatPrice } from '@/lib/currency';
 import { Textarea } from '@/components/ui/textarea';
 import MediaUpload from '@/components/MediaUpload';
 import DynamicFormFields from './DynamicFormFields';
@@ -43,6 +44,7 @@ export default function PropertyManagement() {
   const [propertyForm, setPropertyForm] = useState({
     title: '',
     price: '',
+    currency: 'YER' as CurrencyCode,
     listing_type: 'للبيع',
     location: '',
     city: '',
@@ -218,6 +220,7 @@ export default function PropertyManagement() {
     setPropertyForm({
       title: '',
       price: '',
+      currency: 'YER',
       listing_type: 'للبيع',
       location: '',
       city: '',
@@ -241,6 +244,7 @@ export default function PropertyManagement() {
     setPropertyForm({
       title: property.title,
       price: property.price.toString(),
+      currency: ((property as any).currency as CurrencyCode) || 'YER',
       listing_type: property.listing_type,
       location: property.location,
       city: property.city,
@@ -330,14 +334,26 @@ export default function PropertyManagement() {
               </div>
               <div>
                 <Label htmlFor="price" className="text-sm sm:text-base">السعر *</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  value={propertyForm.price}
-                  onChange={(e) => setPropertyForm(prev => ({ ...prev, price: e.target.value }))}
-                  placeholder="000000"
-                  className="h-11 sm:h-10 text-base sm:text-sm mt-1.5"
-                />
+                <div className="flex gap-2 mt-1.5">
+                  <Input
+                    id="price"
+                    type="number"
+                    value={propertyForm.price}
+                    onChange={(e) => setPropertyForm(prev => ({ ...prev, price: e.target.value }))}
+                    placeholder="000000"
+                    className="h-11 sm:h-10 text-base sm:text-sm flex-1"
+                  />
+                  <Select value={propertyForm.currency} onValueChange={v => setPropertyForm(prev => ({ ...prev, currency: v as CurrencyCode }))}>
+                    <SelectTrigger className="w-32 h-11 sm:h-10"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {CURRENCIES.map(c => (
+                        <SelectItem key={c.code} value={c.code}>
+                          <span className="flex items-center gap-2"><span>{c.flag}</span><span>{c.symbol}</span></span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <div>
@@ -524,7 +540,7 @@ export default function PropertyManagement() {
                       {property.title}
                     </TableCell>
                     <TableCell>
-                      {property.price.toLocaleString('ar-YE')} ريال
+                      {formatPrice(property.price, (property as any).currency)}
                     </TableCell>
                     <TableCell>{categories.find(c => c.slug === property.category)?.title || property.category}</TableCell>
                     <TableCell className="max-w-32 truncate">{property.location}</TableCell>
@@ -617,7 +633,7 @@ export default function PropertyManagement() {
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-base leading-tight line-clamp-2 mb-1.5">{property.title}</h3>
                         <p className="text-xl font-bold text-primary">
-                          {property.price.toLocaleString('ar-YE')} ريال
+                          {formatPrice(property.price, (property as any).currency)}
                         </p>
                       </div>
                     </div>

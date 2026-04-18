@@ -132,7 +132,7 @@ export default function Favorites() {
                     className="w-full"
                     shareData={{
                       title: property.title,
-                      text: `${property.description || ''} - السعر: ${property.price ? new Intl.NumberFormat('ar-SA').format(property.price) : 'غير محدد'} ريال`,
+                      text: `${property.description || ''} - السعر: ${property.price ? new Intl.NumberFormat('ar-YE').format(property.price) : 'غير محدد'} ريال`,
                       url: `${window.location.origin}/product/${property.id}`
                     }}
                     deleteConfirmation={{

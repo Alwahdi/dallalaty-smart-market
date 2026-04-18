@@ -130,6 +130,20 @@ export default function UserManagement() {
     }
   };
 
+  const promoteToMerchant = async (userId: string, name: string | null) => {
+    try {
+      const { error } = await supabase
+        .from('user_roles')
+        .insert({ user_id: userId, role: 'merchant' });
+      if (error && !error.message.includes('duplicate')) throw error;
+      await sendToUsers([userId], '🎉 تمت ترقيتك إلى تاجر', `مبروك! تقدر الآن تضيف منتجاتك وتدير موظفينك من /merchant`, 'success');
+      toast({ title: '✅ تمت الترقية', description: `${name || 'المستخدم'} الآن تاجر` });
+      fetchUsers();
+    } catch (e: any) {
+      toast({ title: 'خطأ', description: e.message, variant: 'destructive' });
+    }
+  };
+
   const getRoleLabel = (role: string) => {
     const roleLabels: Record<string, string> = {
       'admin': 'مدير عام',
@@ -137,6 +151,7 @@ export default function UserManagement() {
       'categories_admin': 'مدير الأقسام',
       'notifications_admin': 'مدير الإشعارات',
       'moderator': 'مشرف',
+      'merchant': 'تاجر',
       'user': 'مستخدم'
     };
     return roleLabels[role] || role;
@@ -264,7 +279,7 @@ export default function UserManagement() {
                     <div className="px-4 py-3 bg-muted/30 border-t flex items-center justify-between gap-2">
                       <span className="text-xs text-muted-foreground flex items-center gap-1">
                         <span>🕐</span>
-                        {new Date(user.created_at).toLocaleDateString('ar-SA', {
+                        {new Date(user.created_at).toLocaleDateString('ar-YE', {
                           year: 'numeric',
                           month: 'short',
                           day: 'numeric'
@@ -295,7 +310,16 @@ export default function UserManagement() {
                               <MoreVertical className="w-4 h-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuContent align="end" className="w-52">
+                            {!user.user_roles?.some(r => r.role === 'merchant') && (
+                              <DropdownMenuItem
+                                onClick={() => promoteToMerchant(user.user_id, user.full_name)}
+                                className="gap-2 cursor-pointer py-3"
+                              >
+                                <span>🏪</span>
+                                <span>ترقية إلى تاجر</span>
+                              </DropdownMenuItem>
+                            )}
                             <DropdownMenuItem
                               onClick={() => toggleUserStatus(user.user_id, user.is_active)}
                               className="gap-2 cursor-pointer py-3"

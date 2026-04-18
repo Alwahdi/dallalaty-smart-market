@@ -524,7 +524,7 @@ export default function PropertyManagement() {
                       {property.title}
                     </TableCell>
                     <TableCell>
-                      {property.price.toLocaleString('ar-SA')} ريال
+                      {property.price.toLocaleString('ar-YE')} ريال
                     </TableCell>
                     <TableCell>{categories.find(c => c.slug === property.category)?.title || property.category}</TableCell>
                     <TableCell className="max-w-32 truncate">{property.location}</TableCell>
@@ -556,7 +556,7 @@ export default function PropertyManagement() {
                       </Select>
                     </TableCell>
                     <TableCell>
-                      {new Date(property.created_at).toLocaleDateString('ar-SA')}
+                      {new Date(property.created_at).toLocaleDateString('ar-YE')}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -617,7 +617,7 @@ export default function PropertyManagement() {
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-base leading-tight line-clamp-2 mb-1.5">{property.title}</h3>
                         <p className="text-xl font-bold text-primary">
-                          {property.price.toLocaleString('ar-SA')} ريال
+                          {property.price.toLocaleString('ar-YE')} ريال
                         </p>
                       </div>
                     </div>
@@ -667,7 +667,7 @@ export default function PropertyManagement() {
                     {/* Footer Actions */}
                     <div className="flex items-center justify-between pt-3 border-t">
                       <span className="text-xs text-muted-foreground">
-                        {new Date(property.created_at).toLocaleDateString('ar-SA')}
+                        {new Date(property.created_at).toLocaleDateString('ar-YE')}
                       </span>
                       <div className="flex items-center gap-2">
                         <Button

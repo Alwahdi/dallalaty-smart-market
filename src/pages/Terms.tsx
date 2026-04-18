@@ -42,7 +42,7 @@ export default function Terms() {
                   شروط الاستخدام
                 </h1>
                 <p className="text-muted-foreground mt-2">
-                  آخر تحديث: {new Date().toLocaleDateString('ar-SA')}
+                  آخر تحديث: {new Date().toLocaleDateString('ar-YE')}
                 </p>
               </div>
             </div>

@@ -53,7 +53,7 @@ export default function AdminPanel() {
   const tabs = [
     { id: 'dashboard', label: 'لوحة المعلومات', icon: BarChart3, show: true },
     { id: 'users', label: 'إدارة المستخدمين', icon: Users, show: isAdmin },
-    { id: 'properties', label: 'إدارة العقارات', icon: Building2, show: isAdmin || isPropertiesAdmin },
+    { id: 'properties', label: 'إدارة العناصر', icon: Building2, show: isAdmin || isPropertiesAdmin },
     { id: 'sections', label: 'إدارة الأقسام', icon: FolderOpen, show: isAdmin || isCategoriesAdmin },
     { id: 'notifications', label: 'الإشعارات', icon: Bell, show: isAdmin || isNotificationsAdmin }
   ];

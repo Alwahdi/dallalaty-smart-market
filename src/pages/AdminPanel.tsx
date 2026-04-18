@@ -10,8 +10,6 @@ import AdminNotifications from '@/components/admin/AdminNotifications';
 import UserManagement from '@/components/admin/UserManagement';
 import SectionManagement from '@/components/admin/SectionManagement';
 import PropertyManagement from '@/components/admin/PropertyManagement';
-import RoleDebugger from '@/components/RoleDebugger';
-import DatabaseRoleChecker from '@/components/DatabaseRoleChecker';
 import { supabase } from '@/integrations/supabase/client';
 
 export default function AdminPanel() {

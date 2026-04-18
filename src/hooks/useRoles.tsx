@@ -12,7 +12,6 @@ export function useRoles() {
   useEffect(() => {
     const fetchRoles = async () => {
       if (!user) {
-        console.log('🔑 [useRoles] No user found, clearing roles');
         setRoles([]);
         setLoading(false);
         return;
@@ -20,38 +19,21 @@ export function useRoles() {
 
       try {
         setLoading(true);
-        console.log('🔑 [useRoles] Fetching roles for user:', {
-          userId: user.id,
-          userEmail: user.email
-        });
-        
         const { data, error } = await supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', user.id);
 
-        console.log('🔑 [useRoles] Roles fetch result:', { 
-          data, 
-          error: error?.message, 
-          userId: user.id,
-          userEmail: user.email,
-          dataLength: data?.length,
-          rawData: JSON.stringify(data)
-        });
-
         if (error) {
-          console.error('🔑 [useRoles] Database error:', error);
+          console.error('[useRoles] Database error:', error);
           setRoles(['user']);
         } else if (data && data.length > 0) {
-          const userRoles = data.map(r => r.role as UserRole);
-          console.log('🔑 [useRoles] ✅ User roles found:', userRoles);
-          setRoles(userRoles);
+          setRoles(data.map(r => r.role as UserRole));
         } else {
-          console.log('🔑 [useRoles] ⚠️ No roles found in database, setting default user role');
           setRoles(['user']);
         }
       } catch (error) {
-        console.error('🔑 [useRoles] Exception while fetching roles:', error);
+        console.error('[useRoles] Exception while fetching roles:', error);
         setRoles(['user']);
       } finally {
         setLoading(false);
@@ -60,7 +42,6 @@ export function useRoles() {
 
     fetchRoles();
 
-    // Listen for role changes in real-time
     if (user) {
       const channel = supabase
         .channel(`user_roles_changes_${user.id}`)
@@ -72,17 +53,13 @@ export function useRoles() {
             table: 'user_roles',
             filter: `user_id=eq.${user.id}`
           },
-          (payload) => {
-            console.log('🔑 Real-time role change detected:', payload);
-            setTimeout(() => fetchRoles(), 500); // Small delay to ensure consistency
+          () => {
+            setTimeout(() => fetchRoles(), 500);
           }
         )
-        .subscribe((status) => {
-          console.log('🔑 Real-time subscription status:', status);
-        });
+        .subscribe();
 
       return () => {
-        console.log('🔑 Cleaning up real-time subscription');
         supabase.removeChannel(channel);
       };
     }
@@ -96,17 +73,6 @@ export function useRoles() {
   const isNotificationsAdmin = hasRole('notifications_admin') || isAdmin;
   const isModerator = hasRole('moderator');
   const isAnyAdmin = isAdmin || isPropertiesAdmin || isCategoriesAdmin || isNotificationsAdmin || isModerator;
-
-  console.log('🔑 Role calculations:', {
-    roles,
-    isAdmin,
-    isPropertiesAdmin,
-    isCategoriesAdmin,
-    isNotificationsAdmin,
-    isModerator,
-    isAnyAdmin,
-    loading
-  });
 
   return { 
     roles, 

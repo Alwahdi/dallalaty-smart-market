@@ -428,12 +428,52 @@ export default function AccountSettings() {
                         <MapPin className="w-4 h-4" />
                         الموقع
                       </Label>
-                      <Input
-                        id="location"
-                        value={formData.location}
-                        onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                        placeholder="الرياض، السعودية"
-                      />
+                      <div className="flex gap-2">
+                        <Input
+                          id="location"
+                          value={formData.location}
+                          onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                          placeholder="الرياض، السعودية"
+                          className="flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          title="تحديد موقعي تلقائياً"
+                          onClick={() => {
+                            if (!('geolocation' in navigator)) {
+                              toast({ title: 'غير مدعوم', description: 'متصفحك لا يدعم تحديد الموقع', variant: 'destructive' });
+                              return;
+                            }
+                            navigator.geolocation.getCurrentPosition(
+                              async (pos) => {
+                                try {
+                                  const { latitude, longitude } = pos.coords;
+                                  const res = await fetch(
+                                    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=ar`,
+                                    { headers: { 'User-Agent': 'lovable-app' } },
+                                  );
+                                  const json = await res.json();
+                                  const a = json?.address ?? {};
+                                  const city = a.city || a.town || a.village || a.county || a.state || '';
+                                  const country = a.country || '';
+                                  const label = [city, country].filter(Boolean).join('، ') ||
+                                    `${latitude.toFixed(3)}, ${longitude.toFixed(3)}`;
+                                  setFormData(prev => ({ ...prev, location: label }));
+                                  toast({ title: '✅ تم التحديد', description: `موقعك: ${label}` });
+                                } catch (e: any) {
+                                  toast({ title: 'خطأ', description: e?.message || 'فشل قراءة الموقع', variant: 'destructive' });
+                                }
+                              },
+                              (err) => toast({ title: 'تعذّر تحديد الموقع', description: err.message, variant: 'destructive' }),
+                              { enableHighAccuracy: true, timeout: 8000 },
+                            );
+                          }}
+                        >
+                          <LocateFixed className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
 
                     <div className="space-y-2">
@@ -607,7 +647,7 @@ export default function AccountSettings() {
                     
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <Label className="font-arabic">إشعارات العروض الجديدة</Label>
+                        <Label className="font-arabic">إشعارات الإعلانات الجديدة</Label>
                         <input type="checkbox" defaultChecked className="rounded" />
                       </div>
                       

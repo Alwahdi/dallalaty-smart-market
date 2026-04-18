@@ -273,6 +273,7 @@ export type Database = {
           category: string
           city: string | null
           created_at: string
+          currency: string
           custom_data: Json | null
           description: string | null
           id: string
@@ -294,6 +295,7 @@ export type Database = {
           category: string
           city?: string | null
           created_at?: string
+          currency?: string
           custom_data?: Json | null
           description?: string | null
           id?: string
@@ -315,6 +317,7 @@ export type Database = {
           category?: string
           city?: string | null
           created_at?: string
+          currency?: string
           custom_data?: Json | null
           description?: string | null
           id?: string

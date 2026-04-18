@@ -6,12 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { formatPrice } from '@/lib/currency';
 
 interface Property {
   id: string;
   title: string;
   description?: string | null;
   price: number;
+  currency?: string | null;
   location?: string | null;
   city?: string | null;
   neighborhood?: string | null;
@@ -34,13 +36,6 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
   const { toast } = useToast();
   const [isLiked, setIsLiked] = useState(false);
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ar-YE', {
-      style: 'currency',
-      currency: 'SAR',
-      minimumFractionDigits: 0
-    }).format(price);
-  };
 
   const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -93,7 +88,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
       toast({ title: "غير متاح", description: "رقم البائع غير متوفر", variant: "destructive" });
       return;
     }
-    const message = `مرحباً، أريد الاستفسار عن ${property.title} - ${formatPrice(property.price)}`;
+    const message = `مرحباً، أريد الاستفسار عن ${property.title} - ${formatPrice(property.price, property.currency)}`;
     const whatsappUrl = `https://wa.me/${property.agent_phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -158,7 +153,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
         </h3>
         <div className="flex items-center justify-between mb-3">
           <p className="text-2xl font-bold text-primary font-arabic">
-            {formatPrice(property.price)}
+            {formatPrice(property.price, property.currency)}
           </p>
           {locationLabel && (
             <div className="flex items-center text-muted-foreground text-sm">

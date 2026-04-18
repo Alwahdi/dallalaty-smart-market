@@ -104,8 +104,8 @@ export default function PhoneCollectionDialog({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="sm:max-w-md w-[calc(100vw-2rem)]" dir="rtl">
+    <Dialog open={isOpen} onOpenChange={() => { /* mandatory: cannot dismiss */ }}>
+      <DialogContent className="sm:max-w-md w-[calc(100vw-2rem)]" dir="rtl" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Phone className="w-5 h-5 text-primary" />
@@ -140,16 +140,7 @@ export default function PhoneCollectionDialog({
             </p>
           </div>
 
-          <div className="pt-4 flex flex-col-reverse sm:flex-row gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full sm:w-auto"
-              onClick={onClose}
-              disabled={loading}
-            >
-              تخطّي الآن
-            </Button>
+          <div className="pt-4">
             <Button
               type="submit"
               className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80"

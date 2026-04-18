@@ -11,6 +11,7 @@ import { Plus, Edit, Trash2, Search, Package } from 'lucide-react';
 import { Tables } from '@/integrations/supabase/types';
 import ProductFormDialog from './ProductFormDialog';
 import { MerchantPermissions } from '@/hooks/useMerchantContext';
+import { formatPrice } from '@/lib/currency';
 
 type Property = Tables<'properties'>;
 
@@ -132,7 +133,7 @@ export default function MerchantProducts({ agentId, permissions }: MerchantProdu
                   )}
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold line-clamp-2 mb-1">{p.title}</h3>
-                    <p className="text-primary font-bold mb-2">{p.price.toLocaleString('ar-YE')} ريال</p>
+                    <p className="text-primary font-bold mb-2">{formatPrice(p.price, (p as any).currency)}</p>
                     <div className="flex items-center gap-2 flex-wrap">
                       <Select value={p.status} onValueChange={v => updateStatus(p.id, v)}>
                         <SelectTrigger className="h-8 w-32 text-xs">

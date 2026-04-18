@@ -30,12 +30,14 @@ import { useFavoritesCache } from '@/hooks/useLocalStorage';
 import { useRouteTracking } from '@/hooks/useRouteTracking';
 import DynamicPropertyDisplay from '@/components/DynamicPropertyDisplay';
 import type { CustomField } from '@/components/admin/CustomFieldsEditor';
+import { formatPrice } from '@/lib/currency';
 
 interface Property {
   id: string;
   title: string;
   description: string;
   price: number;
+  currency?: string | null;
   category: string;
   location: string;
   city: string;
@@ -211,13 +213,6 @@ export default function ProductDetail() {
     }
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ar-YE', {
-      style: 'currency',
-      currency: 'SAR',
-      minimumFractionDigits: 0
-    }).format(price);
-  };
 
   const getCategoryLabel = (category: string) => {
     if (categoryLabel) return categoryLabel;
@@ -440,7 +435,7 @@ export default function ProductDetail() {
                 </h1>
 
                 <div className="text-3xl font-bold text-primary mb-4">
-                  {formatPrice(property.price)}
+                  {formatPrice(property.price, property.currency)}
                 </div>
 
                 <div className="flex items-center text-muted-foreground mb-6">

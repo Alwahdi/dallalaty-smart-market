@@ -141,7 +141,7 @@ export default function ProductDetail() {
     if (!user) {
       toast({
         title: "تسجيل الدخول مطلوب",
-        description: "يجب تسجيل الدخول لإضافة العروض للمفضلات",
+        description: "يجب تسجيل الدخول لإضافة العناصر للمفضلات",
         variant: "destructive"
       });
       return;
@@ -159,7 +159,7 @@ export default function ProductDetail() {
         setIsLiked(false);
         toast({
           title: "تم الحذف",
-          description: "تم حذف العرض من المفضلات"
+          description: "تم حذف العنصر من المفضلات"
         });
       } else {
         await supabase
@@ -199,7 +199,7 @@ export default function ProductDetail() {
       navigator.clipboard.writeText(window.location.href);
       toast({
         title: "تم النسخ",
-        description: "تم نسخ رابط العرض"
+        description: "تم نسخ الرابط"
       });
     }
   };
@@ -259,9 +259,9 @@ export default function ProductDetail() {
       <div className={`min-h-screen bg-background font-arabic ${isDark ? 'dark' : ''}`} dir="rtl">
         <HeaderNew isDark={isDark} toggleTheme={toggleTheme} />
         <div className="container mx-auto px-4 py-8 text-center">
-          <h1 className="text-2xl font-bold mb-4">العرض غير موجود</h1>
+          <h1 className="text-2xl font-bold mb-4">العنصر غير موجود</h1>
           <Button onClick={() => navigate('/properties')}>
-            العودة للعروض
+            العودة للعناصر
           </Button>
         </div>
       </div>

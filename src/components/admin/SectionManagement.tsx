@@ -329,12 +329,12 @@ export default function SectionManagement() {
                 <span>تعيين مدير أقسام</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md w-[95vw] max-h-[90vh] flex flex-col gap-0 p-0">
-              <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b sticky top-0 bg-background z-10">
+            <DialogContent className="max-w-md w-[calc(100vw-2rem)] sm:w-[95vw] max-h-[90vh] gap-0 p-0 overflow-hidden">
+              <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b bg-background shrink-0">
                 <DialogTitle className="text-lg sm:text-xl">تعيين مدير أقسام</DialogTitle>
                 <p className="text-sm text-muted-foreground mt-1">اختر مستخدم والأقسام التي سيديرها</p>
               </DialogHeader>
-              <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
+              <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 min-h-0">
                 <div className="space-y-5">
                   <div className="space-y-2">
                     <Label htmlFor="user-select" className="text-base font-semibold flex items-center gap-2">
@@ -396,7 +396,7 @@ export default function SectionManagement() {
                   </div>
                 </div>
               </div>
-              <div className="px-4 sm:px-6 py-4 border-t sticky bottom-0 bg-background">
+              <div className="px-4 sm:px-6 py-4 border-t bg-background shrink-0">
                 <Button 
                   onClick={assignSectionManager} 
                   className="w-full h-12 text-base" 

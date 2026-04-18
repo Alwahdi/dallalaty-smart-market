@@ -135,6 +135,33 @@ export type Database = {
           },
         ]
       }
+      merchant_employees: {
+        Row: {
+          created_at: string
+          employee_id: string
+          id: string
+          merchant_id: string
+          permissions: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          employee_id: string
+          id?: string
+          merchant_id: string
+          permissions?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          employee_id?: string
+          id?: string
+          merchant_id?: string
+          permissions?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           action_url: string | null
@@ -178,12 +205,15 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          city: string | null
           created_at: string
           email: string | null
           full_name: string | null
           id: string
           is_active: boolean
+          latitude: number | null
           location: string | null
+          longitude: number | null
           phone: string | null
           push_token: string | null
           suspended_at: string | null
@@ -195,12 +225,15 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          city?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id?: string
           is_active?: boolean
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
           phone?: string | null
           push_token?: string | null
           suspended_at?: string | null
@@ -212,12 +245,15 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          city?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id?: string
           is_active?: boolean
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
           phone?: string | null
           push_token?: string | null
           suspended_at?: string | null
@@ -406,11 +442,23 @@ export type Database = {
       }
     }
     Functions: {
+      get_employer_merchant_ids: {
+        Args: { _employee_id: string }
+        Returns: string[]
+      }
       has_category_role: {
         Args: {
           _category_id: string
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
+        }
+        Returns: boolean
+      }
+      has_merchant_permission: {
+        Args: {
+          _employee_id: string
+          _merchant_id: string
+          _permission: string
         }
         Returns: boolean
       }

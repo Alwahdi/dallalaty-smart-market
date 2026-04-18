@@ -415,7 +415,14 @@ export default function SectionManagement() {
                 <span>إضافة قسم</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md w-[calc(100vw-2rem)] sm:w-[95vw] max-h-[90vh] !grid-cols-1 !grid-rows-[auto_1fr_auto] !gap-0 !p-0 overflow-hidden">
+            <DialogContent className="max-w-md w-[calc(100vw-2rem)] sm:w-[95vw] max-h-[90vh] gap-0 p-0 overflow-hidden">
+              <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b bg-background shrink-0">
+                <DialogTitle className="text-lg sm:text-xl">{editingCategory ? 'تحديث القسم' : 'إضافة قسم جديد'}</DialogTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {editingCategory ? 'قم بتحديث معلومات القسم' : 'أضف قسم جديد للنظام'}
+                </p>
+              </DialogHeader>
+              <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 min-h-0">
               <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b bg-background min-w-0">
                 <DialogTitle className="text-lg sm:text-xl">{editingCategory ? 'تحديث القسم' : 'إضافة قسم جديد'}</DialogTitle>
                 <p className="text-sm text-muted-foreground mt-1">

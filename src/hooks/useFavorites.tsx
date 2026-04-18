@@ -6,21 +6,18 @@ import { toast } from '@/hooks/use-toast';
 interface FavoriteProperty {
   id: string;
   title: string;
-  description: string;
+  description: string | null;
   price: number;
-  location: string;
-  city: string;
-  property_type: string;
-  listing_type: string;
-  bedrooms: number;
-  bathrooms: number;
-  area_sqm: number;
-  neighborhood: string;
+  location: string | null;
+  city: string | null;
+  category: string;
+  listing_type: string | null;
+  neighborhood: string | null;
   images: string[];
-  amenities: string[];
-  agent_name: string;
-  agent_phone: string;
-  agent_email: string;
+  agent_name: string | null;
+  agent_phone: string | null;
+  agent_email: string | null;
+  custom_data?: Record<string, any>;
 }
 
 export const useFavorites = () => {
@@ -45,26 +42,23 @@ export const useFavorites = () => {
             price,
             location,
             city,
-            property_type,
+            category,
             listing_type,
-            bedrooms,
-            bathrooms,
-            area_sqm,
             neighborhood,
             images,
-            amenities,
             agent_name,
             agent_phone,
-            agent_email
+            agent_email,
+            custom_data
           )
         `)
         .eq('user_id', user.id);
 
       if (error) throw error;
 
-      const favoriteProperties = data?.map(item => item.properties).filter(Boolean) as FavoriteProperty[];
+      const favoriteProperties = (data?.map(item => item.properties).filter(Boolean) as unknown) as FavoriteProperty[];
       const ids = new Set(favoriteProperties.map(p => p.id));
-      
+
       setFavorites(favoriteProperties || []);
       setFavoriteIds(ids);
     } catch (error: any) {

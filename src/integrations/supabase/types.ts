@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -133,34 +133,37 @@ export type Database = {
           action_url: string | null
           created_at: string
           id: string
-          message: string
+          link: string | null
+          message: string | null
           read: boolean
           title: string
-          type: string
+          type: string | null
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           action_url?: string | null
           created_at?: string
           id?: string
-          message: string
+          link?: string | null
+          message?: string | null
           read?: boolean
           title: string
-          type?: string
+          type?: string | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           action_url?: string | null
           created_at?: string
           id?: string
-          message?: string
+          link?: string | null
+          message?: string | null
           read?: boolean
           title?: string
-          type?: string
+          type?: string | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -169,54 +172,51 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           created_at: string
+          email: string | null
           full_name: string | null
           id: string
-          is_active: boolean | null
+          is_active: boolean
           location: string | null
-          phone: string
+          phone: string | null
           push_token: string | null
           suspended_at: string | null
           suspended_by: string | null
-          suspension_reason: string | null
           updated_at: string
           user_id: string
-          user_type: string | null
           website: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          email?: string | null
           full_name?: string | null
           id?: string
-          is_active?: boolean | null
+          is_active?: boolean
           location?: string | null
-          phone: string
+          phone?: string | null
           push_token?: string | null
           suspended_at?: string | null
           suspended_by?: string | null
-          suspension_reason?: string | null
           updated_at?: string
           user_id: string
-          user_type?: string | null
           website?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          email?: string | null
           full_name?: string | null
           id?: string
-          is_active?: boolean | null
+          is_active?: boolean
           location?: string | null
-          phone?: string
+          phone?: string | null
           push_token?: string | null
           suspended_at?: string | null
           suspended_by?: string | null
-          suspension_reason?: string | null
           updated_at?: string
           user_id?: string
-          user_type?: string | null
           website?: string | null
         }
         Relationships: []
@@ -227,128 +227,83 @@ export type Database = {
           agent_id: string | null
           agent_name: string | null
           agent_phone: string | null
-          amenities: string[] | null
-          area_sqm: number | null
-          bathrooms: number | null
-          bedrooms: number | null
-          brand: string | null
-          category: string | null
-          city: string
-          color: string | null
-          condition: string | null
+          category: string
+          city: string | null
           created_at: string
           custom_data: Json | null
           description: string | null
           id: string
           images: string[] | null
-          latitude: number | null
-          listing_type: string
-          location: string
-          longitude: number | null
-          material: string | null
-          model: string | null
+          listing_type: string | null
+          location: string | null
           neighborhood: string | null
           price: number
-          property_type: string
-          size: string | null
           status: string
           title: string
           updated_at: string
           videos: string[] | null
-          year: number | null
         }
         Insert: {
           agent_email?: string | null
           agent_id?: string | null
           agent_name?: string | null
           agent_phone?: string | null
-          amenities?: string[] | null
-          area_sqm?: number | null
-          bathrooms?: number | null
-          bedrooms?: number | null
-          brand?: string | null
-          category?: string | null
-          city: string
-          color?: string | null
-          condition?: string | null
+          category: string
+          city?: string | null
           created_at?: string
           custom_data?: Json | null
           description?: string | null
           id?: string
           images?: string[] | null
-          latitude?: number | null
-          listing_type: string
-          location: string
-          longitude?: number | null
-          material?: string | null
-          model?: string | null
+          listing_type?: string | null
+          location?: string | null
           neighborhood?: string | null
-          price: number
-          property_type: string
-          size?: string | null
+          price?: number
           status?: string
           title: string
           updated_at?: string
           videos?: string[] | null
-          year?: number | null
         }
         Update: {
           agent_email?: string | null
           agent_id?: string | null
           agent_name?: string | null
           agent_phone?: string | null
-          amenities?: string[] | null
-          area_sqm?: number | null
-          bathrooms?: number | null
-          bedrooms?: number | null
-          brand?: string | null
-          category?: string | null
-          city?: string
-          color?: string | null
-          condition?: string | null
+          category?: string
+          city?: string | null
           created_at?: string
           custom_data?: Json | null
           description?: string | null
           id?: string
           images?: string[] | null
-          latitude?: number | null
-          listing_type?: string
-          location?: string
-          longitude?: number | null
-          material?: string | null
-          model?: string | null
+          listing_type?: string | null
+          location?: string | null
           neighborhood?: string | null
           price?: number
-          property_type?: string
-          size?: string | null
           status?: string
           title?: string
           updated_at?: string
           videos?: string[] | null
-          year?: number | null
         }
         Relationships: []
       }
       user_roles: {
         Row: {
-          created_at: string | null
+          created_at: string
           id: string
           role: Database["public"]["Enums"]["app_role"]
-          updated_at: string | null
           user_id: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          updated_at?: string | null
+          role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
-          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -360,7 +315,7 @@ export type Database = {
     Functions: {
       has_category_role: {
         Args: {
-          _category: string
+          _category_id: string
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
@@ -378,11 +333,11 @@ export type Database = {
     Enums: {
       app_role:
         | "admin"
-        | "moderator"
-        | "user"
         | "properties_admin"
         | "categories_admin"
         | "notifications_admin"
+        | "moderator"
+        | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -512,11 +467,11 @@ export const Constants = {
     Enums: {
       app_role: [
         "admin",
-        "moderator",
-        "user",
         "properties_admin",
         "categories_admin",
         "notifications_admin",
+        "moderator",
+        "user",
       ],
     },
   },

@@ -17,29 +17,18 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 interface Property {
   id: string;
   title: string;
-  description: string;
+  description: string | null;
   price: number;
   category: string;
-  property_type: string;
-  bedrooms: number;
-  bathrooms: number;
-  area_sqm: number;
-  location: string;
-  city: string;
-  neighborhood: string;
+  location: string | null;
+  city: string | null;
+  neighborhood: string | null;
   images: string[];
-  amenities: string[];
-  listing_type: string;
-  agent_name: string;
-  agent_phone: string;
-  agent_email: string;
-  brand?: string;
-  model?: string;
-  year?: number;
-  condition?: string;
-  size?: string;
-  color?: string;
-  material?: string;
+  listing_type: string | null;
+  agent_name: string | null;
+  agent_phone: string | null;
+  agent_email: string | null;
+  custom_data?: Record<string, any> | any;
 }
 
 interface Category {
@@ -86,7 +75,7 @@ export default function Properties() {
       const { data, error } = await supabase
         .from('categories')
         .select('*')
-        .order('display_order', { ascending: true });
+        .order('order_index', { ascending: true });
 
       if (error) throw error;
       setCategories(data || []);
@@ -107,7 +96,7 @@ export default function Properties() {
 
       if (error) throw error;
 
-      setProperties(data || []);
+      setProperties((data as any) || []);
     } catch (error: any) {
       toast({
         title: "خطأ في جلب العروض",
@@ -120,17 +109,16 @@ export default function Properties() {
   };
 
   const filteredProperties = properties.filter(property => {
-    const matchesSearch = !searchTerm || 
+    const matchesSearch = !searchTerm ||
       property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       property.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      property.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      property.neighborhood?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      property.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      property.model?.toLowerCase().includes(searchTerm.toLowerCase());
+      property.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      property.neighborhood?.toLowerCase().includes(searchTerm.toLowerCase());
+
     
     const matchesCategory = selectedCategory === 'all' || property.category === selectedCategory;
     const matchesCity = selectedCity === 'all' || property.city === selectedCity;
-    const matchesType = selectedType === 'all' || property.property_type === selectedType;
+    const matchesType = selectedType === 'all';
     const matchesListingType = selectedListingType === 'all' || property.listing_type === selectedListingType;
     
     const matchesPrice = (!minPrice || property.price >= parseInt(minPrice)) &&
@@ -140,8 +128,8 @@ export default function Properties() {
   });
 
   // Extract unique values for filters
-  const cities = [...new Set(properties.map(p => p.city))];
-  const propertyTypes = [...new Set(properties.map(p => p.property_type))];
+  const cities = [...new Set(properties.map(p => p.city).filter(Boolean))];
+  const propertyTypes: string[] = [];
 
   const getPropertyTypeLabel = (type: string) => {
     const labels: { [key: string]: string } = {

@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Capacitor } from '@capacitor/core';
 import { PushNotifications, Token } from '@capacitor/push-notifications';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { toast as sonnerToast } from 'sonner';
 
 interface Notification {
   id: string;
@@ -228,8 +229,7 @@ export function useNotifications() {
           
           // Show toast notification for 3 seconds when user is in app
           if (payload.new && typeof window !== 'undefined') {
-            const { toast } = require('@/components/ui/sonner');
-            toast(payload.new.title as string, {
+            sonnerToast(payload.new.title as string, {
               description: payload.new.message as string,
               duration: 3000,
             });

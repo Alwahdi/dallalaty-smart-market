@@ -28,7 +28,8 @@ import {
   CheckCircle2,
   Settings,
   Sun,
-  Moon
+  Moon,
+  LocateFixed
 } from 'lucide-react';
 import HeaderNew from '@/components/HeaderNew';
 import HeaderMobile from '@/components/HeaderMobile';
@@ -178,26 +179,20 @@ export default function AccountSettings() {
         return;
       }
 
-      if (!formData.phone?.trim()) {
-        toast({
-          title: "خطأ",
-          description: "رقم الهاتف مطلوب",
-          variant: "destructive"
-        });
-        return;
-      }
+      // Phone is now optional in profile updates (it can be added later)
+      // Removed mandatory check to allow saving other fields independently
 
       const { error } = await supabase
         .from('profiles')
         .upsert({
           user_id: user.id,
           full_name: formData.full_name.trim(),
-          phone: formData.phone.trim(),
+          phone: formData.phone?.trim() || null,
           bio: formData.bio?.trim() || null,
           location: formData.location?.trim() || null,
           website: formData.website?.trim() || null,
           updated_at: new Date().toISOString()
-        });
+        }, { onConflict: 'user_id' });
 
       if (error) throw error;
 

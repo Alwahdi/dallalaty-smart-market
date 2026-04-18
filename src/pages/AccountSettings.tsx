@@ -407,13 +407,13 @@ export default function AccountSettings() {
                     <div className="space-y-2">
                       <Label htmlFor="phone" className="flex items-center gap-2 font-arabic">
                         <Phone className="w-4 h-4" />
-                        رقم الهاتف
+                        رقم الهاتف (فريد، لا يتكرر)
                       </Label>
                       <Input
                         id="phone"
                         value={formData.phone}
                         onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                        placeholder="05xxxxxxxx"
+                        placeholder="7xxxxxxxx (يمن)"
                         dir="ltr"
                       />
                     </div>
@@ -433,55 +433,59 @@ export default function AccountSettings() {
                       />
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="location" className="flex items-center gap-2 font-arabic">
+                    <div className="space-y-2 md:col-span-2">
+                      <Label className="flex items-center gap-2 font-arabic">
                         <MapPin className="w-4 h-4" />
-                        الموقع
+                        الموقع الجغرافي (تلقائي عبر GPS — لا تعديل يدوي)
                       </Label>
-                      <div className="flex gap-2">
-                        <Input
-                          id="location"
-                          value={formData.location}
-                          onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                          placeholder="الرياض، السعودية"
-                          className="flex-1"
-                        />
+                      <div className="flex gap-2 items-center">
+                        <div className="flex-1 p-3 bg-muted/40 border border-border/50 rounded-md font-arabic text-sm">
+                          {profile?.city
+                            ? `${profile.city}، اليمن`
+                            : profile?.latitude && profile?.longitude
+                            ? `${profile.latitude.toFixed(4)}, ${profile.longitude.toFixed(4)}`
+                            : 'لم يتم تحديد الموقع بعد'}
+                        </div>
                         <Button
                           type="button"
                           variant="outline"
                           size="icon"
                           title="تحديد موقعي تلقائياً"
+                          disabled={locating}
                           onClick={() => {
                             if (!('geolocation' in navigator)) {
                               toast({ title: 'غير مدعوم', description: 'متصفحك لا يدعم تحديد الموقع', variant: 'destructive' });
                               return;
                             }
+                            setLocating(true);
                             navigator.geolocation.getCurrentPosition(
                               async (pos) => {
                                 try {
                                   const { latitude, longitude } = pos.coords;
                                   const res = await fetch(
-                                    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=ar`,
-                                    { headers: { 'User-Agent': 'lovable-app' } },
+                                    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=ar&countrycodes=ye`,
                                   );
                                   const json = await res.json();
                                   const a = json?.address ?? {};
                                   const city = a.city || a.town || a.village || a.county || a.state || '';
-                                  const country = a.country || '';
-                                  const label = [city, country].filter(Boolean).join('، ') ||
-                                    `${latitude.toFixed(3)}, ${longitude.toFixed(3)}`;
-                                  setFormData(prev => ({ ...prev, location: label }));
-                                  toast({ title: '✅ تم التحديد', description: `موقعك: ${label}` });
+                                  await supabase.from('profiles').update({ latitude, longitude, city }).eq('user_id', user!.id);
+                                  setProfile(prev => prev ? { ...prev, latitude, longitude, city } : prev);
+                                  toast({ title: '✅ تم التحديد', description: city ? `موقعك: ${city}، اليمن` : 'تم حفظ الإحداثيات' });
                                 } catch (e: any) {
                                   toast({ title: 'خطأ', description: e?.message || 'فشل قراءة الموقع', variant: 'destructive' });
+                                } finally {
+                                  setLocating(false);
                                 }
                               },
-                              (err) => toast({ title: 'تعذّر تحديد الموقع', description: err.message, variant: 'destructive' }),
-                              { enableHighAccuracy: true, timeout: 8000 },
+                              (err) => {
+                                setLocating(false);
+                                toast({ title: 'تعذّر تحديد الموقع', description: err.message, variant: 'destructive' });
+                              },
+                              { enableHighAccuracy: true, timeout: 10000 },
                             );
                           }}
                         >
-                          <LocateFixed className="w-4 h-4" />
+                          {locating ? <Loader2 className="w-4 h-4 animate-spin" /> : <LocateFixed className="w-4 h-4" />}
                         </Button>
                       </div>
                     </div>

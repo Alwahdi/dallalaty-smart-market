@@ -116,7 +116,6 @@ export default function PropertyManagement() {
         return;
       }
 
-      const propertyData = {
       const { property_type: _ignored, ...formWithoutLegacy } = propertyForm as any;
       const propertyData = {
         ...formWithoutLegacy,

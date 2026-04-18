@@ -43,8 +43,9 @@ export function useRoles() {
     fetchRoles();
 
     if (user) {
-      const channel = supabase
-        .channel(`user_roles_changes_${user.id}`)
+      const channelName = `user_roles_changes_${user.id}_${Math.random().toString(36).slice(2)}`;
+      const channel = supabase.channel(channelName);
+      channel
         .on(
           'postgres_changes',
           {

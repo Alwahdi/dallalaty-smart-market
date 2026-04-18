@@ -12,6 +12,7 @@ import DynamicFormFields from '@/components/admin/DynamicFormFields';
 import { CustomField } from '@/components/admin/CustomFieldsEditor';
 import { Tables } from '@/integrations/supabase/types';
 import { Loader2, ImagePlus, Building2 } from 'lucide-react';
+import { CURRENCIES, CurrencyCode } from '@/lib/currency';
 
 type Property = Tables<'properties'>;
 
@@ -45,6 +46,7 @@ export default function ProductFormDialog({
   const [form, setForm] = useState({
     title: '',
     price: '',
+    currency: 'YER' as CurrencyCode,
     listing_type: 'للبيع',
     location: '',
     city: '',
@@ -82,6 +84,7 @@ export default function ProductFormDialog({
       setForm({
         title: editingProduct.title,
         price: editingProduct.price.toString(),
+        currency: ((editingProduct as any).currency as CurrencyCode) || 'YER',
         listing_type: editingProduct.listing_type || 'للبيع',
         location: editingProduct.location || '',
         city: editingProduct.city || '',
@@ -98,7 +101,7 @@ export default function ProductFormDialog({
       setCustomData((editingProduct.custom_data as Record<string, any>) || {});
     } else {
       setForm({
-        title: '', price: '', listing_type: 'للبيع', location: '', city: '',
+        title: '', price: '', currency: 'YER', listing_type: 'للبيع', location: '', city: '',
         neighborhood: '', description: '', agent_name: '', agent_phone: '',
         agent_email: '', category: '', status: 'active',
       });
@@ -163,7 +166,22 @@ export default function ProductFormDialog({
           </div>
           <div>
             <Label>السعر *</Label>
-            <Input type="number" value={form.price} onChange={e => setForm(p => ({ ...p, price: e.target.value }))} className="mt-1.5" />
+            <div className="flex gap-2 mt-1.5">
+              <Input type="number" value={form.price} onChange={e => setForm(p => ({ ...p, price: e.target.value }))} className="flex-1" placeholder="0" />
+              <Select value={form.currency} onValueChange={v => setForm(p => ({ ...p, currency: v as CurrencyCode }))}>
+                <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {CURRENCIES.map(c => (
+                    <SelectItem key={c.code} value={c.code}>
+                      <span className="flex items-center gap-2">
+                        <span>{c.flag}</span>
+                        <span>{c.symbol}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div>
             <Label>نوع العرض</Label>

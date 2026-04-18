@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Package, Eye, Plus, TrendingUp, Users } from 'lucide-react';
 import { Tables } from '@/integrations/supabase/types';
+import { formatPrice } from '@/lib/currency';
 
 type Property = Tables<'properties'>;
 

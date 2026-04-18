@@ -290,6 +290,11 @@ export default function AccountSettings() {
     }
   };
 
+  // Auth gate AFTER all hooks (avoids "hooks after early return" lint).
+  if (!user && !authLoading) {
+    return <Navigate to="/auth" replace />;
+  }
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">

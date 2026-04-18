@@ -1,7 +1,6 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import PhoneCollectionDialog from '@/components/PhoneCollectionDialog';
 
 interface AuthContextType {
   user: User | null;
@@ -18,42 +17,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showPhoneDialog, setShowPhoneDialog] = useState(false);
 
   useEffect(() => {
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-
-        // Check if user needs phone number (mandatory for all users)
-        if (event === 'SIGNED_IN' && session?.user) {
-          // Check if user has a profile with phone number
-          setTimeout(async () => {
-            try {
-              const { data: profile } = await supabase
-                .from('profiles')
-                .select('phone')
-                .eq('user_id', session.user.id)
-                .single();
-
-              // Show phone dialog if user doesn't have phone number
-              if (!profile?.phone || profile.phone === '') {
-                setShowPhoneDialog(true);
-              }
-            } catch (error) {
-              console.error('Error checking profile:', error);
-              // If no profile exists yet, also show dialog
-              setShowPhoneDialog(true);
-            }
-          }, 100);
-        }
       }
     );
 
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -66,17 +39,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string, fullName?: string, phone?: string) => {
     try {
       const redirectUrl = `${window.location.origin}/`;
-      
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: redirectUrl,
-          data: { 
-            full_name: fullName || '',
-            phone: phone || ''
-          }
-        }
+          data: { full_name: fullName || '', phone: phone || '' },
+        },
       });
       return { error };
     } catch (error: any) {
@@ -87,10 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
       return { error };
     } catch (error: any) {
       console.error('Sign in error:', error);
@@ -103,23 +69,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      session,
-      loading,
-      signUp,
-      signIn,
-      signOut
-    }}>
+    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut }}>
       {children}
-      {user && showPhoneDialog && (
-        <PhoneCollectionDialog
-          isOpen={showPhoneDialog}
-          onClose={() => setShowPhoneDialog(false)}
-          userId={user.id}
-          userEmail={user.email || ''}
-        />
-      )}
     </AuthContext.Provider>
   );
 }

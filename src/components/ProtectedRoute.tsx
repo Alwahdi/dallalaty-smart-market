@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
+import MandatoryOnboarding from '@/components/MandatoryOnboarding';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -13,32 +14,46 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const navigate = useNavigate();
   const [profileLoading, setProfileLoading] = useState(true);
   const [isUserActive, setIsUserActive] = useState(true);
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
+  const [defaultName, setDefaultName] = useState('');
+
+  const checkProfile = async () => {
+    if (!user) return;
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_active, full_name, phone, latitude, longitude')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      setIsUserActive(profile?.is_active ?? true);
+
+      const missing =
+        !profile?.full_name ||
+        !profile?.phone ||
+        profile?.phone === '' ||
+        profile?.latitude == null ||
+        profile?.longitude == null;
+
+      setNeedsOnboarding(missing);
+      setDefaultName(profile?.full_name || (user.user_metadata?.full_name as string) || '');
+    } catch (error) {
+      console.error('Error checking profile:', error);
+      setNeedsOnboarding(true);
+    }
+    setProfileLoading(false);
+  };
 
   useEffect(() => {
-    const checkUserStatus = async () => {
-      if (!loading && user) {
-        try {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('is_active')
-            .eq('user_id', user.id)
-            .single();
-          
-          setIsUserActive(profile?.is_active ?? true);
-        } catch (error) {
-          console.error('Error checking user status:', error);
-        }
-        setProfileLoading(false);
-      } else if (!loading && !user) {
-        navigate('/landing');
-        setProfileLoading(false);
-      }
-    };
-
-    checkUserStatus();
+    if (!loading && user) {
+      checkProfile();
+    } else if (!loading && !user) {
+      navigate('/landing');
+      setProfileLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, loading, navigate]);
 
-  // If user is suspended, sign them out and redirect
   useEffect(() => {
     if (!profileLoading && user && !isUserActive) {
       supabase.auth.signOut();
@@ -56,6 +71,16 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   if (!user || !isUserActive) {
     return null;
+  }
+
+  if (needsOnboarding) {
+    return (
+      <MandatoryOnboarding
+        userId={user.id}
+        defaultFullName={defaultName}
+        onComplete={() => setNeedsOnboarding(false)}
+      />
+    );
   }
 
   return <>{children}</>;

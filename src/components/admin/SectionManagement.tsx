@@ -520,7 +520,7 @@ export default function SectionManagement() {
                   </div>
                 </div>
               </div>
-              <div className="px-4 sm:px-6 py-4 border-t bg-background flex gap-3">
+              <div className="px-4 sm:px-6 py-4 border-t bg-background flex gap-3 shrink-0">
                 <Button 
                   variant="outline" 
                   onClick={() => setCategoryDialogOpen(false)} 

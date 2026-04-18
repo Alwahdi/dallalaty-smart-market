@@ -212,31 +212,31 @@ export function useNotifications() {
     fetchNotifications();
     initializePushNotifications();
 
-    // Set up real-time subscription for notifications
+    if (!user) {
+      return;
+    }
+
+    const channelName = `notifications_changes_${user.id}_${Math.random().toString(36).slice(2)}`;
     const channel = supabase
-      .channel('notifications_changes')
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',
+          event: '*',
           schema: 'public',
           table: 'notifications',
-          filter: user ? `user_id=eq.${user.id}` : undefined
+          filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          console.log('New notification received:', payload);
+          console.log('Notification change received:', payload);
           fetchNotifications();
-          
-          // Show toast notification for 3 seconds when user is in app
-          if (payload.new && typeof window !== 'undefined') {
+
+          if (payload.eventType === 'INSERT' && payload.new && typeof window !== 'undefined') {
             sonnerToast(payload.new.title as string, {
               description: payload.new.message as string,
               duration: 3000,
             });
-          }
-          
-          // Send local notification for mobile
-          if (payload.new) {
+
             sendLocalNotification(
               payload.new.title as string,
               payload.new.message as string

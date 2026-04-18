@@ -22,6 +22,7 @@ import AdminPanel from "./pages/AdminPanel";
 import CacheManager from "@/components/CacheManager";
 import BackHandler from "@/components/BackHandler";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import AutoLocationCapture from "@/components/AutoLocationCapture";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
         <BrowserRouter>
           <CacheManager />
           <BackHandler />
+          <AutoLocationCapture />
           <Routes>
             {/* Public routes */}
             <Route path="/landing" element={<Landing />} />

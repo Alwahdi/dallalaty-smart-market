@@ -1,7 +1,4 @@
-import { useAutoLocation } from '@/hooks/useAutoLocation';
-
-/** Renders nothing — only triggers the geolocation hook once after sign-in. */
+/** Deprecated: location now captured in MandatoryOnboarding. Renders nothing. */
 export default function AutoLocationCapture() {
-  useAutoLocation();
   return null;
 }

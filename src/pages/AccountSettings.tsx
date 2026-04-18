@@ -397,15 +397,14 @@ export default function AccountSettings() {
                     <div className="space-y-2">
                       <Label htmlFor="phone" className="flex items-center gap-2 font-arabic">
                         <Phone className="w-4 h-4" />
-                        رقم الهاتف (لا يمكن التعديل)
+                        رقم الهاتف
                       </Label>
                       <Input
                         id="phone"
                         value={formData.phone}
-                        disabled
+                        onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
                         placeholder="05xxxxxxxx"
                         dir="ltr"
-                        className="bg-muted cursor-not-allowed"
                       />
                     </div>
 

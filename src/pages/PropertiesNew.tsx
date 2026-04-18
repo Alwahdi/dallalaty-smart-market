@@ -118,7 +118,7 @@ export default function Properties() {
     
     const matchesCategory = selectedCategory === 'all' || property.category === selectedCategory;
     const matchesCity = selectedCity === 'all' || property.city === selectedCity;
-    const matchesType = selectedType === 'all' || property.property_type === selectedType;
+    const matchesType = selectedType === 'all';
     const matchesListingType = selectedListingType === 'all' || property.listing_type === selectedListingType;
     
     const matchesPrice = (!minPrice || property.price >= parseInt(minPrice)) &&
@@ -128,8 +128,8 @@ export default function Properties() {
   });
 
   // Extract unique values for filters
-  const cities = [...new Set(properties.map(p => p.city))];
-  const propertyTypes = [...new Set(properties.map(p => p.property_type))];
+  const cities = [...new Set(properties.map(p => p.city).filter(Boolean))];
+  const propertyTypes: string[] = [];
 
   const getPropertyTypeLabel = (type: string) => {
     const labels: { [key: string]: string } = {

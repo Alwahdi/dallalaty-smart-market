@@ -10,21 +10,23 @@ import { useToast } from '@/hooks/use-toast';
 interface Property {
   id: string;
   title: string;
-  description: string;
+  description?: string | null;
   price: number;
-  property_type: string;
-  bedrooms: number;
-  bathrooms: number;
-  area_sqm: number;
-  location: string;
-  city: string;
-  neighborhood: string;
+  property_type?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  area_sqm?: number;
+  location?: string | null;
+  city?: string | null;
+  neighborhood?: string | null;
   images: string[];
-  amenities: string[];
-  listing_type: string;
-  agent_name: string;
-  agent_phone: string;
-  agent_email: string;
+  amenities?: string[];
+  listing_type?: string | null;
+  agent_name?: string | null;
+  agent_phone?: string | null;
+  agent_email?: string | null;
+  category?: string;
+  custom_data?: Record<string, any> | any;
 }
 
 interface PropertyCardProps {

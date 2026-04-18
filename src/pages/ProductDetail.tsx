@@ -99,11 +99,11 @@ export default function ProductDetail() {
       if (data?.category) {
         const { data: cat } = await supabase
           .from('categories')
-          .select('name_ar, custom_fields')
+          .select('title, custom_fields')
           .eq('slug', data.category)
           .maybeSingle();
         if (cat) {
-          setCategoryLabel(cat.name_ar || data.category);
+          setCategoryLabel(cat.title || data.category);
           const fields = (cat.custom_fields as any) || [];
           setCategoryFields(Array.isArray(fields) ? fields : []);
         }

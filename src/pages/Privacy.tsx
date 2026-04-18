@@ -166,7 +166,7 @@ export default function Privacy() {
                 </p>
                 <div className="space-y-2 p-4 bg-muted/50 rounded-lg">
                   <p><strong className="text-foreground">البريد الإلكتروني:</strong> privacy@matjeri.com</p>
-                  <p><strong className="text-foreground">الهاتف:</strong> +966 50 123 4567</p>
+                  <p><strong className="text-foreground">الهاتف:</strong> +967 7XX XXX XXX</p>
                 </div>
               </CardContent>
             </Card>

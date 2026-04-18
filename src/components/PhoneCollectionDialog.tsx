@@ -67,29 +67,18 @@ export default function PhoneCollectionDialog({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      // Prevent closing the dialog without entering a phone number
-      if (!open && !phone.trim()) {
-        toast({
-          title: "تنبيه",
-          description: "رقم الهاتف مطلوب لإكمال التسجيل",
-          variant: "destructive"
-        });
-        return;
-      }
-      onClose();
-    }}>
-      <DialogContent className="sm:max-w-md" dir="rtl" onInteractOutside={(e) => e.preventDefault()}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="sm:max-w-md" dir="rtl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Phone className="w-5 h-5 text-primary" />
-            إكمال المعلومات - مطلوب
+            أكمل ملفك الشخصي
           </DialogTitle>
           <DialogDescription>
-            رقم الهاتف مطلوب لإكمال إنشاء حسابك. لن تتمكن من المتابعة بدون إدخاله.
+            إضافة رقم الهاتف يساعد المشترين على التواصل معك بسهولة. يمكنك تخطّي هذه الخطوة وإضافته لاحقاً من إعدادات الحساب.
           </DialogDescription>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="phone-input">رقم الهاتف</Label>
@@ -101,14 +90,22 @@ export default function PhoneCollectionDialog({
               placeholder="05xxxxxxxx"
               dir="ltr"
               className="text-center"
-              required
             />
           </div>
-          
-          <div className="pt-4">
-            <Button 
-              type="submit" 
-              className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80" 
+
+          <div className="pt-4 flex flex-col-reverse sm:flex-row gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full sm:w-auto"
+              onClick={onClose}
+              disabled={loading}
+            >
+              تخطّي الآن
+            </Button>
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80"
               disabled={loading || !phone.trim()}
             >
               {loading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}

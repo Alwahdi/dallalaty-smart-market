@@ -6,19 +6,12 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { 
-  ArrowLeft, 
-  Heart, 
-  Share2, 
-  MessageCircle, 
-  MapPin, 
-  Bed, 
-  Bath, 
-  Home,
-  Car,
-  Calendar,
-  Palette,
-  Package,
+import {
+  ArrowLeft,
+  Heart,
+  Share2,
+  MessageCircle,
+  MapPin,
   Phone,
   Mail,
   User,
@@ -35,6 +28,8 @@ import BottomNavigation from '@/components/BottomNavigation';
 import { useTheme } from '@/hooks/useTheme';
 import { useFavoritesCache } from '@/hooks/useLocalStorage';
 import { useRouteTracking } from '@/hooks/useRouteTracking';
+import DynamicPropertyDisplay from '@/components/DynamicPropertyDisplay';
+import type { CustomField } from '@/components/admin/CustomFieldsEditor';
 
 interface Property {
   id: string;
@@ -42,27 +37,17 @@ interface Property {
   description: string;
   price: number;
   category: string;
-  property_type: string;
-  bedrooms?: number;
-  bathrooms?: number;
-  area_sqm?: number;
   location: string;
   city: string;
   neighborhood: string;
   images: string[];
   videos?: string[];
-  amenities: string[];
+  amenities?: string[];
   listing_type: string;
   agent_name: string;
   agent_phone: string;
   agent_email: string;
-  brand?: string;
-  model?: string;
-  year?: number;
-  condition?: string;
-  size?: string;
-  color?: string;
-  material?: string;
+  custom_data?: Record<string, any>;
   created_at: string;
   updated_at: string;
 }
@@ -79,6 +64,8 @@ export default function ProductDetail() {
   useRouteTracking();
   
   const [property, setProperty] = useState<Property | null>(null);
+  const [categoryFields, setCategoryFields] = useState<CustomField[]>([]);
+  const [categoryLabel, setCategoryLabel] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -106,11 +93,25 @@ export default function ProductDetail() {
         .single();
 
       if (error) throw error;
-      setProperty(data);
+      setProperty(data as any);
+
+      // Fetch category custom fields for dynamic display
+      if (data?.category) {
+        const { data: cat } = await supabase
+          .from('categories')
+          .select('title, custom_fields')
+          .eq('slug', data.category)
+          .maybeSingle();
+        if (cat) {
+          setCategoryLabel(cat.title || data.category);
+          const fields = (cat.custom_fields as any) || [];
+          setCategoryFields(Array.isArray(fields) ? fields : []);
+        }
+      }
     } catch (error: any) {
       toast({
         title: "خطأ",
-        description: "فشل في تحميل تفاصيل العرض",
+        description: "فشل في تحميل تفاصيل العنصر",
         variant: "destructive"
       });
       navigate('/properties');
@@ -140,7 +141,7 @@ export default function ProductDetail() {
     if (!user) {
       toast({
         title: "تسجيل الدخول مطلوب",
-        description: "يجب تسجيل الدخول لإضافة العروض للمفضلات",
+        description: "يجب تسجيل الدخول لإضافة العناصر للمفضلات",
         variant: "destructive"
       });
       return;
@@ -158,7 +159,7 @@ export default function ProductDetail() {
         setIsLiked(false);
         toast({
           title: "تم الحذف",
-          description: "تم حذف العرض من المفضلات"
+          description: "تم حذف العنصر من المفضلات"
         });
       } else {
         await supabase
@@ -198,7 +199,7 @@ export default function ProductDetail() {
       navigator.clipboard.writeText(window.location.href);
       toast({
         title: "تم النسخ",
-        description: "تم نسخ رابط العرض"
+        description: "تم نسخ الرابط"
       });
     }
   };
@@ -220,17 +221,8 @@ export default function ProductDetail() {
   };
 
   const getCategoryLabel = (category: string) => {
-    const labels: { [key: string]: string } = {
-      'real-estate': 'عقارات',
-      'cars': 'سيارات',
-      'furniture': 'أثاث',
-      'electronics': 'إلكترونيات',
-      'clothes': 'ملابس',
-      'books': 'كتب',
-      'sports': 'رياضة',
-      'other': 'أخرى'
-    };
-    return labels[category] || category;
+    if (categoryLabel) return categoryLabel;
+    return category;
   };
 
   const nextImage = () => {
@@ -267,9 +259,9 @@ export default function ProductDetail() {
       <div className={`min-h-screen bg-background font-arabic ${isDark ? 'dark' : ''}`} dir="rtl">
         <HeaderNew isDark={isDark} toggleTheme={toggleTheme} />
         <div className="container mx-auto px-4 py-8 text-center">
-          <h1 className="text-2xl font-bold mb-4">العرض غير موجود</h1>
+          <h1 className="text-2xl font-bold mb-4">العنصر غير موجود</h1>
           <Button onClick={() => navigate('/properties')}>
-            العودة للعروض
+            العودة للعناصر
           </Button>
         </div>
       </div>
@@ -469,102 +461,19 @@ export default function ProductDetail() {
               </CardContent>
             </Card>
 
-            {/* Property Details */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-bold mb-4 font-arabic">المواصفات</h3>
-                <div className="space-y-3">
-                  {property.category === 'real-estate' && (
-                    <>
-                      {property.bedrooms && (
-                        <div className="flex items-center justify-between">
-                          <span className="flex items-center text-muted-foreground font-arabic">
-                            <Bed className="w-4 h-4 ml-2" />
-                            غرف النوم
-                          </span>
-                          <span className="font-semibold">{property.bedrooms}</span>
-                        </div>
-                      )}
-                      {property.bathrooms && (
-                        <div className="flex items-center justify-between">
-                          <span className="flex items-center text-muted-foreground font-arabic">
-                            <Bath className="w-4 h-4 ml-2" />
-                            دورات المياه
-                          </span>
-                          <span className="font-semibold">{property.bathrooms}</span>
-                        </div>
-                      )}
-                      {property.area_sqm && (
-                        <div className="flex items-center justify-between">
-                          <span className="flex items-center text-muted-foreground font-arabic">
-                            <Home className="w-4 h-4 ml-2" />
-                            المساحة
-                          </span>
-                          <span className="font-semibold">{property.area_sqm} م²</span>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {property.category === 'cars' && (
-                    <>
-                      {property.brand && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-muted-foreground font-arabic">الماركة</span>
-                          <span className="font-semibold">{property.brand}</span>
-                        </div>
-                      )}
-                      {property.model && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-muted-foreground font-arabic">الموديل</span>
-                          <span className="font-semibold">{property.model}</span>
-                        </div>
-                      )}
-                      {property.year && (
-                        <div className="flex items-center justify-between">
-                          <span className="flex items-center text-muted-foreground font-arabic">
-                            <Calendar className="w-4 h-4 ml-2" />
-                            السنة
-                          </span>
-                          <span className="font-semibold">{property.year}</span>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {property.color && (
-                    <div className="flex items-center justify-between">
-                      <span className="flex items-center text-muted-foreground font-arabic">
-                        <Palette className="w-4 h-4 ml-2" />
-                        اللون
-                      </span>
-                      <span className="font-semibold">{property.color}</span>
-                    </div>
-                  )}
-
-                  {property.condition && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground font-arabic">الحالة</span>
-                      <Badge variant="outline">
-                        {property.condition === 'new' ? 'جديد' : 
-                         property.condition === 'excellent' ? 'ممتاز' :
-                         property.condition === 'good' ? 'جيد' : property.condition}
-                      </Badge>
-                    </div>
-                  )}
-
-                  {property.size && (
-                    <div className="flex items-center justify-between">
-                      <span className="flex items-center text-muted-foreground font-arabic">
-                        <Package className="w-4 h-4 ml-2" />
-                        الحجم
-                      </span>
-                      <span className="font-semibold">{property.size}</span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            {/* Dynamic Specs from category custom fields */}
+            {categoryFields.length > 0 && property.custom_data && Object.keys(property.custom_data).length > 0 && (
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-bold mb-4 font-arabic">المواصفات</h3>
+                  <DynamicPropertyDisplay
+                    fields={categoryFields}
+                    data={property.custom_data}
+                    variant="detail"
+                  />
+                </CardContent>
+              </Card>
+            )}
 
             {/* Agent Info */}
             <Card>

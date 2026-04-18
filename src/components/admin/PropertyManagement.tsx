@@ -117,9 +117,10 @@ export default function PropertyManagement() {
       }
 
       const propertyData = {
-        ...propertyForm,
+      const { property_type: _ignored, ...formWithoutLegacy } = propertyForm as any;
+      const propertyData = {
+        ...formWithoutLegacy,
         price: parseFloat(propertyForm.price),
-        property_type: propertyForm.category || 'عام',
         images: propertyImages,
         videos: propertyVideos,
         agent_id: user?.id,

@@ -20,7 +20,7 @@ const Landing = lazy(() => import("./pages/Landing"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Auth = lazy(() => import("./pages/Auth"));
-const AuthCallback = lazy(() => import("./pages/AuthCallback"));
+import AuthCallback from "./pages/AuthCallback";
 const Properties = lazy(() => import("./pages/PropertiesNew"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const AccountSettings = lazy(() => import("./pages/AccountSettings"));

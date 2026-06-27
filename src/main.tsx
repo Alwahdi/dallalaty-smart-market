@@ -15,6 +15,17 @@ Sentry.init({
   sendDefaultPii: true,
 });
 
+// Auto-reload on stale dynamic-import chunks (after a redeploy)
+window.addEventListener("vite:preloadError", () => {
+  window.location.reload();
+});
+window.addEventListener("error", (e) => {
+  const msg = e?.message || "";
+  if (msg.includes("Failed to fetch dynamically imported module") || msg.includes("Importing a module script failed")) {
+    window.location.reload();
+  }
+});
+
 const container = document.getElementById("root");
 const root = createRoot(container!);
 root.render(<App />);

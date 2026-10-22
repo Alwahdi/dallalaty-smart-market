@@ -21,6 +21,7 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Auth = lazy(() => import("./pages/Auth"));
 import AuthCallback from "./pages/AuthCallback";
+import ResetPassword from "./pages/ResetPassword";
 const Properties = lazy(() => import("./pages/PropertiesNew"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const AccountSettings = lazy(() => import("./pages/AccountSettings"));
@@ -58,6 +59,7 @@ const App = () => (
               <Route path="/terms" element={<Terms />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/dashboard" element={<Navigate to="/" replace />} />
               
               {/* Protected routes */}

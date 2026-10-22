@@ -11,6 +11,7 @@ import BottomNavigation from '@/components/BottomNavigation';
 import PropertyCardNew from '@/components/PropertyCardNew';
 import { useFavorites } from '@/hooks/useFavorites';
 import { SwipeToDelete } from '@/components/SwipeToDelete';
+import { formatPrice } from '@/lib/currency';
 
 interface Property {
   id: string;
@@ -132,7 +133,7 @@ export default function Favorites() {
                     className="w-full"
                     shareData={{
                       title: property.title,
-                      text: `${property.description || ''} - السعر: ${property.price ? new Intl.NumberFormat('ar-YE').format(property.price) : 'غير محدد'} ريال`,
+                      text: `${property.description || ''} - السعر: ${property.price ? formatPrice(property.price, (property as any).currency) : 'غير محدد'}`,
                       url: `${window.location.origin}/product/${property.id}`
                     }}
                     deleteConfirmation={{

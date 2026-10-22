@@ -51,7 +51,7 @@ const Header = ({ isDark, toggleTheme }: HeaderProps) => {
         <div className="flex items-center justify-between">
           {/* الشعار */}
           <Link to="/" className="flex items-center space-x-2 rtl:space-x-reverse">
-            <AppLogo className="w-10 h-10 shadow-glow" />
+            <AppLogo className="w-10 h-10" />
             <div className="text-right">
               <h1 className="text-xl font-bold font-arabic text-primary-text">
                 متجر إب الشامل

@@ -1,15 +1,17 @@
 import { Building2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-/** Brand logo: Building2 SVG icon in the primary color. Single source for the logo across the app. */
+/**
+ * Brand logo: the building outline drawn in the theme's gold, with no shape
+ * behind it. `text-primary` is a theme token, so the mark reads correctly in
+ * both the light and the dark mode.
+ */
 export default function AppLogo({ className }: { className?: string }) {
   return (
-    <div
+    <Building2
       role="img"
       aria-label="متجر إب الشامل"
-      className={cn('w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0', className)}
-    >
-      <Building2 className="w-[60%] h-[60%] text-primary" aria-hidden="true" />
-    </div>
+      className={cn('w-9 h-9 text-primary shrink-0', className)}
+    />
   );
 }

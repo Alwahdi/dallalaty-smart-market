@@ -70,8 +70,7 @@ const SwipeActions: React.FC<SwipeActionsProps> = ({
           toast({ 
             title: '✅ تم النسخ', 
             description: 'تم نسخ الرابط إلى الحافظة',
-            className: "bg-green-50 border-green-200 text-green-800"
-          });
+                      });
         }
       }
     },
@@ -114,8 +113,7 @@ const SwipeActions: React.FC<SwipeActionsProps> = ({
               toast({ 
                 title: '✅ تم النسخ', 
                 description: 'تم نسخ الرابط إلى الحافظة',
-                className: "bg-green-50 border-green-200 text-green-800"
-              });
+                              });
             }
           }
         } else if (shareData?.url) {
@@ -123,8 +121,7 @@ const SwipeActions: React.FC<SwipeActionsProps> = ({
           toast({ 
             title: '✅ تم النسخ', 
             description: 'تم نسخ الرابط إلى الحافظة',
-            className: "bg-green-50 border-green-200 text-green-800"
-          });
+                      });
         }
       }
     }
@@ -247,11 +244,11 @@ const SwipeActions: React.FC<SwipeActionsProps> = ({
             style={{ width: `${Math.max(0, translateX)}px` }}
           >
             <Share2 className={cn(
-              "w-5 h-5 text-green-600 transition-all duration-200",
+              "w-5 h-5 text-success transition-all duration-200",
               translateX > SWIPE_THRESHOLD ? "animate-pulse scale-110" : ""
             )} />
             {translateX > SWIPE_THRESHOLD && (
-              <span className="mr-2 text-sm font-arabic text-green-700 font-medium animate-fade-in">
+              <span className="mr-2 text-sm font-arabic text-success font-medium animate-fade-in">
                 مشاركة
               </span>
             )}
@@ -266,12 +263,12 @@ const SwipeActions: React.FC<SwipeActionsProps> = ({
             style={{ width: `${Math.max(0, -translateX)}px` }}
           >
             {translateX < -SWIPE_THRESHOLD && (
-              <span className="ml-2 text-sm font-arabic text-red-700 font-medium animate-fade-in">
+              <span className="ml-2 text-sm font-arabic text-destructive font-medium animate-fade-in">
                 حذف
               </span>
             )}
             <Trash2 className={cn(
-              "w-5 h-5 text-red-600 transition-all duration-200",
+              "w-5 h-5 text-destructive transition-all duration-200",
               translateX < -SWIPE_THRESHOLD ? "animate-pulse scale-110" : ""
             )} />
           </div>
@@ -299,7 +296,7 @@ const SwipeActions: React.FC<SwipeActionsProps> = ({
         <AlertDialogContent className="bg-background/95 backdrop-blur-md" dir="rtl">
           <AlertDialogHeader>
             <AlertDialogTitle className="font-arabic flex items-center gap-2">
-              <Trash2 className="w-5 h-5 text-red-600" />
+              <Trash2 className="w-5 h-5 text-destructive" />
               {deleteConfirmation.title}
             </AlertDialogTitle>
             <AlertDialogDescription className="font-arabic">
@@ -310,7 +307,7 @@ const SwipeActions: React.FC<SwipeActionsProps> = ({
             <AlertDialogCancel className="font-arabic">إلغاء</AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleDeleteConfirm}
-              className="font-arabic bg-red-600 hover:bg-red-700"
+              className="font-arabic bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               تأكيد الحذف
             </AlertDialogAction>

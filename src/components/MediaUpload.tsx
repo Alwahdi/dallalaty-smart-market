@@ -134,8 +134,7 @@ export default function MediaUpload({
       toast({
         title: "✅ تم الرفع",
         description: "تم رفع الصور بنجاح",
-        className: "bg-green-50 border-green-200 text-green-800"
-      });
+              });
     } catch (error: any) {
       console.error('Error uploading images:', error);
       toast({
@@ -201,8 +200,7 @@ export default function MediaUpload({
       toast({
         title: "✅ تم الرفع",
         description: "تم رفع الفيديو بدون صوت بنجاح",
-        className: "bg-green-50 border-green-200 text-green-800"
-      });
+              });
     } catch (error: any) {
       console.error('Error uploading videos:', error);
       toast({

@@ -88,8 +88,7 @@ export default function PhoneCollectionDialog({
       toast({
         title: 'تم الحفظ!',
         description: 'تم حفظ رقم الهاتف بنجاح',
-        className: 'bg-green-50 border-green-200 text-green-800',
-      });
+              });
       onClose();
     } catch (error: any) {
       console.error('Error saving phone:', error);

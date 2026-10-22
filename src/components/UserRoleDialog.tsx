@@ -81,8 +81,7 @@ export default function UserRoleDialog({ userId, userEmail, currentRoles, onRole
       toast({
         title: "✅ تم التحديث",
         description: "تم تحديث صلاحيات المستخدم بنجاح وإرسال إشعار له",
-        className: "bg-green-50 border-green-200 text-green-800"
-      });
+              });
 
       onRolesUpdated(selectedRoles);
       setOpen(false);

@@ -67,8 +67,7 @@ export default function ImageUpload({
       toast({
         title: "✅ تم الرفع",
         description: "تم رفع الصور بنجاح",
-        className: "bg-green-50 border-green-200 text-green-800"
-      });
+              });
     } catch (error: any) {
       console.error('Error uploading images:', error);
       toast({
@@ -104,8 +103,7 @@ export default function ImageUpload({
       toast({
         title: "تم الحذف",
         description: "تم حذف الصورة بنجاح",
-        className: "bg-green-50 border-green-200 text-green-800"
-      });
+              });
     } catch (error: any) {
       console.error('Error removing image:', error);
       toast({

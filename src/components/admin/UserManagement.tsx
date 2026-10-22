@@ -116,8 +116,7 @@ export default function UserManagement() {
       toast({
         title: "✅ تم التحديث",
         description: isActive ? "تم تعليق المستخدم بنجاح" : "تم تفعيل المستخدم بنجاح",
-        className: "bg-green-50 border-green-200 text-green-800"
-      });
+              });
 
       fetchUsers();
     } catch (error: any) {
@@ -200,13 +199,13 @@ export default function UserManagement() {
             </div>
             <div className="bg-gradient-to-br from-green-500/10 to-green-500/5 rounded-xl p-3 border border-green-500/10">
               <div className="text-xs text-muted-foreground mb-1">نشط</div>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-success">
                 {users.filter(u => u.is_active).length}
               </div>
             </div>
             <div className="bg-gradient-to-br from-red-500/10 to-red-500/5 rounded-xl p-3 border border-red-500/10 col-span-2 sm:col-span-1">
               <div className="text-xs text-muted-foreground mb-1">معلق</div>
-              <div className="text-2xl font-bold text-red-600">
+              <div className="text-2xl font-bold text-destructive">
                 {users.filter(u => !u.is_active).length}
               </div>
             </div>
@@ -248,7 +247,7 @@ export default function UserManagement() {
                           </h3>
                           <Badge 
                             variant={user.is_active ? "default" : "destructive"} 
-                            className={`text-xs shrink-0 ${user.is_active ? 'bg-green-500/15 text-green-700 border-green-500/30 hover:bg-green-500/20' : ''}`}
+                            className={`text-xs shrink-0 ${user.is_active ? 'bg-success/15 text-success border-success/30 hover:bg-success/20' : ''}`}
                           >
                             {user.is_active ? "🟢 نشط" : "🔴 معلق"}
                           </Badge>

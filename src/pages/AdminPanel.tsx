@@ -26,6 +26,7 @@ import UserManagement from '@/components/admin/UserManagement';
 import SectionManagement from '@/components/admin/SectionManagement';
 import PropertyManagement from '@/components/admin/PropertyManagement';
 import { supabase } from '@/integrations/supabase/client';
+import { formatNumber } from '@/lib/format';
 
 export default function AdminPanel() {
   const { user } = useAuth();
@@ -33,12 +34,14 @@ export default function AdminPanel() {
   const { isAdmin, isPropertiesAdmin, isCategoriesAdmin, isNotificationsAdmin } = useRoles();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [stats, setStats] = useState({ users: 0, properties: 0, categories: 0, notifications: 0 });
+  const [statsState, setStatsState] = useState<'loading' | 'ready' | 'error'>('loading');
 
   useEffect(() => {
     fetchStats();
   }, []);
 
   const fetchStats = async () => {
+    setStatsState('loading');
     try {
       const [u, p, c, n] = await Promise.all([
         supabase.from('profiles').select('id', { count: 'exact', head: true }),
@@ -46,9 +49,12 @@ export default function AdminPanel() {
         supabase.from('categories').select('id', { count: 'exact', head: true }),
         supabase.from('notifications').select('id', { count: 'exact', head: true }),
       ]);
+      const failed = [u, p, c, n].find((r) => r.error);
+      if (failed) throw failed.error;
       setStats({ users: u.count || 0, properties: p.count || 0, categories: c.count || 0, notifications: n.count || 0 });
-    } catch (e) {
-      console.error('Error fetching stats:', e);
+      setStatsState('ready');
+    } catch {
+      setStatsState('error');
     }
   };
 
@@ -68,14 +74,20 @@ export default function AdminPanel() {
           <Shield className="w-6 h-6 text-primary-foreground" />
         </div>
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+          <h1 className="text-xl sm:text-2xl font-bold text-primary-text">
             مرحباً بك في لوحة الإدارة
           </h1>
           <p className="text-muted-foreground text-xs sm:text-sm">إدارة شاملة ومتقدمة</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      {statsState === 'error' && (
+        <div role="alert" className="flex items-center justify-between gap-3 p-4 rounded-xl border border-destructive/40 bg-destructive/10 text-sm text-destructive">
+          <span>تعذر تحميل الإحصائيات.</span>
+          <Button size="sm" variant="outline" onClick={fetchStats}>إعادة المحاولة</Button>
+        </div>
+      )}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" aria-busy={statsState === 'loading'}>
         {[
           { label: 'المستخدمين', value: stats.users, icon: Users, color: 'primary' },
           { label: 'العناصر', value: stats.properties, icon: Building2, color: 'blue-500' },
@@ -89,7 +101,7 @@ export default function AdminPanel() {
                 <div>
                   <CardTitle className="text-xs font-semibold text-muted-foreground uppercase">{s.label}</CardTitle>
                   <div className="text-2xl sm:text-3xl font-bold text-foreground tabular-nums mt-1">
-                    {s.value.toLocaleString('ar-YE-u-nu-latn')}
+                    {statsState === 'ready' ? formatNumber(s.value) : <span className="inline-block h-8 w-12 rounded bg-muted animate-pulse" aria-label="جاري التحميل" />}
                   </div>
                 </div>
                 <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
@@ -151,7 +163,7 @@ export default function AdminPanel() {
                 <Shield className="w-5 h-5 text-primary-foreground" />
               </div>
               <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
-                <h1 className="text-sm font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent truncate">
+                <h1 className="text-sm font-bold text-primary-text truncate">
                   لوحة الإدارة
                 </h1>
                 <p className="text-[10px] text-muted-foreground truncate">النظام الإداري</p>

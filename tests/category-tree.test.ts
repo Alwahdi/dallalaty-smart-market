@@ -1,6 +1,6 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { allowedParents, categoryPath, descendantIds } from './category-tree';
+import { allowedParents, categoryPath, descendantIds } from '../src/lib/category-tree';
 
 const nodes = [
   { id: 'a', title: 'أجهزة', parent_id: null },

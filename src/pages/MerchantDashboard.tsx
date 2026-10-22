@@ -11,6 +11,7 @@ import MerchantOverview from '@/components/merchant/MerchantOverview';
 import MerchantProducts from '@/components/merchant/MerchantProducts';
 import MerchantEmployees from '@/components/merchant/MerchantEmployees';
 import MerchantSettings from '@/components/merchant/MerchantSettings';
+import BottomNavigation from '@/components/BottomNavigation';
 
 export default function MerchantDashboard() {
   const { user } = useAuth();
@@ -20,6 +21,7 @@ export default function MerchantDashboard() {
   const ctx = useMerchantContext(activeMerchantId);
   const [tab, setTab] = useState('overview');
   const [employeesCount, setEmployeesCount] = useState(0);
+  const [createSignal, setCreateSignal] = useState(0);
 
   useEffect(() => {
     if (urlMerchantId) setActiveMerchantId(urlMerchantId);
@@ -37,8 +39,8 @@ export default function MerchantDashboard() {
 
   if (ctx.loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-text" />
+      <div role="status" className="min-h-screen flex items-center justify-center gap-2 text-muted-foreground" dir="rtl">
+        <Loader2 className="w-6 h-6 animate-spin text-primary-text" /> جاري التحميل...
       </div>
     );
   }
@@ -67,17 +69,17 @@ export default function MerchantDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-background pb-20" dir="rtl">
+    <div className="min-h-screen bg-background pb-24 md:pb-6" dir="rtl">
       <header className="sticky top-0 z-30 bg-background/95 backdrop-blur border-b">
         <div className="max-w-6xl mx-auto px-3 sm:px-4 h-14 flex items-center gap-2 sm:gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
+          <Button variant="ghost" size="icon" aria-label="العودة للرئيسية" onClick={() => navigate('/')}>
             <ArrowRight className="w-5 h-5" />
           </Button>
           <Store className="w-5 h-5 text-primary-text shrink-0" />
           <h1 className="font-bold text-base sm:text-lg flex-1 truncate">لوحة التاجر</h1>
           {merchantOptions.length > 1 && (
             <Select value={ctx.effectiveAgentId} onValueChange={setActiveMerchantId}>
-              <SelectTrigger className="w-36 sm:w-44 h-9"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-36 sm:w-44 h-10" aria-label="اختر المتجر"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {merchantOptions.map(o => (
                   <SelectItem key={o.id} value={o.id}>{o.label}</SelectItem>
@@ -91,19 +93,19 @@ export default function MerchantDashboard() {
       <main className="max-w-6xl mx-auto p-3 sm:p-6">
         <Tabs value={tab} onValueChange={setTab} className="space-y-4">
           <TabsList className="grid grid-cols-2 sm:flex sm:w-auto h-auto p-1 gap-1">
-            <TabsTrigger value="overview" className="gap-1.5 text-xs sm:text-sm">
+            <TabsTrigger value="overview" className="gap-1.5 text-sm min-h-10">
               <LayoutDashboard className="w-4 h-4" /> نظرة عامة
             </TabsTrigger>
-            <TabsTrigger value="products" className="gap-1.5 text-xs sm:text-sm">
+            <TabsTrigger value="products" className="gap-1.5 text-sm min-h-10">
               <Package className="w-4 h-4" /> منتجاتي
             </TabsTrigger>
             {showEmployeesTab && (
-              <TabsTrigger value="employees" className="gap-1.5 text-xs sm:text-sm">
+              <TabsTrigger value="employees" className="gap-1.5 text-sm min-h-10">
                 <Users className="w-4 h-4" /> الموظفون
               </TabsTrigger>
             )}
             {showSettingsTab && (
-              <TabsTrigger value="settings" className="gap-1.5 text-xs sm:text-sm">
+              <TabsTrigger value="settings" className="gap-1.5 text-sm min-h-10">
                 <Settings className="w-4 h-4" /> الإعدادات
               </TabsTrigger>
             )}
@@ -114,13 +116,13 @@ export default function MerchantDashboard() {
               agentId={ctx.effectiveAgentId}
               employeesCount={employeesCount}
               canAdd={ctx.permissions.can_add_products}
-              onAddProduct={() => setTab('products')}
+              onAddProduct={() => { setTab('products'); setCreateSignal((n) => n + 1); }}
               onGoToProducts={() => setTab('products')}
             />
           </TabsContent>
 
           <TabsContent value="products">
-            <MerchantProducts agentId={ctx.effectiveAgentId} permissions={ctx.permissions} />
+            <MerchantProducts agentId={ctx.effectiveAgentId} permissions={ctx.permissions} createSignal={createSignal} />
           </TabsContent>
 
           {showEmployeesTab && (
@@ -136,6 +138,7 @@ export default function MerchantDashboard() {
           )}
         </Tabs>
       </main>
+      <BottomNavigation />
     </div>
   );
 }

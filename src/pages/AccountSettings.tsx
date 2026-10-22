@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Navigate } from 'react-router-dom';
+import { useTheme } from '@/hooks/useTheme';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,756 +10,337 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  User, 
-  Camera, 
-  Save, 
-  Shield, 
-  Key, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Globe, 
-  Loader2, 
-  Upload,
-  AlertTriangle,
-  CheckCircle2,
-  Settings,
-  Sun,
-  Moon,
-  LocateFixed
+import {
+  User, Camera, Save, Shield, Key, Mail, Phone, MapPin, Loader2, CheckCircle2, AlertTriangle,
+  LocateFixed, Monitor, Smartphone, LogOut, Moon, Bell, Trash2, Settings,
 } from 'lucide-react';
 import HeaderNew from '@/components/HeaderNew';
 import HeaderMobile from '@/components/HeaderMobile';
 import BottomNavigation from '@/components/BottomNavigation';
+import PasswordStrength from '@/components/PasswordStrength';
+import { YEMEN_LOCAL_PHONE, toYemenPhone, fromYemenPhone, formatDateTime } from '@/lib/format';
+import { captureGpsLocation } from '@/lib/location';
+import { cropSquare } from '@/lib/image';
 
-interface UserProfile {
-  id: string;
-  user_id: string;
-  full_name: string | null;
-  phone: string | null;
-  avatar_url: string | null;
-  bio: string | null;
-  city: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  website: string | null;
+interface Profile {
+  first_name: string | null; last_name: string | null; full_name: string | null;
+  phone: string | null; phone_verified: boolean; avatar_url: string | null;
+  bio: string | null; city: string | null; latitude: number | null; longitude: number | null;
+}
+
+function deviceLabel() {
+  const ua = navigator.userAgent;
+  const os = /Android/i.test(ua) ? 'Android' : /iPhone|iPad/i.test(ua) ? 'iOS' : /Windows/i.test(ua) ? 'Windows' : /Mac/i.test(ua) ? 'macOS' : /Linux/i.test(ua) ? 'Linux' : 'جهاز';
+  const br = /Edg\//.test(ua) ? 'Edge' : /Chrome\//.test(ua) ? 'Chrome' : /Firefox\//.test(ua) ? 'Firefox' : /Safari\//.test(ua) ? 'Safari' : 'متصفح';
+  return { os, br, mobile: /Mobi|Android|iPhone/i.test(ua) };
 }
 
 export default function AccountSettings() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark' || (theme === 'system' && document.documentElement.classList.contains('dark'));
+  const navigate = useNavigate();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [locating, setLocating] = useState(false);
-  const [isDark, setIsDark] = useState(false);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [formData, setFormData] = useState({
-    full_name: '',
-    phone: '',
-    bio: '',
-    website: ''
-  });
-  const [passwordData, setPasswordData] = useState({
-    newPassword: '',
-    confirmPassword: ''
-  });
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [form, setForm] = useState({ first_name: '', last_name: '', phone: '', bio: '' });
 
-  // NOTE: Do NOT early-return here. React requires all hooks to run on every
-  // render. We perform the auth gate inside JSX at the bottom instead.
+  const [pwOpen, setPwOpen] = useState(false);
+  const [pw, setPw] = useState({ current: '', next: '', confirm: '' });
+  const [pwSaving, setPwSaving] = useState(false);
+  const [notif, setNotif] = useState(() => localStorage.getItem('pref-notifications') !== 'off');
 
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-    document.documentElement.classList.toggle('dark');
-  };
+  const hasPassword = !!user?.identities?.some((i) => i.provider === 'email');
+  const providers: string[] = (user?.app_metadata?.providers as string[]) || [];
 
-  useEffect(() => {
-    if (user) {
-      fetchProfile();
-    }
-  }, [user]);
+  useEffect(() => { if (user) fetchProfile(); }, [user]);
 
   const fetchProfile = async () => {
     if (!user) return;
-    
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-
-      if (error && error.code !== 'PGRST116') throw error;
-
-      if (data) {
-        setProfile(data);
-        setFormData({
-          full_name: data.full_name || '',
-          phone: data.phone || '',
-          bio: data.bio || '',
-          website: data.website || ''
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: "خطأ",
-        description: "فشل في تحميل بيانات الملف الشخصي",
-        variant: "destructive"
+    setLoading(true);
+    const { data } = await supabase
+      .from('profiles')
+      .select('first_name,last_name,full_name,phone,phone_verified,avatar_url,bio,city,latitude,longitude')
+      .eq('user_id', user.id).maybeSingle();
+    if (data) {
+      setProfile(data as Profile);
+      setForm({
+        first_name: data.first_name || '', last_name: data.last_name || '',
+        phone: fromYemenPhone(data.phone), bio: data.bio || '',
       });
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
-  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || !user) return;
+    if (!file.type.startsWith('image/')) { toast({ title: 'اختر صورة', variant: 'destructive' }); return; }
+    setUploading(true);
     try {
-      setUploading(true);
-      
-      if (!event.target.files || event.target.files.length === 0) {
-        return;
-      }
-
-      const file = event.target.files[0];
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user?.id}/${Date.now()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(fileName, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(fileName);
-
-      // Update profile with new avatar URL
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: data.publicUrl })
-        .eq('user_id', user?.id);
-
-      if (updateError) throw updateError;
-
-      setProfile(prev => prev ? { ...prev, avatar_url: data.publicUrl } : null);
-      
-      toast({
-        title: "✅ تم التحديث",
-        description: "تم تحديث صورة الملف الشخصي بنجاح",
-        className: "bg-green-50 border-green-200 text-green-800"
-      });
-    } catch (error: any) {
-      toast({
-        title: "خطأ",
-        description: error.message,
-        variant: "destructive"
-      });
-    } finally {
-      setUploading(false);
-    }
+      const blob = await cropSquare(file);
+      const path = `${user.id}/${Date.now()}.jpg`;
+      const { error } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
+      if (error) throw error;
+      const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+      await supabase.from('profiles').update({ avatar_url: data.publicUrl }).eq('user_id', user.id);
+      setProfile((p) => (p ? { ...p, avatar_url: data.publicUrl } : p));
+      window.dispatchEvent(new Event('profile-updated'));
+      toast({ title: 'تم تحديث الصورة' });
+    } catch (err: any) {
+      toast({ title: 'خطأ', description: err.message, variant: 'destructive' });
+    } finally { setUploading(false); }
   };
 
-  const handleProfileUpdate = async () => {
+  const saveProfile = async () => {
     if (!user) return;
-
-    try {
-      setLoading(true);
-      
-      // Validate form data
-      if (!formData.full_name?.trim()) {
-        toast({
-          title: "خطأ",
-          description: "الاسم الكامل مطلوب",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Phone is now optional in profile updates (it can be added later)
-      // Removed mandatory check to allow saving other fields independently
-
-      const { error } = await supabase
-        .from('profiles')
-        .upsert({
-          user_id: user.id,
-          full_name: formData.full_name.trim(),
-          phone: formData.phone?.trim() || null,
-          bio: formData.bio?.trim() || null,
-          website: formData.website?.trim() || null,
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'user_id' });
-
-      if (error) {
-        if (error.message?.includes('PHONE_ALREADY_USED') || (error as any).code === '23505') {
-          toast({
-            title: "رقم الهاتف مستخدم",
-            description: "هذا الرقم مسجّل بحساب آخر. الرجاء استخدام رقم مختلف.",
-            variant: "destructive"
-          });
-          return;
-        }
-        throw error;
-      }
-
-      toast({
-        title: "✅ تم الحفظ",
-        description: "تم حفظ بيانات الملف الشخصي بنجاح",
-        className: "bg-green-50 border-green-200 text-green-800"
-      });
-
-      fetchProfile();
-    } catch (error: any) {
-      console.error('Profile update error:', error);
-      toast({
-        title: "خطأ",
-        description: error.message || "حدث خطأ أثناء حفظ البيانات",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
+    const fn = form.first_name.trim(); const ln = form.last_name.trim();
+    if (fn.length < 2 || ln.length < 2) { toast({ title: 'الاسم الأول واللقب مطلوبان', variant: 'destructive' }); return; }
+    if (!YEMEN_LOCAL_PHONE.test(form.phone)) { toast({ title: 'رقم الجوال غير صحيح', description: '9 أرقام تبدأ بـ 7', variant: 'destructive' }); return; }
+    setSaving(true);
+    const phone = toYemenPhone(form.phone);
+    if (phone !== profile?.phone) {
+      const { data: taken } = await supabase.from('profiles').select('user_id').eq('phone', phone).neq('user_id', user.id).maybeSingle();
+      if (taken) { setSaving(false); toast({ title: 'الرقم مستخدم', description: 'هذا الرقم مسجل لحساب آخر', variant: 'destructive' }); return; }
     }
-  };
-
-  const handlePasswordUpdate = async () => {
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast({
-        title: "خطأ",
-        description: "كلمات المرور الجديدة غير متطابقة",
-        variant: "destructive"
-      });
+    const { error } = await supabase.from('profiles').update({
+      first_name: fn, last_name: ln, full_name: `${fn} ${ln}`, phone, bio: form.bio.trim() || null,
+    }).eq('user_id', user.id);
+    setSaving(false);
+    if (error) {
+      toast({ title: 'خطأ', description: error.code === '23505' ? 'هذا الرقم مسجل لحساب آخر' : error.message, variant: 'destructive' });
       return;
     }
-
-    if (passwordData.newPassword.length < 6) {
-      toast({
-        title: "خطأ",
-        description: "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      setLoading(true);
-      
-      const { error } = await supabase.auth.updateUser({
-        password: passwordData.newPassword
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "✅ تم التحديث",
-        description: "تم تحديث كلمة المرور بنجاح",
-        className: "bg-green-50 border-green-200 text-green-800"
-      });
-
-      setPasswordData({
-        newPassword: '',
-        confirmPassword: ''
-      });
-    } catch (error: any) {
-      toast({
-        title: "خطأ",
-        description: error.message,
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
+    toast({ title: 'تم الحفظ' });
+    window.dispatchEvent(new Event('profile-updated'));
+    fetchProfile();
   };
 
-  const handlePasswordReset = async () => {
+  const updateLocation = async () => {
+    if (!user) return;
+    setLocating(true);
+    try {
+      const r = await captureGpsLocation();
+      await supabase.from('profiles').update(r).eq('user_id', user.id);
+      setProfile((p) => (p ? { ...p, ...r } : p));
+      window.dispatchEvent(new Event('profile-updated'));
+      toast({ title: 'تم تحديث موقعك', description: r.city });
+    } catch (e: any) {
+      toast({ title: 'تعذر تحديد الموقع', description: e.message, variant: 'destructive' });
+    } finally { setLocating(false); }
+  };
+
+  const changePassword = async () => {
     if (!user?.email) return;
-
-    try {
-      setLoading(true);
-      
-      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-        redirectTo: `${window.location.origin}/auth`
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "✅ تم الإرسال",
-        description: "تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني",
-        className: "bg-green-50 border-green-200 text-green-800"
-      });
-    } catch (error: any) {
-      toast({
-        title: "خطأ",
-        description: error.message,
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
+    if (pw.next.length < 8) { toast({ title: 'كلمة المرور 8 أحرف على الأقل', variant: 'destructive' }); return; }
+    if (pw.next !== pw.confirm) { toast({ title: 'كلمتا المرور غير متطابقتين', variant: 'destructive' }); return; }
+    setPwSaving(true);
+    if (hasPassword) {
+      const { error: authErr } = await supabase.auth.signInWithPassword({ email: user.email, password: pw.current });
+      if (authErr) { setPwSaving(false); toast({ title: 'كلمة المرور الحالية غير صحيحة', variant: 'destructive' }); return; }
     }
+    const { error } = await supabase.auth.updateUser({ password: pw.next });
+    setPwSaving(false);
+    if (error) { toast({ title: 'خطأ', description: error.message, variant: 'destructive' }); return; }
+    toast({ title: hasPassword ? 'تم تغيير كلمة المرور' : 'تم إنشاء كلمة المرور', description: 'يمكنك الدخول بالبريد وكلمة المرور أو Google' });
+    setPw({ current: '', next: '', confirm: '' });
+    setPwOpen(false);
   };
 
-  // Auth gate AFTER all hooks (avoids "hooks after early return" lint).
-  if (!user && !authLoading) {
-    return <Navigate to="/auth" replace />;
+  const sendResetLink = async () => {
+    if (!user?.email) return;
+    const { error } = await supabase.auth.resetPasswordForEmail(user.email, { redirectTo: `${window.location.origin}/reset-password` });
+    toast(error ? { title: 'خطأ', description: error.message, variant: 'destructive' } : { title: 'تم الإرسال', description: `أرسلنا رابط تغيير كلمة المرور إلى ${user.email}` });
+  };
+
+  const signOutOthers = async () => {
+    const { error } = await supabase.auth.signOut({ scope: 'others' });
+    toast(error ? { title: 'خطأ', description: error.message, variant: 'destructive' } : { title: 'تم تسجيل الخروج من الأجهزة الأخرى' });
+  };
+
+  const signOutAll = async () => {
+    await supabase.auth.signOut({ scope: 'global' });
+    navigate('/landing');
+  };
+
+  if (!user && !authLoading) return <Navigate to="/auth" replace />;
+  if (authLoading || loading) {
+    return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
-  if (authLoading || loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
+  const initials = `${form.first_name[0] || ''}${form.last_name[0] || ''}` || user?.email?.[0]?.toUpperCase();
+  const dev = deviceLabel();
 
   return (
-    <div className={`min-h-screen bg-background font-arabic ${isDark ? 'dark' : ''}`} dir="rtl">
-      {/* Desktop Header */}
-      <div className="hidden md:block">
-        <HeaderNew isDark={isDark} toggleTheme={toggleTheme} />
-      </div>
-      
-      {/* Mobile Header */}
-      <div className="block md:hidden">
-        <HeaderMobile isDark={isDark} toggleTheme={toggleTheme} showSearch={false} />
-      </div>
-      
-      <main className="container mx-auto px-4 py-8 pb-20 md:pb-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground font-arabic flex items-center gap-3">
-              <User className="w-8 h-8 text-primary" />
-              إعدادات الحساب
-            </h1>
-            <p className="text-muted-foreground font-arabic">
-              إدارة ملفك الشخصي وإعدادات الأمان
-            </p>
-          </div>
+    <div className="min-h-screen bg-background font-arabic" dir="rtl">
+      <div className="hidden md:block"><HeaderNew isDark={isDark} toggleTheme={toggleTheme} /></div>
+      <div className="block md:hidden"><HeaderMobile isDark={isDark} toggleTheme={toggleTheme} showSearch={false} /></div>
 
-          <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="profile" className="font-arabic">الملف الشخصي</TabsTrigger>
-              <TabsTrigger value="security" className="font-arabic">الأمان</TabsTrigger>
-              <TabsTrigger value="preferences" className="font-arabic">التفضيلات</TabsTrigger>
-              <TabsTrigger value="account" className="font-arabic">الحساب</TabsTrigger>
+      <main className="container mx-auto px-4 py-6 pb-24 md:pb-8">
+        <div className="max-w-3xl mx-auto space-y-6">
+          {/* Profile summary */}
+          <Card className="overflow-hidden">
+            <div className="h-20 bg-gradient-to-l from-primary/30 to-primary/5" />
+            <CardContent className="-mt-12 flex flex-col sm:flex-row sm:items-end gap-4">
+              <div className="relative w-fit">
+                <Avatar className="w-24 h-24 ring-4 ring-background">
+                  <AvatarImage src={profile?.avatar_url || ''} className="object-cover" />
+                  <AvatarFallback className="text-2xl bg-primary/10 text-primary">{initials}</AvatarFallback>
+                </Avatar>
+                <Label htmlFor="avatar-upload" aria-label="تغيير الصورة"
+                  className="absolute bottom-0 left-0 bg-primary text-primary-foreground rounded-full p-2 cursor-pointer shadow">
+                  {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
+                </Label>
+                <input id="avatar-upload" type="file" accept="image/*" onChange={handleAvatar} className="hidden" disabled={uploading} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h1 className="text-xl font-bold truncate">{profile?.full_name || 'المستخدم'}</h1>
+                <p className="text-sm text-muted-foreground truncate" dir="ltr">{user?.email}</p>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {profile?.city && <Badge variant="secondary"><MapPin className="w-3 h-3 ml-1" />{profile.city}</Badge>}
+                  {profile?.phone_verified
+                    ? <Badge><CheckCircle2 className="w-3 h-3 ml-1" />الجوال موثّق</Badge>
+                    : <Badge variant="outline"><AlertTriangle className="w-3 h-3 ml-1" />الجوال غير موثّق</Badge>}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Tabs defaultValue="profile" className="space-y-4">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="profile"><User className="w-4 h-4 ml-1" />الملف</TabsTrigger>
+              <TabsTrigger value="security"><Shield className="w-4 h-4 ml-1" />الأمان</TabsTrigger>
+              <TabsTrigger value="preferences"><Settings className="w-4 h-4 ml-1" />التفضيلات</TabsTrigger>
             </TabsList>
 
-            {/* Profile Tab */}
             <TabsContent value="profile">
               <Card>
                 <CardHeader>
-                  <CardTitle className="font-arabic">الملف الشخصي</CardTitle>
-                  <CardDescription className="font-arabic">
-                    قم بتحديث معلومات ملفك الشخصي وصورتك
-                  </CardDescription>
+                  <CardTitle>البيانات الشخصية</CardTitle>
+                  <CardDescription>عدّل اسمك ورقم جوالك ونبذتك</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Avatar Section */}
-                  <div className="flex items-center gap-6">
-                    <div className="relative">
-                      <Avatar className="w-24 h-24">
-                        <AvatarImage src={profile?.avatar_url || ''} />
-                        <AvatarFallback className="text-lg bg-primary/10 text-primary">
-                          {formData.full_name?.split(' ').map(n => n[0]).join('') || user?.email?.[0].toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <Label htmlFor="avatar-upload" className="absolute -bottom-1 -right-1 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full p-2 cursor-pointer transition-colors">
-                        {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
-                      </Label>
-                      <input
-                        id="avatar-upload"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleAvatarUpload}
-                        className="hidden"
-                        disabled={uploading}
-                      />
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="fn">الاسم الأول</Label>
+                      <Input id="fn" value={form.first_name} maxLength={40} onChange={(e) => setForm((f) => ({ ...f, first_name: e.target.value }))} />
                     </div>
-                    <div>
-                      <h3 className="font-semibold font-arabic">{formData.full_name || 'المستخدم'}</h3>
-                      <p className="text-sm text-muted-foreground">{user?.email}</p>
-                      <Badge variant="outline" className="mt-2">
-                        <CheckCircle2 className="w-3 h-3 ml-1" />
-                        موثق
-                      </Badge>
+                    <div className="space-y-2">
+                      <Label htmlFor="ln">اللقب</Label>
+                      <Input id="ln" value={form.last_name} maxLength={40} onChange={(e) => setForm((f) => ({ ...f, last_name: e.target.value }))} />
                     </div>
                   </div>
-
-                  <Separator />
-
-                  {/* Profile Form */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="full_name" className="flex items-center gap-2 font-arabic">
-                        <User className="w-4 h-4" />
-                        الاسم الكامل
-                      </Label>
-                      <Input
-                        id="full_name"
-                        value={formData.full_name}
-                        onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
-                        placeholder="أدخل اسمك الكامل"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="phone" className="flex items-center gap-2 font-arabic">
-                        <Phone className="w-4 h-4" />
-                        رقم الهاتف (فريد، لا يتكرر)
-                      </Label>
-                      <Input
-                        id="phone"
-                        value={formData.phone}
-                        onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                        placeholder="7xxxxxxxx (يمن)"
-                        dir="ltr"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="flex items-center gap-2 font-arabic">
-                        <Mail className="w-4 h-4" />
-                        البريد الإلكتروني (لا يمكن التعديل)
-                      </Label>
-                      <Input
-                        id="email"
-                        value={user?.email || ''}
-                        disabled
-                        placeholder="email@example.com"
-                        dir="ltr"
-                        className="bg-muted cursor-not-allowed"
-                      />
-                    </div>
-
-                    <div className="space-y-2 md:col-span-2">
-                      <Label className="flex items-center gap-2 font-arabic">
-                        <MapPin className="w-4 h-4" />
-                        الموقع الجغرافي (تلقائي عبر GPS — لا تعديل يدوي)
-                      </Label>
-                      <div className="flex gap-2 items-center">
-                        <div className="flex-1 p-3 bg-muted/40 border border-border/50 rounded-md font-arabic text-sm">
-                          {profile?.city
-                            ? `${profile.city}، اليمن`
-                            : profile?.latitude && profile?.longitude
-                            ? `${profile.latitude.toFixed(4)}, ${profile.longitude.toFixed(4)}`
-                            : 'لم يتم تحديد الموقع بعد'}
-                        </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          title="تحديد موقعي تلقائياً"
-                          disabled={locating}
-                          onClick={() => {
-                            if (!('geolocation' in navigator)) {
-                              toast({ title: 'غير مدعوم', description: 'متصفحك لا يدعم تحديد الموقع', variant: 'destructive' });
-                              return;
-                            }
-                            setLocating(true);
-                            navigator.geolocation.getCurrentPosition(
-                              async (pos) => {
-                                try {
-                                  const { latitude, longitude } = pos.coords;
-                                  const res = await fetch(
-                                    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=ar&countrycodes=ye`,
-                                  );
-                                  const json = await res.json();
-                                  const a = json?.address ?? {};
-                                  const city = a.city || a.town || a.village || a.county || a.state || '';
-                                  await supabase.from('profiles').update({ latitude, longitude, city }).eq('user_id', user!.id);
-                                  setProfile(prev => prev ? { ...prev, latitude, longitude, city } : prev);
-                                  toast({ title: '✅ تم التحديد', description: city ? `موقعك: ${city}، اليمن` : 'تم حفظ الإحداثيات' });
-                                } catch (e: any) {
-                                  toast({ title: 'خطأ', description: e?.message || 'فشل قراءة الموقع', variant: 'destructive' });
-                                } finally {
-                                  setLocating(false);
-                                }
-                              },
-                              (err) => {
-                                setLocating(false);
-                                toast({ title: 'تعذّر تحديد الموقع', description: err.message, variant: 'destructive' });
-                              },
-                              { enableHighAccuracy: true, timeout: 10000 },
-                            );
-                          }}
-                        >
-                          {locating ? <Loader2 className="w-4 h-4 animate-spin" /> : <LocateFixed className="w-4 h-4" />}
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="website" className="flex items-center gap-2 font-arabic">
-                        <Globe className="w-4 h-4" />
-                        الموقع الإلكتروني
-                      </Label>
-                      <Input
-                        id="website"
-                        value={formData.website}
-                        onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
-                        placeholder="https://example.com"
-                        dir="ltr"
-                      />
-                    </div>
-                  </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="bio" className="font-arabic">نبذة شخصية</Label>
-                    <Textarea
-                      id="bio"
-                      value={formData.bio}
-                      onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
-                      placeholder="اكتب نبذة مختصرة عنك..."
-                      rows={3}
-                    />
+                    <Label htmlFor="ph" className="flex items-center gap-2"><Phone className="w-4 h-4" />رقم الجوال</Label>
+                    <div className="flex gap-2" dir="ltr">
+                      <div className="flex items-center gap-1.5 px-3 rounded-md border border-input bg-muted/50 text-sm font-medium select-none">🇾🇪 +967</div>
+                      <Input id="ph" type="tel" inputMode="numeric" value={form.phone} maxLength={9} placeholder="7XXXXXXXX" className="tracking-wider"
+                        onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value.replace(/\D/g, '').slice(0, 9) }))} />
+                    </div>
+                    <p className="text-xs text-muted-foreground">تغيير الرقم يلغي حالة التوثيق.</p>
                   </div>
-
-                  <Button onClick={handleProfileUpdate} disabled={loading} className="font-arabic">
-                    {loading ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <Save className="w-4 h-4 ml-2" />}
-                    حفظ التغييرات
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2"><Mail className="w-4 h-4" />البريد الإلكتروني</Label>
+                    <Input value={user?.email || ''} disabled dir="ltr" className="bg-muted" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2"><MapPin className="w-4 h-4" />الموقع</Label>
+                    <div className="flex gap-2">
+                      <div className="flex-1 p-2.5 rounded-md border border-border bg-muted/40 text-sm">{profile?.city || 'لم يُحدد'}</div>
+                      <Button variant="outline" onClick={updateLocation} disabled={locating}>
+                        {locating ? <Loader2 className="w-4 h-4 animate-spin ml-1" /> : <LocateFixed className="w-4 h-4 ml-1" />}تحديث موقعي
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bio">نبذة عنك</Label>
+                    <Textarea id="bio" value={form.bio} maxLength={300} rows={3} onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))} placeholder="اختياري" />
+                    <p className="text-xs text-muted-foreground text-left" dir="ltr">{form.bio.length}/300</p>
+                  </div>
+                  <Button onClick={saveProfile} disabled={saving} className="w-full sm:w-auto">
+                    {saving ? <Loader2 className="w-4 h-4 animate-spin ml-2" /> : <Save className="w-4 h-4 ml-2" />}حفظ التغييرات
                   </Button>
                 </CardContent>
               </Card>
             </TabsContent>
 
-            {/* Security Tab */}
-            <TabsContent value="security">
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="font-arabic flex items-center gap-2">
-                      <Key className="w-5 h-5" />
-                      تغيير كلمة المرور
-                    </CardTitle>
-                    <CardDescription className="font-arabic">
-                      قم بتحديث كلمة المرور لحسابك لضمان الأمان
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="newPassword" className="font-arabic">كلمة المرور الجديدة</Label>
-                      <Input
-                        id="newPassword"
-                        type="password"
-                        value={passwordData.newPassword}
-                        onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
-                        placeholder="أدخل كلمة المرور الجديدة"
-                        dir="ltr"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="confirmPassword" className="font-arabic">تأكيد كلمة المرور</Label>
-                      <Input
-                        id="confirmPassword"
-                        type="password"
-                        value={passwordData.confirmPassword}
-                        onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                        placeholder="أعد إدخال كلمة المرور الجديدة"
-                        dir="ltr"
-                      />
-                    </div>
-
-                    <div className="flex gap-3">
-                      <Button onClick={handlePasswordUpdate} disabled={loading} className="font-arabic">
-                        {loading ? <Loader2 className="w-4 h-4 ml-2 animate-spin" /> : <Save className="w-4 h-4 ml-2" />}
-                        تحديث كلمة المرور
-                      </Button>
-                      
-                      <Button onClick={handlePasswordReset} variant="outline" disabled={loading} className="font-arabic">
-                        <Mail className="w-4 h-4 ml-2" />
-                        إرسال رابط إعادة التعيين
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* Preferences Tab */}
-            <TabsContent value="preferences">
+            <TabsContent value="security" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle className="font-arabic flex items-center gap-2">
-                    <Settings className="w-5 h-5" />
-                    إعدادات التفضيلات
-                  </CardTitle>
-                  <CardDescription className="font-arabic">
-                    تخصيص تفضيلاتك وإعدادات التطبيق
+                  <CardTitle className="flex items-center gap-2"><Key className="w-5 h-5" />كلمة المرور وطرق الدخول</CardTitle>
+                  <CardDescription>
+                    طرق الدخول المفعّلة: {providers.map((p) => (p === 'google' ? 'Google' : p === 'email' ? 'البريد وكلمة المرور' : p)).join('، ') || '—'}
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Theme Settings */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="font-arabic text-sm font-medium">نمط العرض</Label>
-                        <p className="text-xs text-muted-foreground font-arabic">
-                          اختر النمط المفضل لديك للتطبيق
-                        </p>
-                      </div>
+                <CardContent className="flex flex-col sm:flex-row gap-2">
+                  <Button onClick={() => setPwOpen(true)}>
+                    <Key className="w-4 h-4 ml-2" />{hasPassword ? 'تغيير كلمة المرور' : 'إنشاء كلمة مرور'}
+                  </Button>
+                  {hasPassword && (
+                    <Button variant="outline" onClick={sendResetLink}><Mail className="w-4 h-4 ml-2" />إرسال رابط إلى بريدي</Button>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><Monitor className="w-5 h-5" />الجلسات</CardTitle>
+                  <CardDescription>الأجهزة المسجّل دخولها إلى حسابك</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center gap-3 p-3 rounded-lg border border-primary/30 bg-primary/5">
+                    {dev.mobile ? <Smartphone className="w-6 h-6 text-primary" /> : <Monitor className="w-6 h-6 text-primary" />}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium">{dev.br} على {dev.os}</p>
+                      <p className="text-xs text-muted-foreground">آخر دخول: <span dir="ltr">{formatDateTime(user?.last_sign_in_at)}</span></p>
                     </div>
-                    
-                    <div className="grid grid-cols-3 gap-3">
-                      <Button 
-                        variant={!isDark ? "default" : "outline"} 
-                        size="sm" 
-                        onClick={() => {
-                          setIsDark(false);
-                          document.documentElement.classList.remove('dark');
-                          localStorage.setItem('dalalati-theme', 'light');
-                        }}
-                        className="flex flex-col h-auto p-3 font-arabic"
-                      >
-                        <Sun className="w-4 h-4 mb-1" />
-                        فاتح
-                      </Button>
-                      
-                      <Button 
-                        variant={isDark ? "default" : "outline"} 
-                        size="sm" 
-                        onClick={() => {
-                          setIsDark(true);
-                          document.documentElement.classList.add('dark');
-                          localStorage.setItem('dalalati-theme', 'dark');
-                        }}
-                        className="flex flex-col h-auto p-3 font-arabic"
-                      >
-                        <Moon className="w-4 h-4 mb-1" />
-                        مظلم
-                      </Button>
-                      
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => {
-                          const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                          setIsDark(systemPrefersDark);
-                          document.documentElement.classList.toggle('dark', systemPrefersDark);
-                          localStorage.setItem('dalalati-theme', 'system');
-                        }}
-                        className="flex flex-col h-auto p-3 font-arabic"
-                      >
-                        <Globe className="w-4 h-4 mb-1" />
-                        النظام
-                      </Button>
-                    </div>
+                    <Badge>هذا الجهاز</Badge>
                   </div>
-
-                  <Separator />
-
-                  {/* Notification Settings */}
-                  <div className="space-y-4">
-                    <div>
-                      <Label className="font-arabic text-sm font-medium">إعدادات الإشعارات</Label>
-                      <p className="text-xs text-muted-foreground font-arabic">
-                        تحكم في كيفية تلقي الإشعارات
-                      </p>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <Label className="font-arabic">إشعارات الإعلانات الجديدة</Label>
-                        <input type="checkbox" defaultChecked className="rounded" />
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <Label className="font-arabic">إشعارات الرسائل</Label>
-                        <input type="checkbox" defaultChecked className="rounded" />
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <Label className="font-arabic">إشعارات التحديثات</Label>
-                        <input type="checkbox" className="rounded" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  {/* Language Settings */}
-                  <div className="space-y-4">
-                    <div>
-                      <Label className="font-arabic text-sm font-medium">اللغة</Label>
-                      <p className="text-xs text-muted-foreground font-arabic">
-                        اختر لغة التطبيق المفضلة
-                      </p>
-                    </div>
-                    
-                    <select defaultValue="ar" className="w-full p-2 border rounded-md bg-background font-arabic" dir="rtl">
-                      <option value="ar">العربية</option>
-                      <option value="en">English</option>
-                    </select>
+                  <p className="text-xs text-muted-foreground">لأمانك، يمكنك إنهاء كل الجلسات على الأجهزة الأخرى.</p>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button variant="outline" onClick={signOutOthers}><LogOut className="w-4 h-4 ml-2" />الخروج من الأجهزة الأخرى</Button>
+                    <Button variant="destructive" onClick={signOutAll}><LogOut className="w-4 h-4 ml-2" />الخروج من كل الأجهزة</Button>
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
-            <TabsContent value="account">
+
+            <TabsContent value="preferences">
               <Card>
-                <CardHeader>
-                  <CardTitle className="font-arabic flex items-center gap-2">
-                    <Shield className="w-5 h-5" />
-                    معلومات الحساب
-                  </CardTitle>
-                  <CardDescription className="font-arabic">
-                    تفاصيل حسابك وإعدادات الأمان
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div className="p-4 border rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Mail className="w-4 h-4 text-primary" />
-                          <span className="font-medium font-arabic">البريد الإلكتروني</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">{user?.email}</p>
-                        <Badge variant="outline" className="mt-2">موثق</Badge>
-                      </div>
-
-                      <div className="p-4 border rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Phone className="w-4 h-4 text-primary" />
-                          <span className="font-medium font-arabic">رقم الهاتف</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {profile?.phone || 'غير محدد'}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div className="p-4 border rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                          <CheckCircle2 className="w-4 h-4 text-green-500" />
-                          <span className="font-medium font-arabic">حالة الحساب</span>
-                        </div>
-                        <p className="text-sm text-green-600">نشط ومفعل</p>
-                      </div>
-
-                      <div className="p-4 border rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Shield className="w-4 h-4 text-primary" />
-                          <span className="font-medium font-arabic">الأمان</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">محمي بكلمة مرور قوية</p>
-                      </div>
-                    </div>
+                <CardContent className="divide-y divide-border p-0">
+                  <div className="flex items-center justify-between p-4">
+                    <div className="flex items-center gap-3"><Moon className="w-5 h-5 text-muted-foreground" />
+                      <div><p className="font-medium">الوضع الداكن</p><p className="text-xs text-muted-foreground">مريح للعين ليلاً</p></div></div>
+                    <Switch checked={isDark} onCheckedChange={toggleTheme} />
                   </div>
-
-                  <Separator />
-
-                  <div className="flex items-center gap-3 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <AlertTriangle className="w-5 h-5 text-yellow-600" />
-                    <div>
-                      <p className="font-medium text-yellow-800 font-arabic">تفعيل المصادقة الثنائية</p>
-                      <p className="text-sm text-yellow-700 font-arabic">
-                        احم حسابك بطبقة إضافية من الأمان (قريباً)
-                      </p>
-                    </div>
+                  <div className="flex items-center justify-between p-4">
+                    <div className="flex items-center gap-3"><Bell className="w-5 h-5 text-muted-foreground" />
+                      <div><p className="font-medium">الإشعارات</p><p className="text-xs text-muted-foreground">تنبيهات المنتجات والعروض الجديدة</p></div></div>
+                    <Switch checked={notif} onCheckedChange={(v) => { setNotif(v); localStorage.setItem('pref-notifications', v ? 'on' : 'off'); }} />
+                  </div>
+                  <div className="flex items-center justify-between p-4">
+                    <div className="flex items-center gap-3"><Trash2 className="w-5 h-5 text-muted-foreground" />
+                      <div><p className="font-medium">مسح البيانات المؤقتة</p><p className="text-xs text-muted-foreground">يحل مشاكل عرض الصفحات القديمة</p></div></div>
+                    <Button variant="outline" size="sm" onClick={async () => {
+                      if ('caches' in window) { const ks = await caches.keys(); await Promise.all(ks.map((k) => caches.delete(k))); }
+                      toast({ title: 'تم المسح' }); setTimeout(() => window.location.reload(), 500);
+                    }}>مسح</Button>
+                  </div>
+                  <div className="p-4">
+                    <Button variant="ghost" className="w-full text-destructive" onClick={async () => { await signOut(); navigate('/landing'); }}>
+                      <LogOut className="w-4 h-4 ml-2" />تسجيل الخروج
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -766,8 +348,40 @@ export default function AccountSettings() {
           </Tabs>
         </div>
       </main>
-      
-      {/* Bottom Navigation for Mobile */}
+
+      <Dialog open={pwOpen} onOpenChange={setPwOpen}>
+        <DialogContent dir="rtl" className="font-arabic">
+          <DialogHeader>
+            <DialogTitle>{hasPassword ? 'تغيير كلمة المرور' : 'إنشاء كلمة مرور'}</DialogTitle>
+            <DialogDescription>{hasPassword ? 'أدخل كلمة المرور الحالية ثم الجديدة' : 'لتتمكن من الدخول بالبريد وكلمة المرور بجانب Google'}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            {hasPassword && (
+              <div className="space-y-2">
+                <Label htmlFor="cur">كلمة المرور الحالية</Label>
+                <Input id="cur" type="password" dir="ltr" autoComplete="current-password" value={pw.current} onChange={(e) => setPw((p) => ({ ...p, current: e.target.value }))} />
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="new">كلمة المرور الجديدة</Label>
+              <Input id="new" type="password" dir="ltr" autoComplete="new-password" value={pw.next} onChange={(e) => setPw((p) => ({ ...p, next: e.target.value }))} />
+              <PasswordStrength password={pw.next} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="conf">تأكيد كلمة المرور</Label>
+              <Input id="conf" type="password" dir="ltr" autoComplete="new-password" value={pw.confirm} onChange={(e) => setPw((p) => ({ ...p, confirm: e.target.value }))} />
+              {pw.confirm && pw.next !== pw.confirm && <p className="text-xs text-destructive">غير متطابقة</p>}
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setPwOpen(false)}>إلغاء</Button>
+            <Button onClick={changePassword} disabled={pwSaving || (hasPassword && !pw.current) || pw.next.length < 8 || pw.next !== pw.confirm}>
+              {pwSaving && <Loader2 className="w-4 h-4 animate-spin ml-2" />}حفظ
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <BottomNavigation />
     </div>
   );

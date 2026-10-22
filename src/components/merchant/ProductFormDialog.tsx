@@ -13,6 +13,9 @@ import { CustomField } from '@/components/admin/CustomFieldsEditor';
 import { Tables } from '@/integrations/supabase/types';
 import { Loader2, ImagePlus, Building2 } from 'lucide-react';
 import { CURRENCIES, CurrencyCode } from '@/lib/currency';
+import { YEMEN_LOCAL_PHONE, toYemenPhone, fromYemenPhone, isRentListing } from '@/lib/format';
+
+const FieldError = ({ msg }: { msg?: string }) => (msg ? <p role="alert" className="text-xs text-destructive mt-1">{msg}</p> : null);
 
 type Property = Tables<'properties'>;
 
@@ -47,7 +50,7 @@ export default function ProductFormDialog({
     title: '',
     price: '',
     currency: 'YER' as CurrencyCode,
-    listing_type: 'للبيع',
+    listing_type: 'sale',
     location: '',
     city: '',
     neighborhood: '',
@@ -61,6 +64,13 @@ export default function ProductFormDialog({
   const [images, setImages] = useState<string[]>([]);
   const [videos, setVideos] = useState<string[]>([]);
   const [customData, setCustomData] = useState<Record<string, any>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [profileDefaults, setProfileDefaults] = useState({ name: '', phone: '' });
+
+  useEffect(() => {
+    supabase.from('profiles').select('full_name, phone').eq('user_id', agentId).maybeSingle()
+      .then(({ data }) => { if (data) setProfileDefaults({ name: data.full_name || '', phone: fromYemenPhone(data.phone) }); });
+  }, [agentId]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -85,13 +95,13 @@ export default function ProductFormDialog({
         title: editingProduct.title,
         price: editingProduct.price.toString(),
         currency: ((editingProduct as any).currency as CurrencyCode) || 'YER',
-        listing_type: editingProduct.listing_type || 'للبيع',
+        listing_type: isRentListing(editingProduct.listing_type) ? 'rent' : 'sale',
         location: editingProduct.location || '',
         city: editingProduct.city || '',
         neighborhood: editingProduct.neighborhood || '',
         description: editingProduct.description || '',
         agent_name: editingProduct.agent_name || '',
-        agent_phone: editingProduct.agent_phone || '',
+        agent_phone: fromYemenPhone(editingProduct.agent_phone),
         agent_email: editingProduct.agent_email || '',
         category: editingProduct.category || '',
         status: editingProduct.status || 'active',
@@ -101,8 +111,8 @@ export default function ProductFormDialog({
       setCustomData((editingProduct.custom_data as Record<string, any>) || {});
     } else {
       setForm({
-        title: '', price: '', currency: 'YER', listing_type: 'للبيع', location: '', city: '',
-        neighborhood: '', description: '', agent_name: '', agent_phone: '',
+        title: '', price: '', currency: 'YER', listing_type: 'sale', location: '', city: '',
+        neighborhood: '', description: '', agent_name: profileDefaults.name, agent_phone: profileDefaults.phone,
         agent_email: '', category: '', status: 'active',
       });
       setImages([]);
@@ -110,7 +120,8 @@ export default function ProductFormDialog({
       setCustomData({});
       setSelectedCategory(null);
     }
-  }, [open, editingProduct]);
+    setErrors({});
+  }, [open, editingProduct, profileDefaults]);
 
   useEffect(() => {
     const cat = categories.find(c => c.slug === form.category);
@@ -118,15 +129,30 @@ export default function ProductFormDialog({
   }, [form.category, categories]);
 
   const save = async () => {
-    if (!form.title || !form.price || !form.category || !form.city) {
-      toast({ title: 'حقول ناقصة', description: 'العنوان والسعر والقسم والمدينة مطلوبة', variant: 'destructive' });
+    const errs: Record<string, string> = {};
+    const price = Number(form.price);
+    if (form.title.trim().length < 3) errs.title = 'اكتب عنواناً واضحاً (3 أحرف على الأقل)';
+    if (!Number.isFinite(price) || price <= 0) errs.price = 'أدخل سعراً صحيحاً أكبر من صفر';
+    if (!form.category) errs.category = 'اختر القسم';
+    if (!form.city.trim()) errs.city = 'المدينة مطلوبة';
+    if (!YEMEN_LOCAL_PHONE.test(form.agent_phone)) errs.agent_phone = 'رقم جوال يمني صحيح: 9 أرقام تبدأ بـ 7';
+    setErrors(errs);
+    if (Object.keys(errs).length) {
+      toast({ title: 'راجع الحقول المحددة', variant: 'destructive' });
       return;
     }
     setSaving(true);
     try {
       const data = {
         ...form,
-        price: parseFloat(form.price),
+        title: form.title.trim(),
+        city: form.city.trim(),
+        neighborhood: form.neighborhood.trim() || null,
+        location: form.location.trim() || null,
+        description: form.description.trim() || null,
+        agent_name: form.agent_name.trim() || null,
+        agent_phone: toYemenPhone(form.agent_phone),
+        price,
         images,
         videos,
         agent_id: agentId,
@@ -136,11 +162,11 @@ export default function ProductFormDialog({
       if (editingProduct) {
         const { error } = await supabase.from('properties').update(data).eq('id', editingProduct.id);
         if (error) throw error;
-        toast({ title: '✅ تم التحديث' });
+        toast({ title: 'تم تحديث المنتج' });
       } else {
         const { error } = await supabase.from('properties').insert([data]);
         if (error) throw error;
-        toast({ title: '✅ تم إضافة المنتج' });
+        toast({ title: 'تمت إضافة المنتج' });
       }
       onSaved();
       onOpenChange(false);
@@ -161,15 +187,16 @@ export default function ProductFormDialog({
         </DialogHeader>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto p-4 sm:p-6">
           <div>
-            <Label>عنوان المنتج *</Label>
-            <Input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} className="mt-1.5" />
+            <Label htmlFor="pf-title">عنوان المنتج *</Label>
+            <Input id="pf-title" aria-invalid={!!errors.title} maxLength={120} value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} className="mt-1.5" />
+            <FieldError msg={errors.title} />
           </div>
           <div>
-            <Label>السعر *</Label>
+            <Label htmlFor="pf-price">السعر *</Label>
             <div className="flex gap-2 mt-1.5">
-              <Input type="number" value={form.price} onChange={e => setForm(p => ({ ...p, price: e.target.value }))} className="flex-1" placeholder="0" />
+              <Input id="pf-price" type="number" inputMode="decimal" min={0} step="any" aria-invalid={!!errors.price} value={form.price} onChange={e => setForm(p => ({ ...p, price: e.target.value }))} className="flex-1" placeholder="0" />
               <Select value={form.currency} onValueChange={v => setForm(p => ({ ...p, currency: v as CurrencyCode }))}>
-                <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-32" aria-label="العملة"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {CURRENCIES.map(c => (
                     <SelectItem key={c.code} value={c.code}>
@@ -182,39 +209,42 @@ export default function ProductFormDialog({
                 </SelectContent>
               </Select>
             </div>
+            <FieldError msg={errors.price} />
           </div>
           <div>
-            <Label>نوع العرض</Label>
+            <Label htmlFor="pf-type">نوع العرض</Label>
             <Select value={form.listing_type} onValueChange={v => setForm(p => ({ ...p, listing_type: v }))}>
-              <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+              <SelectTrigger id="pf-type" className="mt-1.5"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="للبيع">للبيع</SelectItem>
-                <SelectItem value="للإيجار">للإيجار</SelectItem>
+                <SelectItem value="sale">للبيع</SelectItem>
+                <SelectItem value="rent">للإيجار</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div>
-            <Label>القسم *</Label>
+            <Label htmlFor="pf-category">القسم *</Label>
             <Select value={form.category} onValueChange={v => { setForm(p => ({ ...p, category: v })); setCustomData({}); }}>
-              <SelectTrigger className="mt-1.5"><SelectValue placeholder="اختر القسم" /></SelectTrigger>
+              <SelectTrigger id="pf-category" aria-invalid={!!errors.category} className="mt-1.5"><SelectValue placeholder="اختر القسم" /></SelectTrigger>
               <SelectContent>
                 {categories.map(c => (
                   <SelectItem key={c.id} value={c.slug}>{c.title}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            <FieldError msg={errors.category} />
           </div>
           <div>
-            <Label>المدينة *</Label>
-            <Input value={form.city} onChange={e => setForm(p => ({ ...p, city: e.target.value }))} placeholder="إب، صنعاء، تعز..." className="mt-1.5" />
+            <Label htmlFor="pf-city">المدينة *</Label>
+            <Input id="pf-city" aria-invalid={!!errors.city} value={form.city} onChange={e => setForm(p => ({ ...p, city: e.target.value }))} placeholder="إب، صنعاء، تعز..." className="mt-1.5" />
+            <FieldError msg={errors.city} />
           </div>
           <div>
-            <Label>الحي</Label>
-            <Input value={form.neighborhood} onChange={e => setForm(p => ({ ...p, neighborhood: e.target.value }))} className="mt-1.5" />
+            <Label htmlFor="pf-hood">الحي</Label>
+            <Input id="pf-hood" value={form.neighborhood} onChange={e => setForm(p => ({ ...p, neighborhood: e.target.value }))} className="mt-1.5" />
           </div>
           <div className="md:col-span-2">
-            <Label>الموقع التفصيلي</Label>
-            <Input value={form.location} onChange={e => setForm(p => ({ ...p, location: e.target.value }))} className="mt-1.5" />
+            <Label htmlFor="pf-loc">الموقع التفصيلي</Label>
+            <Input id="pf-loc" value={form.location} onChange={e => setForm(p => ({ ...p, location: e.target.value }))} className="mt-1.5" />
           </div>
 
           {selectedCategory && selectedCategory.custom_fields && selectedCategory.custom_fields.length > 0 && (
@@ -232,8 +262,8 @@ export default function ProductFormDialog({
           )}
 
           <div className="md:col-span-2">
-            <Label>الوصف</Label>
-            <Textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} rows={4} className="mt-1.5" />
+            <Label htmlFor="pf-desc">الوصف</Label>
+            <Textarea id="pf-desc" maxLength={3000} value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} rows={4} className="mt-1.5" />
           </div>
 
           <div className="md:col-span-2">
@@ -251,17 +281,22 @@ export default function ProductFormDialog({
           </div>
 
           <div>
-            <Label>اسم التواصل</Label>
-            <Input value={form.agent_name} onChange={e => setForm(p => ({ ...p, agent_name: e.target.value }))} className="mt-1.5" />
+            <Label htmlFor="pf-name">اسم التواصل</Label>
+            <Input id="pf-name" value={form.agent_name} onChange={e => setForm(p => ({ ...p, agent_name: e.target.value }))} className="mt-1.5" />
           </div>
           <div>
-            <Label>هاتف التواصل</Label>
-            <Input value={form.agent_phone} onChange={e => setForm(p => ({ ...p, agent_phone: e.target.value }))} placeholder="7xxxxxxxx" className="mt-1.5" dir="ltr" />
+            <Label htmlFor="pf-phone">هاتف التواصل (واتساب) *</Label>
+            <div className="flex gap-2 mt-1.5" dir="ltr">
+              <span className="flex items-center px-3 rounded-md border border-input bg-muted/50 text-sm font-medium select-none">+967</span>
+              <Input id="pf-phone" type="tel" inputMode="numeric" aria-invalid={!!errors.agent_phone} value={form.agent_phone}
+                onChange={e => setForm(p => ({ ...p, agent_phone: e.target.value.replace(/\D/g, '').slice(0, 9) }))} placeholder="7XXXXXXXX" />
+            </div>
+            <FieldError msg={errors.agent_phone} />
           </div>
 
           <div className="md:col-span-2 sticky bottom-0 bg-background pt-4 pb-2 border-t">
             <Button onClick={save} disabled={saving} className="w-full h-12 font-semibold">
-              {saving && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
+              {saving && <Loader2 className="w-4 h-4 me-2 animate-spin" />}
               {editingProduct ? 'تحديث المنتج' : 'إضافة المنتج'}
             </Button>
           </div>

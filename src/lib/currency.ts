@@ -1,4 +1,5 @@
 // Currency utilities for the marketplace
+import { formatNumber } from './format';
 // Supports: Yemeni Riyal (YER), Saudi Riyal (SAR), US Dollar (USD)
 
 export type CurrencyCode = 'YER' | 'SAR' | 'USD';
@@ -28,9 +29,6 @@ export function getCurrency(code?: string | null): CurrencyOption {
 
 export function formatPrice(price: number, currency?: string | null): string {
   const c = getCurrency(currency);
-  const formatted = new Intl.NumberFormat('ar-YE', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: c.code === 'USD' ? 2 : 0,
-  }).format(price);
+  const formatted = formatNumber(price, c.code === 'USD' ? 2 : 0);
   return `${formatted} ${c.symbol}`;
 }

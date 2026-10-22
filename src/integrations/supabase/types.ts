@@ -208,13 +208,17 @@ export type Database = {
           city: string | null
           created_at: string
           email: string | null
+          first_name: string | null
           full_name: string | null
           id: string
           is_active: boolean
+          last_name: string | null
           latitude: number | null
           location: string | null
           longitude: number | null
           phone: string | null
+          phone_verified: boolean
+          phone_verified_at: string | null
           push_token: string | null
           suspended_at: string | null
           suspended_by: string | null
@@ -228,13 +232,17 @@ export type Database = {
           city?: string | null
           created_at?: string
           email?: string | null
+          first_name?: string | null
           full_name?: string | null
           id?: string
           is_active?: boolean
+          last_name?: string | null
           latitude?: number | null
           location?: string | null
           longitude?: number | null
           phone?: string | null
+          phone_verified?: boolean
+          phone_verified_at?: string | null
           push_token?: string | null
           suspended_at?: string | null
           suspended_by?: string | null
@@ -248,13 +256,17 @@ export type Database = {
           city?: string | null
           created_at?: string
           email?: string | null
+          first_name?: string | null
           full_name?: string | null
           id?: string
           is_active?: boolean
+          last_name?: string | null
           latitude?: number | null
           location?: string | null
           longitude?: number | null
           phone?: string | null
+          phone_verified?: boolean
+          phone_verified_at?: string | null
           push_token?: string | null
           suspended_at?: string | null
           suspended_by?: string | null

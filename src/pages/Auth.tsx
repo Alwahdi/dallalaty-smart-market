@@ -146,6 +146,19 @@ export default function Auth() {
                     <div className="space-y-2">
                       <label htmlFor="password" className="text-sm font-medium">كلمة المرور</label>
                       <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required dir="ltr" />
+                      <button
+                        type="button"
+                        className="text-xs text-primary hover:underline"
+                        onClick={async () => {
+                          if (!email) { toast({ title: 'اكتب بريدك أولاً', variant: 'destructive' }); return; }
+                          const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
+                          toast(error
+                            ? { title: 'خطأ', description: error.message, variant: 'destructive' }
+                            : { title: 'تم الإرسال', description: 'إذا كان البريد مسجلاً، ستصلك رسالة فيها رابط لتغيير كلمة المرور' });
+                        }}
+                      >
+                        نسيت كلمة المرور؟
+                      </button>
                     </div>
                     <Button type="submit" className="w-full" disabled={loading}>
                       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

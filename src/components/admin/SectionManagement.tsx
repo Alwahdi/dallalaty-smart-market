@@ -622,7 +622,7 @@ export default function SectionManagement() {
                           <span className="text-muted-foreground text-sm">لا يوجد مدراء</span>
                         )}
                       </TableCell>
-                      <TableCell>{new Date(category.created_at).toLocaleDateString('ar-YE')}</TableCell>
+                      <TableCell>{new Date(category.created_at).toLocaleDateString('ar-YE-u-nu-latn')}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
                           <Button variant="outline" size="icon" className="h-8 w-8" aria-label={`إضافة مجموعة داخل ${category.title}`} title="إضافة مجموعة فرعية" onClick={() => openForChild(category)}><Plus className="h-4 w-4" /></Button>
@@ -727,7 +727,7 @@ export default function SectionManagement() {
                     <div className="p-3 flex items-center justify-between bg-background">
                       <span className="text-xs text-muted-foreground flex items-center gap-1">
                         <span>📅</span>
-                        {new Date(category.created_at).toLocaleDateString('ar-YE', { 
+                        {new Date(category.created_at).toLocaleDateString('ar-YE-u-nu-latn', { 
                           year: 'numeric', 
                           month: 'short', 
                           day: 'numeric' 

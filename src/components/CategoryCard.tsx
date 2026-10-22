@@ -39,7 +39,7 @@ const CategoryCard = ({ title, subtitle, icon: Icon, count, gradient, onClick }:
             <div className="flex items-center justify-end space-x-1 rtl:space-x-reverse">
               <span className="text-xs text-muted-foreground font-arabic">إعلان</span>
               <span className="text-sm font-semibold text-primary font-arabic">
-                {count.toLocaleString('ar-YE')}
+                {count.toLocaleString('ar-YE-u-nu-latn')}
               </span>
             </div>
           </div>

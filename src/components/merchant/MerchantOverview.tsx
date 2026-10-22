@@ -62,7 +62,7 @@ export default function MerchantOverview({
       <CardContent className="p-4 flex items-center justify-between">
         <div>
           <p className="text-xs text-muted-foreground mb-1">{label}</p>
-          <p className="text-2xl font-bold">{value.toLocaleString('ar-YE')}</p>
+          <p className="text-2xl font-bold">{value.toLocaleString('ar-YE-u-nu-latn')}</p>
         </div>
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
           <Icon className="w-5 h-5" />

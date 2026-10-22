@@ -279,7 +279,7 @@ export default function UserManagement() {
                     <div className="px-4 py-3 bg-muted/30 border-t flex items-center justify-between gap-2">
                       <span className="text-xs text-muted-foreground flex items-center gap-1">
                         <span>🕐</span>
-                        {new Date(user.created_at).toLocaleDateString('ar-YE', {
+                        {new Date(user.created_at).toLocaleDateString('ar-YE-u-nu-latn', {
                           year: 'numeric',
                           month: 'short',
                           day: 'numeric'

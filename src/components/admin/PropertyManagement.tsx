@@ -573,7 +573,7 @@ export default function PropertyManagement() {
                       </Select>
                     </TableCell>
                     <TableCell>
-                      {new Date(property.created_at).toLocaleDateString('ar-YE')}
+                      {new Date(property.created_at).toLocaleDateString('ar-YE-u-nu-latn')}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -684,7 +684,7 @@ export default function PropertyManagement() {
                     {/* Footer Actions */}
                     <div className="flex items-center justify-between pt-3 border-t">
                       <span className="text-xs text-muted-foreground">
-                        {new Date(property.created_at).toLocaleDateString('ar-YE')}
+                        {new Date(property.created_at).toLocaleDateString('ar-YE-u-nu-latn')}
                       </span>
                       <div className="flex items-center gap-2">
                         <Button

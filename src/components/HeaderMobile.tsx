@@ -7,7 +7,8 @@ import NotificationCenter from "@/components/NotificationCenter";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
 import { useMerchantContext } from "@/hooks/useMerchantContext";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useMyProfile } from "@/hooks/useMyProfile";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 
 interface HeaderMobileProps {
@@ -23,6 +24,7 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
   const { user, signOut } = useAuth();
   const { isAnyAdmin, loading: rolesLoading } = useRoles();
   const { hasMerchantAccess } = useMerchantContext();
+  const { profile: myProfile, initials } = useMyProfile();
 
   const handleSignOut = async () => {
     await signOut();
@@ -67,15 +69,19 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
             {/* أيقونة المستخدم */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="hover:bg-accent/50 transition-colors h-9 w-9 touch-manipulation">
-                  <Avatar className="w-6 h-6">
-                    <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                      {user?.email?.[0].toUpperCase() || 'د'}
-                    </AvatarFallback>
+                <Button variant="ghost" size="icon" aria-label="حسابي" className="rounded-full h-9 w-9 p-0 touch-manipulation">
+                  <Avatar className="w-8 h-8 ring-2 ring-primary/30">
+                    <AvatarImage src={myProfile?.avatar_url || ''} className="object-cover" />
+                    <AvatarFallback className="text-xs font-semibold bg-primary/10 text-primary">{initials}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-48 bg-background/95 backdrop-blur-md border-border/50 z-50">
+              <DropdownMenuContent align="start" className="w-56 bg-background/95 backdrop-blur-md border-border/50 z-50">
+                <div className="px-2 py-2 font-arabic">
+                  <p className="text-sm font-semibold truncate">{myProfile?.full_name || 'حسابي'}</p>
+                  <p className="text-xs text-muted-foreground truncate">{myProfile?.city || user?.email}</p>
+                </div>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/account')} className="font-arabic touch-manipulation">
                   <User className="w-4 h-4 ml-2" />
                   إعدادات الحساب

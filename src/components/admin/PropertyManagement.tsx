@@ -19,6 +19,7 @@ import MediaUpload from '@/components/MediaUpload';
 import DynamicFormFields from './DynamicFormFields';
 import { CustomField } from './CustomFieldsEditor';
 import { Tables } from '@/integrations/supabase/types';
+import ImagePreview from '@/components/ImagePreview';
 
 type Property = Tables<'properties'>;
 
@@ -623,8 +624,8 @@ export default function PropertyManagement() {
                     <div className="flex gap-3">
                       {property.images && property.images.length > 0 && (
                         <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
-                          <img 
-                            src={property.images[0]} 
+                          <ImagePreview
+                            images={property.images}
                             alt={property.title}
                             className="w-full h-full object-cover"
                           />

@@ -12,6 +12,7 @@ import { Tables } from '@/integrations/supabase/types';
 import ProductFormDialog from './ProductFormDialog';
 import { MerchantPermissions } from '@/hooks/useMerchantContext';
 import { formatPrice } from '@/lib/currency';
+import ImagePreview from '@/components/ImagePreview';
 
 type Property = Tables<'properties'>;
 
@@ -125,7 +126,7 @@ export default function MerchantProducts({ agentId, permissions }: MerchantProdu
               <CardContent className="p-4">
                 <div className="flex gap-3">
                   {p.images && p.images[0] ? (
-                    <img src={p.images[0]} alt={p.title} className="w-20 h-20 rounded-lg object-cover shrink-0" />
+                    <div className="w-20 h-20 shrink-0 overflow-hidden rounded-lg"><ImagePreview images={p.images} alt={p.title} /></div>
                   ) : (
                     <div className="w-20 h-20 rounded-lg bg-muted flex items-center justify-center shrink-0">
                       <Package className="w-7 h-7 text-muted-foreground" />

@@ -1,0 +1,4 @@
+- [x] Add product image preview with zoom and pan.
+- [x] Enable clear nested-group creation and safe parent selection.
+- [x] Grant requested account the existing admin role.
+- [x] Validate viewer and hierarchy helpers; external Supabase authenticated end-to-end checks unavailable.

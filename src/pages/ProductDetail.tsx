@@ -31,6 +31,7 @@ import { useRouteTracking } from '@/hooks/useRouteTracking';
 import DynamicPropertyDisplay from '@/components/DynamicPropertyDisplay';
 import type { CustomField } from '@/components/admin/CustomFieldsEditor';
 import { formatPrice } from '@/lib/currency';
+import ImagePreview from '@/components/ImagePreview';
 
 interface Property {
   id: string;
@@ -307,8 +308,9 @@ export default function ProductDetail() {
                         playsInline
                       />
                     ) : (
-                      <img
-                        src={property.images[currentImageIndex - (property.videos?.length || 0)]}
+                      <ImagePreview
+                        images={property.images}
+                        index={currentImageIndex - (property.videos?.length || 0)}
                         alt={property.title}
                         className="w-full h-full object-cover"
                       />
@@ -367,10 +369,10 @@ export default function ProductDetail() {
                           </button>
                         ))}
                         {property.images.map((image, index) => (
-                          <button
+                          <Button variant="ghost" type="button" aria-label={`معاينة صورة ${index + 1}`}
                             key={`image-${index}`}
                             onClick={() => setCurrentImageIndex((property.videos?.length || 0) + index)}
-                            className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 touch-manipulation ${
+                            className={`flex-shrink-0 w-20 h-20 p-0 rounded-lg overflow-hidden border-2 touch-manipulation ${
                               (property.videos?.length || 0) + index === currentImageIndex ? 'border-primary' : 'border-transparent'
                             }`}
                           >
@@ -379,7 +381,7 @@ export default function ProductDetail() {
                               alt={`صورة ${index + 1}`}
                               className="w-full h-full object-cover"
                             />
-                          </button>
+                          </Button>
                         ))}
                       </div>
                     </div>

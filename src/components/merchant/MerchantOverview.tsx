@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Package, Eye, Plus, TrendingUp, Users } from 'lucide-react';
 import { Tables } from '@/integrations/supabase/types';
 import { formatPrice } from '@/lib/currency';
+import ImagePreview from '@/components/ImagePreview';
 
 type Property = Tables<'properties'>;
 
@@ -111,7 +112,7 @@ export default function MerchantOverview({
               {recent.map(p => (
                 <div key={p.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50">
                   {p.images && p.images[0] ? (
-                    <img src={p.images[0]} alt={p.title} className="w-12 h-12 rounded-lg object-cover" />
+                    <div className="w-12 h-12 shrink-0 overflow-hidden rounded-lg"><ImagePreview images={p.images} alt={p.title} /></div>
                   ) : (
                     <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
                       <Package className="w-5 h-5 text-muted-foreground" />

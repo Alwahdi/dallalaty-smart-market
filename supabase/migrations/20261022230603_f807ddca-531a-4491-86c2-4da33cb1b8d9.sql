@@ -1,0 +1,1 @@
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM auth.users WHERE id='ffeceb12-3d7c-47f3-8c21-ced15da3f9ea' AND lower(email)=lower('abdullahalwahdi464@gmail.com')) THEN RAISE EXCEPTION 'Requested account not found'; END IF; INSERT INTO public.user_roles(user_id,role) VALUES ('ffeceb12-3d7c-47f3-8c21-ced15da3f9ea','admin') ON CONFLICT(user_id,role) DO NOTHING; END $$;

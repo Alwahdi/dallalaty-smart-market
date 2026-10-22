@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { formatPrice } from '@/lib/currency';
+import ImagePreview from '@/components/ImagePreview';
 
 interface Property {
   id: string;
@@ -105,10 +106,10 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
       onClick={handleClick}
     >
       {/* صورة العنصر */}
-      <div className="relative overflow-hidden">
+      <div className="relative h-48 overflow-hidden">
+        <ImagePreview images={property.images || []} alt={property.title} className="h-48" />
         <div
-          className="w-full h-48 bg-cover bg-center transform group-hover:scale-110 transition-transform duration-700"
-          style={{ backgroundImage: `url(${property.images?.[0] || '/placeholder.svg'})` }}
+          className="absolute inset-0 pointer-events-none"
         >
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
@@ -123,7 +124,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             </div>
           )}
 
-          <div className="absolute top-3 left-3 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute top-3 left-3 pointer-events-auto flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <Button
               size="icon"
               variant="secondary"

@@ -46,9 +46,7 @@ export default function MandatoryOnboarding({
     setPhoneCheck('checking');
     let stale = false;
     const t = setTimeout(async () => {
-      const { data, error } = await supabase
-        .from('profiles').select('user_id')
-        .eq('phone', toYemenPhone(phone)).neq('user_id', userId).maybeSingle();
+      const { data, error } = await supabase.rpc('is_phone_taken', { _phone: toYemenPhone(phone) });
       if (stale) return;
       setPhoneCheck(error ? 'error' : data ? 'taken' : 'available');
     }, 400);

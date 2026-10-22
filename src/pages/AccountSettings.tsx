@@ -113,7 +113,7 @@ export default function AccountSettings() {
     setSaving(true);
     const phone = toYemenPhone(form.phone);
     if (phone !== profile?.phone) {
-      const { data: taken, error: lookupErr } = await supabase.from('profiles').select('user_id').eq('phone', phone).neq('user_id', user.id).maybeSingle();
+      const { data: taken, error: lookupErr } = await supabase.rpc('is_phone_taken', { _phone: phone });
       if (lookupErr) { setSaving(false); toast({ title: 'تعذر التحقق من الرقم', description: 'حاول مرة أخرى', variant: 'destructive' }); return; }
       if (taken) { setSaving(false); toast({ title: 'الرقم مستخدم', description: 'هذا الرقم مسجل لحساب آخر', variant: 'destructive' }); return; }
     }

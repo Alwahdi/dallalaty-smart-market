@@ -1,3 +1,4 @@
+import AppLogo from '@/components/AppLogo';
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -76,7 +77,7 @@ export default function Auth() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <Building2 className="h-16 w-16 text-primary drop-shadow-lg" />
+            <AppLogo className="h-20 w-20 rounded-2xl shadow-lg" />
           </div>
           <h1 className="text-3xl font-bold text-foreground">متجر إب الشامل</h1>
           <p className="text-muted-foreground mt-2">منصة العناصر والإعلانات الذكية</p>

@@ -1,3 +1,4 @@
+import AppLogo from '@/components/AppLogo';
 import { useState, useEffect } from "react";
 import { Moon, Sun, Menu, Heart, User, Search, Building2, LogOut, Settings, Bell, Shield, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -50,9 +51,7 @@ const Header = ({ isDark, toggleTheme }: HeaderProps) => {
         <div className="flex items-center justify-between">
           {/* الشعار */}
           <Link to="/" className="flex items-center space-x-2 rtl:space-x-reverse">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shadow-glow">
-              <Building2 className="w-6 h-6 text-primary" />
-            </div>
+            <AppLogo className="w-10 h-10 shadow-glow" />
             <div className="text-right">
               <h1 className="text-xl font-bold font-arabic bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
                 متجر إب الشامل

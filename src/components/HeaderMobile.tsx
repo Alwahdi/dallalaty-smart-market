@@ -1,3 +1,4 @@
+import AppLogo from '@/components/AppLogo';
 import { useState, useEffect } from "react";
 import { Moon, Sun, Search, Bell, User, Shield, Building2, Heart, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,9 +38,7 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
         <div className="flex items-center justify-between">
           {/* الشعار */}
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
-            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <Building2 className="w-5 h-5 text-primary" />
-            </div>
+            <AppLogo className="w-9 h-9" />
             <div className="text-right min-w-0">
               <h1 className="text-base sm:text-lg font-bold font-arabic bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent truncate">
                 متجر إب الشامل

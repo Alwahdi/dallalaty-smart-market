@@ -1,4 +1,5 @@
-import { describe, expect, test } from 'bun:test';
+import { describe, test } from 'node:test';
+import assert from 'node:assert/strict';
 import { allowedParents, categoryPath, descendantIds } from './category-tree';
 
 const nodes = [
@@ -10,13 +11,13 @@ const nodes = [
 ];
 describe('nested groups', () => {
   test('supports a group inside a group across multiple levels', () => {
-    expect(categoryPath(nodes, 'd')).toBe('أجهزة / هواتف / ملحقات / أغطية');
-    expect([...descendantIds(nodes, 'a')]).toEqual(['a', 'b', 'c', 'd']);
+    assert.equal(categoryPath(nodes, 'd'), 'أجهزة / هواتف / ملحقات / أغطية');
+    assert.deepEqual([...descendantIds(nodes, 'a')], ['a', 'b', 'c', 'd']);
   });
   test('cannot parent a group under itself or any descendant', () => {
-    expect(allowedParents(nodes, 'b').map(node => node.id)).toEqual(['a', 'other']);
+    assert.deepEqual(allowedParents(nodes, 'b').map(node => node.id), ['a', 'other']);
   });
   test('new groups may be nested under any existing depth', () => {
-    expect(allowedParents(nodes).map(node => node.id)).toContain('d');
+    assert.ok(allowedParents(nodes).some(node => node.id === 'd'));
   });
 });

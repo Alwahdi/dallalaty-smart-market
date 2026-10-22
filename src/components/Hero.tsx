@@ -44,7 +44,7 @@ const Hero = () => {
             <Button 
               onClick={() => navigate('/properties?category=شقق%20للبيع')}
               variant="outline"
-              className="border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground px-8 py-4 rounded-2xl font-semibold transition-all duration-300 font-arabic text-lg w-full sm:w-auto"
+              className="border-primary/30 text-primary-text hover:bg-primary hover:text-primary-foreground px-8 py-4 rounded-2xl font-semibold transition-all duration-300 font-arabic text-lg w-full sm:w-auto"
             >
               شقق للبيع
             </Button>
@@ -59,7 +59,7 @@ const Hero = () => {
               { number: '٢٤/٧', label: 'دعم فني' }
             ].map((stat, index) => (
               <div key={index} className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-primary mb-2 font-arabic">
+                <div className="text-3xl md:text-4xl font-bold text-primary-text mb-2 font-arabic">
                   {stat.number}
                 </div>
                 <div className="text-muted-foreground font-arabic">

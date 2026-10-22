@@ -111,7 +111,7 @@ export default function UserRoleDialog({ userId, userEmail, currentRoles, onRole
         <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b bg-background shrink-0">
           <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
             <div className="w-9 h-9 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg flex items-center justify-center">
-              <Shield className="w-5 h-5 text-primary" />
+              <Shield className="w-5 h-5 text-primary-text" />
             </div>
             إدارة صلاحيات المستخدم
           </DialogTitle>
@@ -123,7 +123,7 @@ export default function UserRoleDialog({ userId, userEmail, currentRoles, onRole
             <div className="p-4 bg-gradient-to-br from-primary/5 to-transparent rounded-xl border-2 border-primary/10">
               <div className="flex items-start gap-3 mb-3">
                 <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
-                  <Shield className="w-5 h-5 text-primary" />
+                  <Shield className="w-5 h-5 text-primary-text" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-muted-foreground mb-1">المستخدم</p>

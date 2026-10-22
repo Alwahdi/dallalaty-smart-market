@@ -40,7 +40,7 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
             <AppLogo className="w-9 h-9" />
             <div className="text-right min-w-0">
-              <h1 className="text-base sm:text-lg font-bold font-arabic bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent truncate">
+              <h1 className="text-base sm:text-lg font-bold font-arabic text-primary-text truncate">
                 متجر إب الشامل
               </h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground font-arabic leading-none">
@@ -71,7 +71,7 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
                 <Button variant="ghost" size="icon" aria-label="حسابي" className="rounded-full h-9 w-9 p-0 touch-manipulation">
                   <Avatar className="w-8 h-8 ring-2 ring-primary/30">
                     <AvatarImage src={myProfile?.avatar_url || ''} className="object-cover" />
-                    <AvatarFallback className="text-xs font-semibold bg-primary/10 text-primary">{initials}</AvatarFallback>
+                    <AvatarFallback className="text-xs font-semibold bg-primary/10 text-primary-text">{initials}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -92,7 +92,7 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
                 {hasMerchantAccess && (
                   <>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => navigate('/merchant')} className="font-arabic text-primary font-medium touch-manipulation">
+                    <DropdownMenuItem onClick={() => navigate('/merchant')} className="font-arabic text-primary-text font-medium touch-manipulation">
                       <Store className="w-4 h-4 ml-2" />
                       لوحة التاجر
                     </DropdownMenuItem>
@@ -101,7 +101,7 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
                 {isAnyAdmin && (
                   <>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => navigate('/admin')} className="font-arabic text-primary font-medium touch-manipulation">
+                    <DropdownMenuItem onClick={() => navigate('/admin')} className="font-arabic text-primary-text font-medium touch-manipulation">
                       <Shield className="w-4 h-4 ml-2" />
                       لوحة الإدارة
                     </DropdownMenuItem>

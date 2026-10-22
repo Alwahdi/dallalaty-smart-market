@@ -35,7 +35,7 @@ export default function Terms() {
             
             <div className="flex items-center gap-4 mb-4">
               <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
-                <FileText className="w-8 h-8 text-primary" />
+                <FileText className="w-8 h-8 text-primary-text" />
               </div>
               <div>
                 <h1 className="text-3xl md:text-4xl font-bold text-foreground">
@@ -54,7 +54,7 @@ export default function Terms() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-primary" />
+                  <FileText className="w-5 h-5 text-primary-text" />
                   مقدمة
                 </CardTitle>
               </CardHeader>
@@ -73,7 +73,7 @@ export default function Terms() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-primary" />
+                  <FileText className="w-5 h-5 text-primary-text" />
                   التعريفات
                 </CardTitle>
               </CardHeader>
@@ -92,7 +92,7 @@ export default function Terms() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-primary" />
+                  <CheckCircle className="w-5 h-5 text-primary-text" />
                   حساب المستخدم
                 </CardTitle>
               </CardHeader>
@@ -165,7 +165,7 @@ export default function Terms() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-primary" />
+                  <FileText className="w-5 h-5 text-primary-text" />
                   العروض والإعلانات
                 </CardTitle>
               </CardHeader>
@@ -196,7 +196,7 @@ export default function Terms() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Scale className="w-5 h-5 text-primary" />
+                  <Scale className="w-5 h-5 text-primary-text" />
                   إخلاء المسؤولية
                 </CardTitle>
               </CardHeader>
@@ -229,7 +229,7 @@ export default function Terms() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-primary" />
+                  <FileText className="w-5 h-5 text-primary-text" />
                   الملكية الفكرية
                 </CardTitle>
               </CardHeader>
@@ -253,7 +253,7 @@ export default function Terms() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <XCircle className="w-5 h-5 text-primary" />
+                  <XCircle className="w-5 h-5 text-primary-text" />
                   إنهاء الحساب
                 </CardTitle>
               </CardHeader>
@@ -277,7 +277,7 @@ export default function Terms() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-primary" />
+                  <FileText className="w-5 h-5 text-primary-text" />
                   التغييرات على الشروط
                 </CardTitle>
               </CardHeader>
@@ -300,7 +300,7 @@ export default function Terms() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Scale className="w-5 h-5 text-primary" />
+                  <Scale className="w-5 h-5 text-primary-text" />
                   القانون الحاكم
                 </CardTitle>
               </CardHeader>

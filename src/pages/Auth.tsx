@@ -149,7 +149,7 @@ export default function Auth() {
                       <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required dir="ltr" />
                       <button
                         type="button"
-                        className="text-xs text-primary hover:underline"
+                        className="text-xs text-primary-text hover:underline"
                         onClick={async () => {
                           if (!email) { toast({ title: 'اكتب بريدك أولاً', variant: 'destructive' }); return; }
                           const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });

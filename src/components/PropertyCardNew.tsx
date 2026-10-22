@@ -149,11 +149,11 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
 
       {/* معلومات العنصر */}
       <div className="p-4">
-        <h3 className="text-lg font-semibold text-foreground mb-1 font-arabic text-right line-clamp-2 group-hover:text-primary transition-colors duration-300">
+        <h3 className="text-lg font-semibold text-foreground mb-1 font-arabic text-right line-clamp-2 group-hover:text-primary-text transition-colors duration-300">
           {property.title}
         </h3>
         <div className="flex items-center justify-between mb-3">
-          <p className="text-2xl font-bold text-primary font-arabic">
+          <p className="text-2xl font-bold text-primary-text font-arabic">
             {formatPrice(property.price, property.currency)}
           </p>
           {locationLabel && (

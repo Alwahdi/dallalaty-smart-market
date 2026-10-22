@@ -35,7 +35,7 @@ export default function Privacy() {
             
             <div className="flex items-center gap-4 mb-4 animate-fade-in">
               <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
-                <Shield className="w-8 h-8 text-primary" />
+                <Shield className="w-8 h-8 text-primary-text" />
               </div>
               <div>
                 <h1 className="text-3xl md:text-4xl font-bold text-foreground">
@@ -54,7 +54,7 @@ export default function Privacy() {
             <Card className="animate-fade-in">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Eye className="w-5 h-5 text-primary" />
+                  <Eye className="w-5 h-5 text-primary-text" />
                   مقدمة
                 </CardTitle>
               </CardHeader>
@@ -73,7 +73,7 @@ export default function Privacy() {
             <Card className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Database className="w-5 h-5 text-primary" />
+                  <Database className="w-5 h-5 text-primary-text" />
                   المعلومات التي نجمعها
                 </CardTitle>
               </CardHeader>
@@ -114,7 +114,7 @@ export default function Privacy() {
             <Card className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-primary" />
+                  <Users className="w-5 h-5 text-primary-text" />
                   كيف نستخدم معلوماتك
                 </CardTitle>
               </CardHeader>
@@ -136,7 +136,7 @@ export default function Privacy() {
             <Card className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Lock className="w-5 h-5 text-primary" />
+                  <Lock className="w-5 h-5 text-primary-text" />
                   حماية البيانات
                 </CardTitle>
               </CardHeader>
@@ -156,7 +156,7 @@ export default function Privacy() {
             <Card className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Mail className="w-5 h-5 text-primary" />
+                  <Mail className="w-5 h-5 text-primary-text" />
                   تواصل معنا
                 </CardTitle>
               </CardHeader>

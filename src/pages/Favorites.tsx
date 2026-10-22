@@ -80,7 +80,7 @@ export default function Favorites() {
             </Link>
             <div>
               <h1 className="text-3xl font-bold text-foreground font-arabic flex items-center gap-3">
-                <Heart className="w-8 h-8 text-primary" />
+                <Heart className="w-8 h-8 text-primary-text" />
                 العروض المفضلة
               </h1>
               <p className="text-muted-foreground font-arabic">

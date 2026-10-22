@@ -93,7 +93,7 @@ export default function AdminPanel() {
                   </div>
                 </div>
                 <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                  <Icon className="w-5 h-5 text-primary" />
+                  <Icon className="w-5 h-5 text-primary-text" />
                 </div>
               </CardHeader>
             </Card>
@@ -104,7 +104,7 @@ export default function AdminPanel() {
       <Card className="border border-primary/10 bg-gradient-to-br from-background to-primary/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-            <Shield className="w-5 h-5 text-primary" />
+            <Shield className="w-5 h-5 text-primary-text" />
             معلومات حسابك الإداري
           </CardTitle>
           <CardDescription className="text-xs">الصلاحيات والمعلومات</CardDescription>
@@ -200,7 +200,7 @@ export default function AdminPanel() {
           <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background/95 backdrop-blur px-3">
             <SidebarTrigger />
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <Shield className="w-4 h-4 text-primary shrink-0" />
+              <Shield className="w-4 h-4 text-primary-text shrink-0" />
               <span className="font-semibold text-sm truncate">
                 {visibleTabs.find(t => t.id === activeTab)?.label || 'لوحة الإدارة'}
               </span>

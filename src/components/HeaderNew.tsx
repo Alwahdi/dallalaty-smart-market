@@ -53,7 +53,7 @@ const Header = ({ isDark, toggleTheme }: HeaderProps) => {
           <Link to="/" className="flex items-center space-x-2 rtl:space-x-reverse">
             <AppLogo className="w-10 h-10 shadow-glow" />
             <div className="text-right">
-              <h1 className="text-xl font-bold font-arabic bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+              <h1 className="text-xl font-bold font-arabic text-primary-text">
                 متجر إب الشامل
               </h1>
               <p className="text-xs text-muted-foreground font-arabic">
@@ -97,7 +97,7 @@ const Header = ({ isDark, toggleTheme }: HeaderProps) => {
                   <Button variant="ghost" aria-label="حسابي" className="relative h-9 w-9 rounded-full p-0">
                     <Avatar className="h-9 w-9 ring-2 ring-primary/30">
                       <AvatarImage src={myProfile?.avatar_url || ''} className="object-cover" />
-                      <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">{initials}</AvatarFallback>
+                      <AvatarFallback className="bg-primary/10 text-primary-text text-sm font-semibold">{initials}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
@@ -105,7 +105,7 @@ const Header = ({ isDark, toggleTheme }: HeaderProps) => {
                   <div className="flex items-center gap-3 p-2">
                     <Avatar className="h-10 w-10">
                       <AvatarImage src={myProfile?.avatar_url || ''} className="object-cover" />
-                      <AvatarFallback className="bg-primary/10 text-primary">{initials}</AvatarFallback>
+                      <AvatarFallback className="bg-primary/10 text-primary-text">{initials}</AvatarFallback>
                     </Avatar>
                     <div className="min-w-0">
                       <p className="text-sm font-semibold font-arabic truncate">{myProfile?.full_name || 'حسابي'}</p>
@@ -128,13 +128,13 @@ const Header = ({ isDark, toggleTheme }: HeaderProps) => {
                   {hasMerchantAccess && (
                     <DropdownMenuItem onClick={() => navigate('/merchant')}>
                       <Store className="mr-2 h-4 w-4" />
-                      <span className="font-arabic text-primary">لوحة التاجر</span>
+                      <span className="font-arabic text-primary-text">لوحة التاجر</span>
                     </DropdownMenuItem>
                   )}
                   {isAnyAdmin && (
                     <DropdownMenuItem onClick={() => navigate('/admin')}>
                       <Shield className="mr-2 h-4 w-4" />
-                      <span className="font-arabic text-primary">لوحة الإدارة</span>
+                      <span className="font-arabic text-primary-text">لوحة الإدارة</span>
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />

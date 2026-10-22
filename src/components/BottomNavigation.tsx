@@ -37,7 +37,7 @@ const BottomNavigation = () => {
               className={cn(
                 "relative flex flex-col items-center justify-center min-w-0 flex-1 py-2 px-1 rounded-xl transition-all duration-300 transform touch-manipulation",
                 isActive
-                  ? "text-primary bg-primary/10 scale-105"
+                  ? "text-primary-text bg-primary/10 scale-105"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent/50 active:scale-95"
               )}
             >

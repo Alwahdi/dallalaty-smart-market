@@ -167,7 +167,7 @@ export default function UserManagement() {
     return (
       <Card className="border-0 bg-gradient-to-br from-background to-muted/30">
         <CardContent className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <Loader2 className="h-8 w-8 animate-spin text-primary-text" />
         </CardContent>
       </Card>
     );
@@ -196,7 +196,7 @@ export default function UserManagement() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-3 border border-primary/10">
               <div className="text-xs text-muted-foreground mb-1">إجمالي المستخدمين</div>
-              <div className="text-2xl font-bold text-primary">{users.length}</div>
+              <div className="text-2xl font-bold text-primary-text">{users.length}</div>
             </div>
             <div className="bg-gradient-to-br from-green-500/10 to-green-500/5 rounded-xl p-3 border border-green-500/10">
               <div className="text-xs text-muted-foreground mb-1">نشط</div>
@@ -239,7 +239,7 @@ export default function UserManagement() {
                     {/* User Info Section */}
                     <div className="p-4 flex items-start gap-3">
                       <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center shrink-0 border-2 border-primary/10">
-                        <Users className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
+                        <Users className="w-6 h-6 sm:w-7 sm:h-7 text-primary-text" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2 mb-1">

@@ -32,8 +32,8 @@ export default function AdminButton({
       onClick={() => navigate('/admin')}
       title="لوحة الإدارة"
     >
-      <Shield className="w-4 h-4 text-primary" />
-      {showText && <span className="mr-2 text-primary font-medium">لوحة الإدارة</span>}
+      <Shield className="w-4 h-4 text-primary-text" />
+      {showText && <span className="mr-2 text-primary-text font-medium">لوحة الإدارة</span>}
     </Button>
   );
 }

@@ -100,7 +100,7 @@ const Landing = () => {
                   { number: '٩٥٪', label: 'رضا العملاء' }
                 ].map((stat, index) => (
                   <div key={index} className="text-center">
-                    <div className="text-2xl md:text-3xl font-bold text-primary mb-1">
+                    <div className="text-2xl md:text-3xl font-bold text-primary-text mb-1">
                       {stat.number}
                     </div>
                     <div className="text-sm text-muted-foreground">
@@ -173,7 +173,7 @@ const Landing = () => {
               <Card key={index} className="group hover:shadow-elegant transition-all duration-300 border-border/30 hover:border-primary/30">
                 <CardContent className="p-6 text-center">
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4 group-hover:bg-primary/20 transition-colors duration-300">
-                    <feature.icon className="w-8 h-8 text-primary" />
+                    <feature.icon className="w-8 h-8 text-primary-text" />
                   </div>
                   <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
                   <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
@@ -234,7 +234,7 @@ const Landing = () => {
             </p>
             <Button 
               size="lg" 
-              className="bg-white text-primary hover:bg-white/90 text-lg px-8"
+              className="bg-white text-primary-text hover:bg-white/90 text-lg px-8"
               onClick={handleGetStarted}
             >
               ابدأ الآن مجاناً

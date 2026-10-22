@@ -86,14 +86,14 @@ const Index = () => {
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
-                  <Store className="w-5 h-5 text-primary" />
+                  <Store className="w-5 h-5 text-primary-text" />
                 </div>
                 <div className="min-w-0">
                   <h3 className="font-bold text-foreground font-arabic truncate">أهلاً بك في لوحة التاجر</h3>
                   <p className="text-xs text-muted-foreground font-arabic truncate">أدر منتجاتك وموظفيك من مكان واحد</p>
                 </div>
               </div>
-              <ArrowLeft className="w-5 h-5 text-primary shrink-0 group-hover:-translate-x-1 transition-transform" />
+              <ArrowLeft className="w-5 h-5 text-primary-text shrink-0 group-hover:-translate-x-1 transition-transform" />
             </Link>
           </div>
         )}
@@ -181,7 +181,7 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             {/* About */}
             <div>
-              <h3 className="text-xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent font-arabic mb-4">
+              <h3 className="text-xl font-bold text-primary-text font-arabic mb-4">
                 متجر إب الشامل
               </h3>
               <p className="text-muted-foreground font-arabic">
@@ -194,17 +194,17 @@ const Index = () => {
               <h4 className="text-lg font-bold text-foreground font-arabic mb-4">روابط سريعة</h4>
               <ul className="space-y-2">
                 <li>
-                  <Link to="/properties" className="text-muted-foreground hover:text-primary transition-colors font-arabic">
+                  <Link to="/properties" className="text-muted-foreground hover:text-primary-text transition-colors font-arabic">
                     تصفح الإعلانات
                   </Link>
                 </li>
                 <li>
-                  <Link to="/favorites" className="text-muted-foreground hover:text-primary transition-colors font-arabic">
+                  <Link to="/favorites" className="text-muted-foreground hover:text-primary-text transition-colors font-arabic">
                     المفضلة
                   </Link>
                 </li>
                 <li>
-                  <Link to="/account" className="text-muted-foreground hover:text-primary transition-colors font-arabic">
+                  <Link to="/account" className="text-muted-foreground hover:text-primary-text transition-colors font-arabic">
                     الحساب
                   </Link>
                 </li>
@@ -216,12 +216,12 @@ const Index = () => {
               <h4 className="text-lg font-bold text-foreground font-arabic mb-4">قانوني</h4>
               <ul className="space-y-2">
                 <li>
-                  <Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors font-arabic">
+                  <Link to="/privacy" className="text-muted-foreground hover:text-primary-text transition-colors font-arabic">
                     سياسة الخصوصية
                   </Link>
                 </li>
                 <li>
-                  <Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors font-arabic">
+                  <Link to="/terms" className="text-muted-foreground hover:text-primary-text transition-colors font-arabic">
                     شروط الاستخدام
                   </Link>
                 </li>

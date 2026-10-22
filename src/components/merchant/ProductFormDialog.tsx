@@ -220,7 +220,7 @@ export default function ProductFormDialog({
           {selectedCategory && selectedCategory.custom_fields && selectedCategory.custom_fields.length > 0 && (
             <div className="md:col-span-2 border-t pt-4 space-y-4">
               <div className="flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-primary" />
+                <Building2 className="w-5 h-5 text-primary-text" />
                 <h4 className="font-semibold">حقول {selectedCategory.title}</h4>
               </div>
               <DynamicFormFields

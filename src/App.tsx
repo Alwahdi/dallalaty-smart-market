@@ -35,7 +35,7 @@ const queryClient = new QueryClient();
 
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
-    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    <Loader2 className="h-8 w-8 animate-spin text-primary-text" />
   </div>
 );
 

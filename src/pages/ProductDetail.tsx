@@ -436,7 +436,7 @@ export default function ProductDetail() {
                   {property.title}
                 </h1>
 
-                <div className="text-3xl font-bold text-primary mb-4">
+                <div className="text-3xl font-bold text-primary-text mb-4">
                   {formatPrice(property.price, property.currency)}
                 </div>
 

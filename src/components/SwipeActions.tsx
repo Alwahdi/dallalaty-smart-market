@@ -323,7 +323,7 @@ const SwipeActions: React.FC<SwipeActionsProps> = ({
         <SheetContent side="bottom" className="h-auto bg-background/95 backdrop-blur-md">
           <SheetHeader>
             <SheetTitle className="font-arabic text-right flex items-center gap-2">
-              <Share2 className="w-5 h-5 text-primary" />
+              <Share2 className="w-5 h-5 text-primary-text" />
               مشاركة العنصر
             </SheetTitle>
             <SheetDescription className="font-arabic text-right">
@@ -344,7 +344,7 @@ const SwipeActions: React.FC<SwipeActionsProps> = ({
                     setShowShareSheet(false);
                   }}
                 >
-                  <Icon className="w-6 h-6 text-primary" />
+                  <Icon className="w-6 h-6 text-primary-text" />
                   <span className="text-sm">{option.name}</span>
                 </Button>
               );

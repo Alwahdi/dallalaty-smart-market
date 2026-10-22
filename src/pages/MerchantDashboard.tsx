@@ -38,7 +38,7 @@ export default function MerchantDashboard() {
   if (ctx.loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary-text" />
       </div>
     );
   }
@@ -73,7 +73,7 @@ export default function MerchantDashboard() {
           <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
             <ArrowRight className="w-5 h-5" />
           </Button>
-          <Store className="w-5 h-5 text-primary shrink-0" />
+          <Store className="w-5 h-5 text-primary-text shrink-0" />
           <h1 className="font-bold text-base sm:text-lg flex-1 truncate">لوحة التاجر</h1>
           {merchantOptions.length > 1 && (
             <Select value={ctx.effectiveAgentId} onValueChange={setActiveMerchantId}>

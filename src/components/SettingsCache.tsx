@@ -211,19 +211,19 @@ const SettingsCache = ({ onClose }: SettingsCacheProps) => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center p-4 bg-muted/50 rounded-lg">
-              <Search className="w-8 h-8 mx-auto mb-2 text-primary" />
+              <Search className="w-8 h-8 mx-auto mb-2 text-primary-text" />
               <p className="text-2xl font-bold">{recentSearches.length}</p>
               <p className="text-sm text-muted-foreground">عمليات بحث محفوظة</p>
             </div>
             
             <div className="text-center p-4 bg-muted/50 rounded-lg">
-              <MapPin className="w-8 h-8 mx-auto mb-2 text-primary" />
+              <MapPin className="w-8 h-8 mx-auto mb-2 text-primary-text" />
               <p className="text-2xl font-bold">{navigationHistory.length}</p>
               <p className="text-sm text-muted-foreground">صفحات في التاريخ</p>
             </div>
             
             <div className="text-center p-4 bg-muted/50 rounded-lg">
-              <Database className="w-8 h-8 mx-auto mb-2 text-primary" />
+              <Database className="w-8 h-8 mx-auto mb-2 text-primary-text" />
               <p className="text-2xl font-bold">{getCacheSize()}</p>
               <p className="text-sm text-muted-foreground">حجم البيانات</p>
             </div>

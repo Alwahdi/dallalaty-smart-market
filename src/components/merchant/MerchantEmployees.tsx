@@ -122,7 +122,7 @@ export default function MerchantEmployees({ merchantId }: MerchantEmployeesProps
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-semibold flex items-center gap-2"><Users className="w-5 h-5 text-primary" /> الموظفون</h3>
+          <h3 className="font-semibold flex items-center gap-2"><Users className="w-5 h-5 text-primary-text" /> الموظفون</h3>
           <p className="text-xs text-muted-foreground">أضف موظفين بأرقام هواتفهم وحدد صلاحياتهم</p>
         </div>
         <Dialog open={addOpen} onOpenChange={setAddOpen}>

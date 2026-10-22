@@ -176,7 +176,7 @@ export default function AccountSettings() {
 
   if (!user && !authLoading) return <Navigate to="/auth" replace />;
   if (authLoading || loading) {
-    return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+    return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary-text" /></div>;
   }
 
   const initials = `${form.first_name[0] || ''}${form.last_name[0] || ''}` || user?.email?.[0]?.toUpperCase();
@@ -196,7 +196,7 @@ export default function AccountSettings() {
               <div className="relative w-fit">
                 <Avatar className="w-24 h-24 ring-4 ring-background">
                   <AvatarImage src={profile?.avatar_url || ''} className="object-cover" />
-                  <AvatarFallback className="text-2xl bg-primary/10 text-primary">{initials}</AvatarFallback>
+                  <AvatarFallback className="text-2xl bg-primary/10 text-primary-text">{initials}</AvatarFallback>
                 </Avatar>
                 <Label htmlFor="avatar-upload" aria-label="تغيير الصورة"
                   className="absolute bottom-0 left-0 bg-primary text-primary-foreground rounded-full p-2 cursor-pointer shadow">
@@ -300,7 +300,7 @@ export default function AccountSettings() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-center gap-3 p-3 rounded-lg border border-primary/30 bg-primary/5">
-                    {dev.mobile ? <Smartphone className="w-6 h-6 text-primary" /> : <Monitor className="w-6 h-6 text-primary" />}
+                    {dev.mobile ? <Smartphone className="w-6 h-6 text-primary-text" /> : <Monitor className="w-6 h-6 text-primary-text" />}
                     <div className="flex-1 min-w-0">
                       <p className="font-medium">{dev.br} على {dev.os}</p>
                       <p className="text-xs text-muted-foreground">آخر دخول: <span dir="ltr">{formatDateTime(user?.last_sign_in_at)}</span></p>

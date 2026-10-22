@@ -146,7 +146,7 @@ const ExploreSection = () => {
                     </div>
                     
                     {/* Title */}
-                    <h3 className="font-bold text-foreground text-xs sm:text-sm md:text-base font-arabic group-hover:text-primary transition-colors duration-300 mb-1 sm:mb-2 line-clamp-2 relative z-10">
+                    <h3 className="font-bold text-foreground text-xs sm:text-sm md:text-base font-arabic group-hover:text-primary-text transition-colors duration-300 mb-1 sm:mb-2 line-clamp-2 relative z-10">
                       {category.title}
                     </h3>
                     
@@ -163,7 +163,7 @@ const ExploreSection = () => {
                         ${isHovered ? 'scale-110' : ''}
                       `}>
                         <span className={`text-xs sm:text-sm font-bold font-arabic transition-colors duration-300
-                          ${isHovered ? 'text-primary-foreground' : 'text-primary'}
+                          ${isHovered ? 'text-primary-foreground' : 'text-primary-text'}
                         `}>
                           {count}
                         </span>
@@ -175,7 +175,7 @@ const ExploreSection = () => {
 
                     {/* Hover indicator arrow */}
                     <div className={`absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0`}>
-                      <Icons.ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
+                      <Icons.ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 text-primary-text" />
                     </div>
                   </CardContent>
                 </Card>

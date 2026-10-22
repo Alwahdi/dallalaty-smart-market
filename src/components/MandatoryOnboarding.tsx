@@ -107,7 +107,7 @@ export default function MandatoryOnboarding({
         <Progress value={(step / 3) * 100} className="mb-4 h-2" />
         <div className="flex justify-between mb-4 text-xs">
           {steps.map((s, i) => (
-            <span key={s} className={i + 1 <= step ? 'text-primary font-semibold' : 'text-muted-foreground'}>
+            <span key={s} className={i + 1 <= step ? 'text-primary-text font-semibold' : 'text-muted-foreground'}>
               {i + 1}. {s}
             </span>
           ))}
@@ -117,11 +117,11 @@ export default function MandatoryOnboarding({
           {step === 1 && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="first-name" className="flex items-center gap-2"><User className="w-4 h-4 text-primary" />الاسم الأول</Label>
+                <Label htmlFor="first-name" className="flex items-center gap-2"><User className="w-4 h-4 text-primary-text" />الاسم الأول</Label>
                 <Input id="first-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="مثال: عبدالله" maxLength={40} autoFocus />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="last-name" className="flex items-center gap-2"><User className="w-4 h-4 text-primary" />اللقب</Label>
+                <Label htmlFor="last-name" className="flex items-center gap-2"><User className="w-4 h-4 text-primary-text" />اللقب</Label>
                 <Input id="last-name" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="مثال: الوحدي" maxLength={40} />
               </div>
               <Button className="w-full h-12" disabled={!nameValid} onClick={() => setStep(2)}>التالي</Button>
@@ -131,7 +131,7 @@ export default function MandatoryOnboarding({
           {step === 2 && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="phone-input" className="flex items-center gap-2"><Phone className="w-4 h-4 text-primary" />رقم الجوال</Label>
+                <Label htmlFor="phone-input" className="flex items-center gap-2"><Phone className="w-4 h-4 text-primary-text" />رقم الجوال</Label>
                 <div className="flex items-stretch gap-2" dir="ltr">
                   <div className="flex items-center gap-1.5 px-3 rounded-md border border-input bg-muted/50 text-sm font-medium shrink-0 select-none">
                     <span>🇾🇪</span><span>+967</span>
@@ -143,7 +143,7 @@ export default function MandatoryOnboarding({
                 <div className="text-xs min-h-[1rem]">
                   {!phoneFormatValid && <span className="text-muted-foreground">9 أرقام تبدأ بـ 7</span>}
                   {phoneCheck === 'checking' && <span className="text-muted-foreground flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" />جاري التحقق...</span>}
-                  {phoneCheck === 'available' && <span className="text-primary flex items-center gap-1"><CheckCircle2 className="w-3 h-3" />الرقم متاح</span>}
+                  {phoneCheck === 'available' && <span className="text-primary-text flex items-center gap-1"><CheckCircle2 className="w-3 h-3" />الرقم متاح</span>}
                   {phoneCheck === 'taken' && <span className="text-destructive flex items-center gap-1"><XCircle className="w-3 h-3" />هذا الرقم مسجل لحساب آخر</span>}
                 </div>
               </div>
@@ -157,7 +157,7 @@ export default function MandatoryOnboarding({
           {step === 3 && (
             <>
               <div className="space-y-2">
-                <Label className="flex items-center gap-2"><MapPin className="w-4 h-4 text-primary" />موقعك الحالي</Label>
+                <Label className="flex items-center gap-2"><MapPin className="w-4 h-4 text-primary-text" />موقعك الحالي</Label>
                 <p className="text-xs text-muted-foreground">نستخدم موقعك لعرض المنتجات القريبة منك. يجب السماح بإذن الموقع.</p>
                 {loc.status === 'loading' && (
                   <div className="flex items-center gap-2 p-3 rounded-md border border-border bg-muted/30 text-sm text-muted-foreground">
@@ -166,8 +166,8 @@ export default function MandatoryOnboarding({
                 )}
                 {loc.status === 'ready' && (
                   <div className="flex items-center justify-between gap-2 p-3 rounded-md border border-primary/30 bg-primary/10 text-sm">
-                    <span className="flex items-center gap-2 font-medium"><CheckCircle2 className="w-4 h-4 text-primary" />{loc.city}</span>
-                    <button type="button" onClick={captureLocation} className="text-xs text-primary hover:underline">تحديث</button>
+                    <span className="flex items-center gap-2 font-medium"><CheckCircle2 className="w-4 h-4 text-primary-text" />{loc.city}</span>
+                    <button type="button" onClick={captureLocation} className="text-xs text-primary-text hover:underline">تحديث</button>
                   </div>
                 )}
                 {loc.status === 'error' && (

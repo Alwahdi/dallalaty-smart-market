@@ -25,8 +25,12 @@ All colors MUST be HSL.
 
     /* اللون الذهبي الأساسي */
     --primary: 45 85% 55%;
-    --primary-foreground: 45 20% 98%;
+    --primary-foreground: 30 25% 15%;
     --primary-glow: 45 90% 65%;
+    --primary-text: 38 80% 30%;
+    --success: 142 60% 32%;
+    --warning: 32 90% 40%;
+    --info: 210 70% 42%;
 
     /* اللون الأخضر الزيتوني */
     --secondary: 75 25% 45%;
@@ -38,7 +42,7 @@ All colors MUST be HSL.
     --accent: 75 20% 85%;
     --accent-foreground: 25 15% 15%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 72% 45%;
     --destructive-foreground: 45 20% 98%;
 
     --border: 45 20% 88%;
@@ -92,6 +96,10 @@ All colors MUST be HSL.
     --primary: 45 85% 65%;
     --primary-foreground: 25 15% 8%;
     --primary-glow: 45 95% 75%;
+    --primary-text: 45 85% 65%;
+    --success: 142 55% 55%;
+    --warning: 38 90% 60%;
+    --info: 210 80% 65%;
 
     --secondary: 75 25% 55%;
     --secondary-foreground: 25 15% 8%;

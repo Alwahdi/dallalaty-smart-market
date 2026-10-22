@@ -108,7 +108,7 @@ export default function PhoneCollectionDialog({
       <DialogContent className="sm:max-w-md w-[calc(100vw-2rem)]" dir="rtl" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Phone className="w-5 h-5 text-primary" />
+            <Phone className="w-5 h-5 text-primary-text" />
             أكمل ملفك الشخصي
           </DialogTitle>
           <DialogDescription>

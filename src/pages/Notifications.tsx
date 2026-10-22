@@ -56,7 +56,7 @@ export default function Notifications() {
               </Link>
               <div>
                 <h1 className="text-3xl font-bold text-foreground font-arabic flex items-center gap-3">
-                  <Bell className="w-8 h-8 text-primary" />
+                  <Bell className="w-8 h-8 text-primary-text" />
                   الإشعارات
                 </h1>
                 <p className="text-muted-foreground font-arabic">

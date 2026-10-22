@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Upload, X, Image as ImageIcon, Video, Loader2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ImagePreview from '@/components/ImagePreview';
 
 interface MediaUploadProps {
   images: string[];
@@ -310,8 +311,9 @@ export default function MediaUpload({
               <Card key={index} className="relative group">
                 <CardContent className="p-2">
                   <div className="aspect-square relative overflow-hidden rounded-md">
-                    <img
-                      src={imageUrl}
+                    <ImagePreview
+                      images={images}
+                      index={index}
                       alt={`صورة ${index + 1}`}
                       className="w-full h-full object-cover"
                     />

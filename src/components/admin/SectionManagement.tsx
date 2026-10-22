@@ -25,6 +25,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import CustomFieldsEditor, { CustomField } from './CustomFieldsEditor';
+import { allowedParents, categoryPath } from '@/lib/category-tree';
 
 // Sentinel value for "no parent" option — must be a non-empty string (Radix requirement)
 const NO_PARENT_VALUE = '___none___';
@@ -157,6 +158,12 @@ export default function SectionManagement() {
       }
 
       setSaving(true);
+
+      if (categoryForm.parent_id !== NO_PARENT_VALUE &&
+          !allowedParents(categories, editingCategory?.id).some(cat => cat.id === categoryForm.parent_id)) {
+        toast({ title: 'خطأ', description: 'لا يمكن وضع المجموعة داخل نفسها أو داخل إحدى مجموعاتها الفرعية', variant: 'destructive' });
+        return;
+      }
 
       // Check for duplicate slug (when creating)
       if (!editingCategory) {
@@ -298,6 +305,12 @@ export default function SectionManagement() {
       parent_id: category.parent_id ?? NO_PARENT_VALUE,
     });
     setCustomFields(category.custom_fields || []);
+    setCategoryDialogOpen(true);
+  };
+
+  const openForChild = (category: Category) => {
+    resetCategoryForm();
+    setCategoryForm(previous => ({ ...previous, parent_id: category.id }));
     setCategoryDialogOpen(true);
   };
 
@@ -490,11 +503,10 @@ export default function SectionManagement() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value={NO_PARENT_VALUE} className="text-base">بدون قسم أب</SelectItem>
-                        {categories
-                          .filter((cat) => cat.id !== editingCategory?.id)
+                        {allowedParents(categories, editingCategory?.id)
                           .map((category) => (
                             <SelectItem key={category.id} value={category.id} className="text-base">
-                              {category.title}
+                              {categoryPath(categories, category.id)}
                             </SelectItem>
                           ))}
                       </SelectContent>
@@ -580,6 +592,7 @@ export default function SectionManagement() {
                       <TableCell>
                         <div>
                           <div className="font-medium">{category.title}</div>
+                          {category.parent_id && <div className="text-xs text-muted-foreground break-words">{categoryPath(categories, category.id)}</div>}
                           {category.subtitle && <div className="text-sm text-muted-foreground">{category.subtitle}</div>}
                         </div>
                       </TableCell>
@@ -612,6 +625,7 @@ export default function SectionManagement() {
                       <TableCell>{new Date(category.created_at).toLocaleDateString('ar-YE')}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
+                          <Button variant="outline" size="icon" className="h-8 w-8" aria-label={`إضافة مجموعة داخل ${category.title}`} title="إضافة مجموعة فرعية" onClick={() => openForChild(category)}><Plus className="h-4 w-4" /></Button>
                           <Button
                             variant="outline"
                             size="sm"
@@ -663,6 +677,7 @@ export default function SectionManagement() {
                             )}
                             {category.title}
                           </h3>
+                          {category.parent_id && <p className="text-xs text-muted-foreground break-words">{categoryPath(categories, category.id)}</p>}
                           {category.subtitle && (
                             <p className="text-sm text-muted-foreground leading-snug">{category.subtitle}</p>
                           )}
@@ -719,6 +734,7 @@ export default function SectionManagement() {
                         })}
                       </span>
                       <div className="flex items-center gap-2">
+                        <Button variant="outline" size="icon" aria-label={`إضافة مجموعة داخل ${category.title}`} title="إضافة مجموعة فرعية" onClick={() => openForChild(category)}><Plus className="h-4 w-4" /></Button>
                         <Button 
                           variant="outline" 
                           size="sm" 

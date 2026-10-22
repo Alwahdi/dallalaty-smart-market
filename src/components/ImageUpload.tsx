@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import ImagePreview from '@/components/ImagePreview';
 
 interface ImageUploadProps {
   images: string[];
@@ -155,13 +156,11 @@ export default function ImageUpload({
             <Card key={index} className="relative group">
               <CardContent className="p-2">
                 <div className="aspect-square relative overflow-hidden rounded-md">
-                  <img
-                    src={imageUrl}
+                  <ImagePreview
+                    images={images}
+                    index={index}
                     alt={`صورة ${index + 1}`}
                     className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = '/placeholder.svg';
-                    }}
                   />
                   <Button
                     type="button"

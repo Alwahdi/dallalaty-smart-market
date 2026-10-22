@@ -13,6 +13,7 @@ import HeaderMobile from '@/components/HeaderMobile';
 import BottomNavigation from '@/components/BottomNavigation';
 import { useTheme } from '@/hooks/useTheme';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { categoryPath, descendantIds } from '@/lib/category-tree';
 
 interface Property {
   id: string;
@@ -33,6 +34,7 @@ interface Property {
 
 interface Category {
   id: string;
+  parent_id?: string | null;
   title: string;
   slug: string;
   icon: string;
@@ -116,7 +118,10 @@ export default function Properties() {
       property.neighborhood?.toLowerCase().includes(searchTerm.toLowerCase());
 
     
-    const matchesCategory = selectedCategory === 'all' || property.category === selectedCategory;
+    const selectedNode = categories.find(category => category.slug === selectedCategory);
+    const includedIds = selectedNode ? descendantIds(categories, selectedNode.id) : new Set<string>();
+    const matchesCategory = selectedCategory === 'all' || property.category === selectedCategory ||
+      categories.some(category => includedIds.has(category.id) && category.slug === property.category);
     const matchesCity = selectedCity === 'all' || property.city === selectedCity;
     const matchesType = selectedType === 'all';
     const matchesListingType = selectedListingType === 'all' || property.listing_type === selectedListingType;
@@ -202,7 +207,7 @@ export default function Properties() {
               className="font-arabic flex items-center gap-2 whitespace-nowrap min-h-[44px]"
             >
               <span className="text-lg">{category.icon}</span>
-              {category.title}
+              {categoryPath(categories, category.id)}
             </Button>
           ))}
         </div>

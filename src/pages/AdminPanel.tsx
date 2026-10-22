@@ -89,7 +89,7 @@ export default function AdminPanel() {
                 <div>
                   <CardTitle className="text-xs font-semibold text-muted-foreground uppercase">{s.label}</CardTitle>
                   <div className="text-2xl sm:text-3xl font-bold text-foreground tabular-nums mt-1">
-                    {s.value.toLocaleString('ar')}
+                    {s.value.toLocaleString('ar-YE-u-nu-latn')}
                   </div>
                 </div>
                 <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">

@@ -1,3 +1,4 @@
+import { setNotificationsEnabled } from '@/lib/notification-prefs';
 import { useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -94,7 +95,8 @@ export default function AccountSettings() {
       const { error } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
       if (error) throw error;
       const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-      await supabase.from('profiles').update({ avatar_url: data.publicUrl }).eq('user_id', user.id);
+      const { error: upErr } = await supabase.from('profiles').update({ avatar_url: data.publicUrl }).eq('user_id', user.id);
+      if (upErr) throw upErr;
       setProfile((p) => (p ? { ...p, avatar_url: data.publicUrl } : p));
       window.dispatchEvent(new Event('profile-updated'));
       toast({ title: 'تم تحديث الصورة' });
@@ -111,7 +113,8 @@ export default function AccountSettings() {
     setSaving(true);
     const phone = toYemenPhone(form.phone);
     if (phone !== profile?.phone) {
-      const { data: taken } = await supabase.from('profiles').select('user_id').eq('phone', phone).neq('user_id', user.id).maybeSingle();
+      const { data: taken, error: lookupErr } = await supabase.from('profiles').select('user_id').eq('phone', phone).neq('user_id', user.id).maybeSingle();
+      if (lookupErr) { setSaving(false); toast({ title: 'تعذر التحقق من الرقم', description: 'حاول مرة أخرى', variant: 'destructive' }); return; }
       if (taken) { setSaving(false); toast({ title: 'الرقم مستخدم', description: 'هذا الرقم مسجل لحساب آخر', variant: 'destructive' }); return; }
     }
     const { error } = await supabase.from('profiles').update({
@@ -132,7 +135,8 @@ export default function AccountSettings() {
     setLocating(true);
     try {
       const r = await captureGpsLocation();
-      await supabase.from('profiles').update(r).eq('user_id', user.id);
+      const { error: locErr } = await supabase.from('profiles').update(r).eq('user_id', user.id);
+      if (locErr) throw locErr;
       setProfile((p) => (p ? { ...p, ...r } : p));
       window.dispatchEvent(new Event('profile-updated'));
       toast({ title: 'تم تحديث موقعك', description: r.city });
@@ -198,20 +202,21 @@ export default function AccountSettings() {
                   <AvatarImage src={profile?.avatar_url || ''} className="object-cover" />
                   <AvatarFallback className="text-2xl bg-primary/10 text-primary-text">{initials}</AvatarFallback>
                 </Avatar>
-                <Label htmlFor="avatar-upload" aria-label="تغيير الصورة"
-                  className="absolute bottom-0 left-0 bg-primary text-primary-foreground rounded-full p-2 cursor-pointer shadow">
+                <button type="button" aria-label="تغيير الصورة" disabled={uploading}
+                  onClick={() => document.getElementById('avatar-upload')?.click()}
+                  className="absolute bottom-0 end-0 bg-primary text-primary-foreground rounded-full w-11 h-11 flex items-center justify-center shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                   {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
-                </Label>
+                </button>
                 <input id="avatar-upload" type="file" accept="image/*" onChange={handleAvatar} className="hidden" disabled={uploading} />
               </div>
               <div className="flex-1 min-w-0">
                 <h1 className="text-xl font-bold truncate">{profile?.full_name || 'المستخدم'}</h1>
                 <p className="text-sm text-muted-foreground truncate" dir="ltr">{user?.email}</p>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {profile?.city && <Badge variant="secondary"><MapPin className="w-3 h-3 ml-1" />{profile.city}</Badge>}
+                  {profile?.city && <Badge variant="secondary"><MapPin className="w-3 h-3 me-1" />{profile.city}</Badge>}
                   {profile?.phone_verified
-                    ? <Badge><CheckCircle2 className="w-3 h-3 ml-1" />الجوال موثّق</Badge>
-                    : <Badge variant="outline"><AlertTriangle className="w-3 h-3 ml-1" />الجوال غير موثّق</Badge>}
+                    ? <Badge><CheckCircle2 className="w-3 h-3 me-1" />الجوال موثّق</Badge>
+                    : <Badge variant="outline"><AlertTriangle className="w-3 h-3 me-1" />الجوال غير موثّق</Badge>}
                 </div>
               </div>
             </CardContent>
@@ -219,9 +224,9 @@ export default function AccountSettings() {
 
           <Tabs defaultValue="profile" className="space-y-4">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="profile"><User className="w-4 h-4 ml-1" />الملف</TabsTrigger>
-              <TabsTrigger value="security"><Shield className="w-4 h-4 ml-1" />الأمان</TabsTrigger>
-              <TabsTrigger value="preferences"><Settings className="w-4 h-4 ml-1" />التفضيلات</TabsTrigger>
+              <TabsTrigger value="profile"><User className="w-4 h-4 me-1" />الملف</TabsTrigger>
+              <TabsTrigger value="security"><Shield className="w-4 h-4 me-1" />الأمان</TabsTrigger>
+              <TabsTrigger value="preferences"><Settings className="w-4 h-4 me-1" />التفضيلات</TabsTrigger>
             </TabsList>
 
             <TabsContent value="profile">
@@ -259,7 +264,7 @@ export default function AccountSettings() {
                     <div className="flex gap-2">
                       <div className="flex-1 p-2.5 rounded-md border border-border bg-muted/40 text-sm">{profile?.city || 'لم يُحدد'}</div>
                       <Button variant="outline" onClick={updateLocation} disabled={locating}>
-                        {locating ? <Loader2 className="w-4 h-4 animate-spin ml-1" /> : <LocateFixed className="w-4 h-4 ml-1" />}تحديث موقعي
+                        {locating ? <Loader2 className="w-4 h-4 animate-spin me-1" /> : <LocateFixed className="w-4 h-4 me-1" />}تحديث موقعي
                       </Button>
                     </div>
                   </div>
@@ -269,7 +274,7 @@ export default function AccountSettings() {
                     <p className="text-xs text-muted-foreground text-left" dir="ltr">{form.bio.length}/300</p>
                   </div>
                   <Button onClick={saveProfile} disabled={saving} className="w-full sm:w-auto">
-                    {saving ? <Loader2 className="w-4 h-4 animate-spin ml-2" /> : <Save className="w-4 h-4 ml-2" />}حفظ التغييرات
+                    {saving ? <Loader2 className="w-4 h-4 animate-spin me-2" /> : <Save className="w-4 h-4 me-2" />}حفظ التغييرات
                   </Button>
                 </CardContent>
               </Card>
@@ -285,10 +290,10 @@ export default function AccountSettings() {
                 </CardHeader>
                 <CardContent className="flex flex-col sm:flex-row gap-2">
                   <Button onClick={() => setPwOpen(true)}>
-                    <Key className="w-4 h-4 ml-2" />{hasPassword ? 'تغيير كلمة المرور' : 'إنشاء كلمة مرور'}
+                    <Key className="w-4 h-4 me-2" />{hasPassword ? 'تغيير كلمة المرور' : 'إنشاء كلمة مرور'}
                   </Button>
                   {hasPassword && (
-                    <Button variant="outline" onClick={sendResetLink}><Mail className="w-4 h-4 ml-2" />إرسال رابط إلى بريدي</Button>
+                    <Button variant="outline" onClick={sendResetLink}><Mail className="w-4 h-4 me-2" />إرسال رابط إلى بريدي</Button>
                   )}
                 </CardContent>
               </Card>
@@ -309,8 +314,8 @@ export default function AccountSettings() {
                   </div>
                   <p className="text-xs text-muted-foreground">لأمانك، يمكنك إنهاء كل الجلسات على الأجهزة الأخرى.</p>
                   <div className="flex flex-col sm:flex-row gap-2">
-                    <Button variant="outline" onClick={signOutOthers}><LogOut className="w-4 h-4 ml-2" />الخروج من الأجهزة الأخرى</Button>
-                    <Button variant="destructive" onClick={signOutAll}><LogOut className="w-4 h-4 ml-2" />الخروج من كل الأجهزة</Button>
+                    <Button variant="outline" onClick={signOutOthers}><LogOut className="w-4 h-4 me-2" />الخروج من الأجهزة الأخرى</Button>
+                    <Button variant="destructive" onClick={signOutAll}><LogOut className="w-4 h-4 me-2" />الخروج من كل الأجهزة</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -322,12 +327,12 @@ export default function AccountSettings() {
                   <div className="flex items-center justify-between p-4">
                     <div className="flex items-center gap-3"><Moon className="w-5 h-5 text-muted-foreground" />
                       <div><p className="font-medium">الوضع الداكن</p><p className="text-xs text-muted-foreground">مريح للعين ليلاً</p></div></div>
-                    <Switch checked={isDark} onCheckedChange={toggleTheme} />
+                    <Switch aria-label="الوضع الداكن" checked={isDark} onCheckedChange={toggleTheme} />
                   </div>
                   <div className="flex items-center justify-between p-4">
                     <div className="flex items-center gap-3"><Bell className="w-5 h-5 text-muted-foreground" />
                       <div><p className="font-medium">الإشعارات</p><p className="text-xs text-muted-foreground">تنبيهات المنتجات والعروض الجديدة</p></div></div>
-                    <Switch checked={notif} onCheckedChange={(v) => { setNotif(v); localStorage.setItem('pref-notifications', v ? 'on' : 'off'); }} />
+                    <Switch aria-label="الإشعارات" checked={notif} onCheckedChange={(v) => { setNotif(v); setNotificationsEnabled(v); }} />
                   </div>
                   <div className="flex items-center justify-between p-4">
                     <div className="flex items-center gap-3"><Trash2 className="w-5 h-5 text-muted-foreground" />
@@ -339,7 +344,7 @@ export default function AccountSettings() {
                   </div>
                   <div className="p-4">
                     <Button variant="ghost" className="w-full text-destructive" onClick={async () => { await signOut(); navigate('/landing'); }}>
-                      <LogOut className="w-4 h-4 ml-2" />تسجيل الخروج
+                      <LogOut className="w-4 h-4 me-2" />تسجيل الخروج
                     </Button>
                   </div>
                 </CardContent>
@@ -376,7 +381,7 @@ export default function AccountSettings() {
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setPwOpen(false)}>إلغاء</Button>
             <Button onClick={changePassword} disabled={pwSaving || (hasPassword && !pw.current) || pw.next.length < 8 || pw.next !== pw.confirm}>
-              {pwSaving && <Loader2 className="w-4 h-4 animate-spin ml-2" />}حفظ
+              {pwSaving && <Loader2 className="w-4 h-4 animate-spin me-2" />}حفظ
             </Button>
           </DialogFooter>
         </DialogContent>

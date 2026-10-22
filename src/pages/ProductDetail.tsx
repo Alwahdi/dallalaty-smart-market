@@ -32,7 +32,7 @@ import type { CustomField } from '@/components/admin/CustomFieldsEditor';
 import { formatPrice } from '@/lib/currency';
 import ImagePreview from '@/components/ImagePreview';
 import { useFavorites } from '@/hooks/useFavorites';
-import { toYemenDialDigits, isRentListing } from '@/lib/format';
+import { toYemenDialDigits } from '@/lib/format';
 
 interface Property {
   id: string;
@@ -317,8 +317,8 @@ export default function ProductDetail() {
                               className="w-full h-full object-cover"
                               muted
                             />
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                              <Play className="w-4 h-4 text-white" />
+                            <div className="absolute inset-0 flex items-center justify-center bg-foreground/40">
+                              <Play className="w-4 h-4 text-background" />
                             </div>
                           </button>
                         ))}

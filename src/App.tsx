@@ -28,6 +28,7 @@ const AccountSettings = lazy(() => import("./pages/AccountSettings"));
 const Favorites = lazy(() => import("./pages/Favorites"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
+const Notifications = lazy(() => import("./pages/Notifications"));
 const MerchantDashboard = lazy(() => import("./pages/MerchantDashboard"));
 import MerchantGuard from "@/components/MerchantGuard";
 
@@ -68,6 +69,7 @@ const App = () => (
               <Route path="/product/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
               <Route path="/account" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
               <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
+              <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
               <Route path="/merchant" element={
                 <ProtectedRoute><MerchantGuard><MerchantDashboard /></MerchantGuard></ProtectedRoute>
               } />

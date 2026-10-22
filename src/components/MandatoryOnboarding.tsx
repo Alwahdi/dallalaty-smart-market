@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Phone, Loader2, MapPin, User, CheckCircle2, ArrowRight, XCircle } from 'lucide-react';
+import { Phone, Loader2, MapPin, User, CheckCircle2, ArrowRight, XCircle , LogOut } from 'lucide-react';
 import { YEMEN_LOCAL_PHONE, toYemenPhone, fromYemenPhone } from '@/lib/format';
 import { captureGpsLocation } from '@/lib/location';
 
@@ -23,7 +23,7 @@ type LocState =
   | { status: 'ready'; latitude: number; longitude: number; city: string }
   | { status: 'error'; message: string };
 
-type PhoneCheck = 'idle' | 'checking' | 'available' | 'taken';
+type PhoneCheck = 'idle' | 'checking' | 'available' | 'taken' | 'error';
 
 export default function MandatoryOnboarding({
   userId, defaultFirstName = '', defaultLastName = '', defaultPhone = '', onComplete,
@@ -44,13 +44,15 @@ export default function MandatoryOnboarding({
   useEffect(() => {
     if (!phoneFormatValid) { setPhoneCheck('idle'); return; }
     setPhoneCheck('checking');
+    let stale = false;
     const t = setTimeout(async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('profiles').select('user_id')
         .eq('phone', toYemenPhone(phone)).neq('user_id', userId).maybeSingle();
-      setPhoneCheck(data ? 'taken' : 'available');
+      if (stale) return;
+      setPhoneCheck(error ? 'error' : data ? 'taken' : 'available');
     }, 400);
-    return () => clearTimeout(t);
+    return () => { stale = true; clearTimeout(t); };
   }, [phone, phoneFormatValid, userId]);
 
   useEffect(() => {
@@ -69,7 +71,7 @@ export default function MandatoryOnboarding({
   };
 
   const handleSubmit = async () => {
-    if (!nameValid || !phoneFormatValid || phoneCheck === 'taken' || loc.status !== 'ready') return;
+    if (!nameValid || !phoneFormatValid || phoneCheck !== 'available' || loc.status !== 'ready') return;
     setSaving(true);
     try {
       const fn = firstName.trim(); const ln = lastName.trim();
@@ -143,12 +145,13 @@ export default function MandatoryOnboarding({
                 <div className="text-xs min-h-[1rem]">
                   {!phoneFormatValid && <span className="text-muted-foreground">9 أرقام تبدأ بـ 7</span>}
                   {phoneCheck === 'checking' && <span className="text-muted-foreground flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" />جاري التحقق...</span>}
-                  {phoneCheck === 'available' && <span className="text-primary-text flex items-center gap-1"><CheckCircle2 className="w-3 h-3" />الرقم متاح</span>}
+                  {phoneCheck === 'available' && <span className="text-success flex items-center gap-1"><CheckCircle2 className="w-3 h-3" />الرقم متاح</span>}
+                  {phoneCheck === 'error' && <span className="text-destructive flex items-center gap-1"><XCircle className="w-3 h-3" />تعذر التحقق من الرقم، تأكد من الاتصال وأعد المحاولة</span>}
                   {phoneCheck === 'taken' && <span className="text-destructive flex items-center gap-1"><XCircle className="w-3 h-3" />هذا الرقم مسجل لحساب آخر</span>}
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setStep(1)}><ArrowRight className="w-4 h-4" /></Button>
+                <Button variant="outline" size="icon" aria-label="رجوع" className="h-12 w-12" onClick={() => setStep(1)}><ArrowRight className="w-4 h-4" /></Button>
                 <Button className="flex-1 h-12" disabled={phoneCheck !== 'available'} onClick={() => setStep(3)}>التالي</Button>
               </div>
             </>
@@ -172,21 +175,31 @@ export default function MandatoryOnboarding({
                 )}
                 {loc.status === 'error' && (
                   <div className="space-y-2">
-                    <div className="p-3 rounded-md border border-destructive/30 bg-destructive/10 text-sm text-destructive">{loc.message}</div>
+                    <div role="alert" className="p-3 rounded-md border border-destructive/30 bg-destructive/10 text-sm text-destructive">{loc.message}</div>
+                    <div className="p-3 rounded-md bg-muted/50 text-xs text-muted-foreground space-y-1">
+                      <p className="font-medium text-foreground">كيف أفعّل الموقع؟</p>
+                      <p>• في المتصفح: اضغط أيقونة القفل بجانب العنوان ← الأذونات ← الموقع ← سماح.</p>
+                      <p>• في الجوال: الإعدادات ← الموقع ← شغّله، ثم اسمح للمتصفح أو التطبيق.</p>
+                    </div>
                     <Button type="button" variant="outline" size="sm" onClick={captureLocation} className="w-full">
-                      <MapPin className="w-4 h-4 ml-2" />إعادة المحاولة
+                      <MapPin className="w-4 h-4 me-2" />إعادة المحاولة
                     </Button>
                   </div>
                 )}
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setStep(2)}><ArrowRight className="w-4 h-4" /></Button>
+                <Button variant="outline" size="icon" aria-label="رجوع" className="h-12 w-12" onClick={() => setStep(2)}><ArrowRight className="w-4 h-4" /></Button>
                 <Button className="flex-1 h-12" disabled={loc.status !== 'ready' || saving} onClick={handleSubmit}>
-                  {saving && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}حفظ ومتابعة
+                  {saving && <Loader2 className="me-2 h-4 w-4 animate-spin" />}حفظ ومتابعة
                 </Button>
               </div>
             </>
           )}
+        </div>
+        <div className="text-center mt-4">
+          <Button variant="ghost" className="text-muted-foreground" onClick={async () => { await supabase.auth.signOut(); window.location.href = '/auth'; }}>
+            <LogOut className="w-4 h-4 me-2" />تسجيل الخروج
+          </Button>
         </div>
       </div>
     </div>

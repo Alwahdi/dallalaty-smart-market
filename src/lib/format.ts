@@ -36,3 +36,14 @@ export function fromYemenPhone(full: string | null | undefined): string {
   if (!full) return '';
   return full.replace(/^\+?967/, '').replace(/\D/g, '').slice(0, 9);
 }
+
+/** Normalize any stored phone to WhatsApp/tel digits (967XXXXXXXXX), or null if not a valid Yemen mobile. */
+export function toYemenDialDigits(phone: string | null | undefined): string | null {
+  const local = fromYemenPhone(phone);
+  return YEMEN_LOCAL_PHONE.test(local) ? `967${local}` : null;
+}
+
+/** listing_type is stored as 'sale' | 'rent'; legacy Arabic values are accepted. */
+export function isRentListing(type: string | null | undefined): boolean {
+  return type === 'rent' || type === 'للإيجار';
+}

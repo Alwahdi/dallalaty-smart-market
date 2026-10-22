@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 
-interface FavoriteProperty {
+export interface FavoriteProperty {
   id: string;
   title: string;
   description: string | null;
   price: number;
+  currency: string | null;
   location: string | null;
   city: string | null;
   category: string;
@@ -20,197 +21,69 @@ interface FavoriteProperty {
   custom_data?: Record<string, any>;
 }
 
+/** Shared favorites state (one cached query for every card, page and badge). */
 export const useFavorites = () => {
   const { user } = useAuth();
-  const [favorites, setFavorites] = useState<FavoriteProperty[]>([]);
-  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(false);
+  const qc = useQueryClient();
+  const key = ['favorites', user?.id];
 
-  const fetchFavorites = async () => {
-    if (!user) return;
-    
-    try {
-      setLoading(true);
+  const { data: favorites = [], isLoading, isError, refetch } = useQuery({
+    queryKey: key,
+    enabled: !!user,
+    staleTime: 60_000,
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('favorites')
-        .select(`
-          property_id,
-          properties (
-            id,
-            title,
-            description,
-            price,
-            location,
-            city,
-            category,
-            listing_type,
-            neighborhood,
-            images,
-            agent_name,
-            agent_phone,
-            agent_email,
-            custom_data
-          )
-        `)
-        .eq('user_id', user.id);
-
+        .select('property_id, properties (id,title,description,price,currency,location,city,category,listing_type,neighborhood,images,agent_name,agent_phone,agent_email,custom_data)')
+        .eq('user_id', user!.id)
+        .order('created_at', { ascending: false });
       if (error) throw error;
+      return (data?.map((i) => i.properties).filter(Boolean) ?? []) as unknown as FavoriteProperty[];
+    },
+  });
 
-      const favoriteProperties = (data?.map(item => item.properties).filter(Boolean) as unknown) as FavoriteProperty[];
-      const ids = new Set(favoriteProperties.map(p => p.id));
-
-      setFavorites(favoriteProperties || []);
-      setFavoriteIds(ids);
-    } catch (error: any) {
-      toast({
-        title: "خطأ",
-        description: "فشل في تحميل المفضلات",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const favoriteIds = new Set(favorites.map((f) => f.id));
+  const isFavorite = (id: string) => favoriteIds.has(id);
 
   const addToFavorites = async (propertyId: string) => {
     if (!user) {
-      toast({
-        title: "يجب تسجيل الدخول",
-        description: "يجب تسجيل الدخول لإضافة العناصر للمفضلة",
-        variant: "destructive"
-      });
+      toast({ title: 'يجب تسجيل الدخول', description: 'سجّل الدخول لحفظ العناصر في المفضلة', variant: 'destructive' });
       return false;
     }
-
-    try {
-      const { error } = await supabase
-        .from('favorites')
-        .insert({
-          user_id: user.id,
-          property_id: propertyId
-        });
-
-      if (error) {
-        if (error.code === '23505') { // Unique constraint violation
-          toast({
-            title: "تنبيه",
-            description: "هذا العنصر موجود بالفعل في المفضلة",
-            variant: "default"
-          });
-          return false;
-        }
-        throw error;
-      }
-
-      setFavoriteIds(prev => new Set([...prev, propertyId]));
-      
-      toast({
-        title: "✅ تمت الإضافة للمفضلة",
-        description: "تم إضافة العنصر إلى قائمة المفضلات بنجاح",
-        className: "bg-green-50 border-green-200 text-green-800"
-      });
-
-      return true;
-    } catch (error: any) {
-      toast({
-        title: "خطأ",
-        description: error.message,
-        variant: "destructive"
-      });
+    const { error } = await supabase.from('favorites').insert({ user_id: user.id, property_id: propertyId });
+    if (error && error.code !== '23505') {
+      toast({ title: 'تعذرت الإضافة', description: 'حاول مرة أخرى', variant: 'destructive' });
       return false;
     }
+    await qc.invalidateQueries({ queryKey: key });
+    toast({ title: 'تمت الإضافة إلى المفضلة' });
+    return true;
   };
 
   const removeFromFavorites = async (propertyId: string) => {
     if (!user) return false;
-
-    try {
-      const { error } = await supabase
-        .from('favorites')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('property_id', propertyId);
-
-      if (error) throw error;
-
-      setFavoriteIds(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(propertyId);
-        return newSet;
-      });
-      
-      setFavorites(prev => prev.filter(property => property.id !== propertyId));
-      
-      toast({
-        title: "🗑️ تم الحذف",
-        description: "تم حذف العنصر من المفضلة",
-        className: "bg-red-50 border-red-200 text-red-800"
-      });
-
-      return true;
-    } catch (error: any) {
-      toast({
-        title: "خطأ",
-        description: error.message,
-        variant: "destructive"
-      });
+    const { error } = await supabase.from('favorites').delete().eq('user_id', user.id).eq('property_id', propertyId);
+    if (error) {
+      toast({ title: 'تعذر الحذف', description: 'حاول مرة أخرى', variant: 'destructive' });
       return false;
     }
+    qc.setQueryData<FavoriteProperty[]>(key, (prev) => (prev ?? []).filter((p) => p.id !== propertyId));
+    toast({ title: 'تم الحذف من المفضلة' });
+    return true;
   };
 
-  const toggleFavorite = async (propertyId: string) => {
-    if (favoriteIds.has(propertyId)) {
-      return await removeFromFavorites(propertyId);
-    } else {
-      return await addToFavorites(propertyId);
-    }
-  };
-
-  const isFavorite = (propertyId: string) => favoriteIds.has(propertyId);
-
-  // Subscribe to real-time favorites changes
-  useEffect(() => {
-    if (!user) return;
-
-    const channel = supabase
-      .channel('favorites-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'favorites',
-          filter: `user_id=eq.${user.id}`
-        },
-        () => {
-          // Refetch favorites when changes occur
-          fetchFavorites();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user]);
-
-  useEffect(() => {
-    if (user) {
-      fetchFavorites();
-    } else {
-      setFavorites([]);
-      setFavoriteIds(new Set());
-    }
-  }, [user]);
+  const toggleFavorite = (propertyId: string) =>
+    isFavorite(propertyId) ? removeFromFavorites(propertyId) : addToFavorites(propertyId);
 
   return {
-    favorites,
+    favorites: user ? favorites : [],
     favoriteIds,
-    loading,
+    loading: isLoading && !!user,
+    error: isError,
     addToFavorites,
     removeFromFavorites,
     toggleFavorite,
     isFavorite,
-    fetchFavorites
+    fetchFavorites: refetch,
   };
 };

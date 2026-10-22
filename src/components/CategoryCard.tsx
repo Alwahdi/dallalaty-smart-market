@@ -30,7 +30,7 @@ const CategoryCard = ({ title, subtitle, icon: Icon, count, gradient, onClick }:
 
           {/* النصوص */}
           <div className="flex-1 text-right">
-            <h3 className="text-xl font-bold text-foreground mb-1 font-arabic group-hover:text-primary transition-colors duration-300">
+            <h3 className="text-xl font-bold text-foreground mb-1 font-arabic group-hover:text-primary-text transition-colors duration-300">
               {title}
             </h3>
             <p className="text-muted-foreground text-sm mb-2 font-arabic">
@@ -38,7 +38,7 @@ const CategoryCard = ({ title, subtitle, icon: Icon, count, gradient, onClick }:
             </p>
             <div className="flex items-center justify-end space-x-1 rtl:space-x-reverse">
               <span className="text-xs text-muted-foreground font-arabic">إعلان</span>
-              <span className="text-sm font-semibold text-primary font-arabic">
+              <span className="text-sm font-semibold text-primary-text font-arabic">
                 {count.toLocaleString('ar-YE-u-nu-latn')}
               </span>
             </div>

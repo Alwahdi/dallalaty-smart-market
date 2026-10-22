@@ -88,8 +88,7 @@ export default function PhoneCollectionDialog({
       toast({
         title: 'تم الحفظ!',
         description: 'تم حفظ رقم الهاتف بنجاح',
-        className: 'bg-green-50 border-green-200 text-green-800',
-      });
+              });
       onClose();
     } catch (error: any) {
       console.error('Error saving phone:', error);
@@ -108,7 +107,7 @@ export default function PhoneCollectionDialog({
       <DialogContent className="sm:max-w-md w-[calc(100vw-2rem)]" dir="rtl" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Phone className="w-5 h-5 text-primary" />
+            <Phone className="w-5 h-5 text-primary-text" />
             أكمل ملفك الشخصي
           </DialogTitle>
           <DialogDescription>

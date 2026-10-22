@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Heart, MapPin, MessageCircle, Share2, Eye } from "lucide-react";
+import { Link } from 'react-router-dom';
+import { Heart, MapPin, MessageCircle, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
+import { useFavorites } from '@/hooks/useFavorites';
+import { toYemenDialDigits, isRentListing } from '@/lib/format';
 import { useToast } from '@/hooks/use-toast';
 import { formatPrice } from '@/lib/currency';
 import ImagePreview from '@/components/ImagePreview';
@@ -32,147 +32,83 @@ interface PropertyCardProps {
 }
 
 const PropertyCard = ({ property }: PropertyCardProps) => {
-  const navigate = useNavigate();
-  const { user } = useAuth();
   const { toast } = useToast();
-  const [isLiked, setIsLiked] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const liked = isFavorite(property.id);
+  const [busy, setBusy] = useState(false);
+  const dial = toYemenDialDigits(property.agent_phone);
+  const isRent = isRentListing(property.listing_type);
 
-
-  const handleLike = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!user) {
-      toast({
-        title: "يجب تسجيل الدخول",
-        description: "يرجى تسجيل الدخول لإضافة العنصر للمفضلة",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      if (isLiked) {
-        const { error } = await supabase
-          .from('favorites')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('property_id', property.id);
-        if (error) throw error;
-        setIsLiked(false);
-        toast({ title: "تم الحذف", description: "تم حذف العنصر من المفضلة" });
-      } else {
-        const { error } = await supabase
-          .from('favorites')
-          .insert({ user_id: user.id, property_id: property.id });
-        if (error) throw error;
-        setIsLiked(true);
-        toast({ title: "تمت الإضافة", description: "تمت إضافة العنصر إلى المفضلة" });
-      }
-    } catch (error: any) {
-      toast({ title: "خطأ", description: error.message, variant: "destructive" });
-    }
+  const handleLike = async () => {
+    if (busy) return;
+    setBusy(true);
+    await toggleFavorite(property.id);
+    setBusy(false);
   };
 
-  const handleShare = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleShare = async () => {
     const url = `${window.location.origin}/product/${property.id}`;
     if (navigator.share) {
-      navigator.share({ title: property.title, text: property.description || '', url });
+      try { await navigator.share({ title: property.title, url }); } catch { /* user cancelled */ }
     } else {
-      navigator.clipboard.writeText(url);
-      toast({ title: "تم النسخ", description: "تم نسخ رابط العنصر" });
+      await navigator.clipboard.writeText(url);
+      toast({ title: 'تم نسخ الرابط' });
     }
   };
 
-  const handleContact = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!property.agent_phone) {
-      toast({ title: "غير متاح", description: "رقم البائع غير متوفر", variant: "destructive" });
-      return;
-    }
-    const message = `مرحباً، أريد الاستفسار عن ${property.title} - ${formatPrice(property.price, property.currency)}`;
-    const whatsappUrl = `https://wa.me/${property.agent_phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-  };
-
-  const handleClick = () => {
-    navigate(`/product/${property.id}`);
-  };
+  const whatsappHref = dial
+    ? `https://wa.me/${dial}?text=${encodeURIComponent(`مرحباً، أريد الاستفسار عن ${property.title} - ${formatPrice(property.price, property.currency)}`)}`
+    : null;
 
   const locationLabel = [property.neighborhood, property.city].filter(Boolean).join('، ');
 
   return (
-    <div
-      className="group cursor-pointer bg-gradient-card rounded-2xl overflow-hidden shadow-card hover:shadow-elegant transition-all duration-500 border border-border/30 hover:border-primary/30"
-      onClick={handleClick}
-    >
-      {/* صورة العنصر */}
-      <div className="relative h-48 overflow-hidden">
+    <article className="group relative bg-gradient-card rounded-2xl overflow-hidden shadow-card hover:shadow-elegant transition-shadow duration-300 border border-border/30 hover:border-primary/30 focus-within:ring-2 focus-within:ring-ring">
+      <div className="relative h-48 overflow-hidden z-10">
         <ImagePreview images={property.images || []} alt={property.title} className="h-48" />
-        <div
-          className="absolute inset-0 pointer-events-none"
-        >
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-          {property.listing_type && (
-            <div className="absolute top-3 right-3">
-              <Badge
-                variant={property.listing_type === 'rent' ? 'secondary' : 'default'}
-                className="bg-primary/90 text-primary-foreground backdrop-blur-sm font-arabic"
-              >
-                {property.listing_type === 'rent' ? 'للإيجار' : 'للبيع'}
-              </Badge>
-            </div>
-          )}
-
-          <div className="absolute top-3 left-3 pointer-events-auto flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <Button
-              size="icon"
-              variant="secondary"
-              className="w-8 h-8 bg-background/80 backdrop-blur-sm hover:bg-background"
-              onClick={handleLike}
-              aria-label="إضافة للمفضلة"
-            >
-              <Heart className={`w-4 h-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
-            </Button>
-            <Button
-              size="icon"
-              variant="secondary"
-              className="w-8 h-8 bg-background/80 backdrop-blur-sm hover:bg-background"
-              onClick={handleShare}
-              aria-label="مشاركة"
-            >
-              <Share2 className="w-4 h-4" />
-            </Button>
-          </div>
+        {property.listing_type && (
+          <Badge variant={isRent ? 'secondary' : 'default'} className="absolute top-3 start-3 font-arabic pointer-events-none">
+            {isRent ? 'للإيجار' : 'للبيع'}
+          </Badge>
+        )}
+        <div className="absolute top-2 end-2 flex flex-col gap-2 transition-opacity duration-200 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+          <Button size="icon" variant="secondary" className="bg-background/90 backdrop-blur-sm hover:bg-background rounded-full"
+            onClick={handleLike} disabled={busy} aria-pressed={liked} aria-label={liked ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}>
+            <Heart className={`w-5 h-5 ${liked ? 'fill-destructive text-destructive' : ''}`} />
+          </Button>
+          <Button size="icon" variant="secondary" className="bg-background/90 backdrop-blur-sm hover:bg-background rounded-full"
+            onClick={handleShare} aria-label="مشاركة">
+            <Share2 className="w-5 h-5" />
+          </Button>
         </div>
       </div>
 
-      {/* معلومات العنصر */}
       <div className="p-4">
-        <h3 className="text-lg font-semibold text-foreground mb-1 font-arabic text-right line-clamp-2 group-hover:text-primary transition-colors duration-300">
-          {property.title}
+        <h3 className="text-lg font-semibold text-foreground mb-1 font-arabic text-right line-clamp-2">
+          <Link to={`/product/${property.id}`} className="after:absolute after:inset-0 focus-visible:outline-none group-hover:text-primary-text transition-colors">
+            {property.title}
+          </Link>
         </h3>
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-2xl font-bold text-primary font-arabic">
-            {formatPrice(property.price, property.currency)}
-          </p>
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <p className="text-2xl font-bold text-primary-text font-arabic">{formatPrice(property.price, property.currency)}</p>
           {locationLabel && (
-            <div className="flex items-center text-muted-foreground text-sm">
-              <MapPin className="w-4 h-4 ml-1" />
-              <span className="font-arabic">{locationLabel}</span>
+            <div className="flex items-center text-muted-foreground text-sm min-w-0">
+              <MapPin className="w-4 h-4 me-1 shrink-0" />
+              <span className="font-arabic truncate">{locationLabel}</span>
             </div>
           )}
         </div>
-
-        <Button
-          className="w-full bg-gradient-primary hover:shadow-glow transition-all duration-300 font-arabic"
-          onClick={handleContact}
-        >
-          <MessageCircle className="w-4 h-4 ml-2" />
-          تواصل واتساب
-        </Button>
+        {whatsappHref ? (
+          <Button asChild className="relative z-10 w-full font-arabic">
+            <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
+              <MessageCircle className="w-4 h-4 me-2" />تواصل واتساب
+            </a>
+          </Button>
+        ) : (
+          <p className="text-sm text-muted-foreground text-center py-2">التفاصيل داخل صفحة العنصر</p>
+        )}
       </div>
-    </div>
+    </article>
   );
 };
 

@@ -673,7 +673,7 @@ export default function SectionManagement() {
                         <div className="flex-1 min-w-0">
                           <h3 className="font-bold text-base mb-1 flex items-center gap-2">
                             {category.icon && (
-                              <span className="text-primary">{category.icon}</span>
+                              <span className="text-primary-text">{category.icon}</span>
                             )}
                             {category.title}
                           </h3>

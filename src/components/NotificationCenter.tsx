@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Bell, X, Check, CheckCheck, Trash2, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -34,13 +35,13 @@ export default function NotificationCenter({ className }: NotificationCenterProp
   const getNotificationColor = (type: string) => {
     switch (type) {
       case 'success':
-        return 'text-green-600 dark:text-green-400';
+        return 'text-success';
       case 'warning':
-        return 'text-yellow-600 dark:text-yellow-400';
+        return 'text-warning';
       case 'error':
-        return 'text-red-600 dark:text-red-400';
+        return 'text-destructive';
       default:
-        return 'text-blue-600 dark:text-blue-400';
+        return 'text-info';
     }
   };
 
@@ -77,7 +78,7 @@ export default function NotificationCenter({ className }: NotificationCenterProp
       <SheetContent side="left" className="w-full sm:w-96 p-0" dir="rtl">
         <SheetHeader className="p-6 pb-4 border-b">
           <div className="flex items-center justify-between">
-            <SheetTitle className="font-arabic">الإشعارات</SheetTitle>
+            <div className="flex items-center gap-3"><SheetTitle className="font-arabic">الإشعارات</SheetTitle><Link to="/notifications" onClick={() => setIsOpen(false)} className="text-xs text-primary-text hover:underline font-arabic">عرض الكل</Link></div>
             {unreadCount > 0 && (
               <Button
                 variant="ghost"
@@ -187,7 +188,8 @@ export default function NotificationCenter({ className }: NotificationCenterProp
                                 e.stopPropagation();
                                 deleteNotification(notification.id);
                               }}
-                              className="h-6 w-6 p-0 text-red-500 hover:text-red-600"
+                              aria-label="حذف الإشعار"
+                              className="h-9 w-9 p-0 text-destructive hover:text-destructive"
                             >
                               <Trash2 className="w-3 h-3" />
                             </Button>

@@ -30,7 +30,7 @@ export default function DynamicPropertyDisplay({ fields, data, variant = 'card' 
           return (
             <div key={field.name} className="flex items-center gap-2">
               {value ? (
-                <Check className="w-4 h-4 text-green-500" />
+                <Check className="w-4 h-4 text-success" />
               ) : (
                 <X className="w-4 h-4 text-muted-foreground" />
               )}

@@ -305,7 +305,7 @@ export default function PropertyManagement() {
       <div className="flex flex-col gap-3 sm:gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
-            <Building2 className="w-6 h-6 sm:w-7 sm:h-7 text-primary drop-shadow-md" />
+            <Building2 className="w-6 h-6 sm:w-7 sm:h-7 text-primary-text drop-shadow-md" />
             إدارة العناصر
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">إدارة جميع العناصر والإعلانات في النظام</p>
@@ -421,7 +421,7 @@ export default function PropertyManagement() {
               {selectedCategory && selectedCategory.custom_fields && selectedCategory.custom_fields.length > 0 && (
                 <div className="md:col-span-2 space-y-4 border-t pt-4">
                   <div className="flex items-center gap-2">
-                    <Building2 className="w-5 h-5 text-primary" />
+                    <Building2 className="w-5 h-5 text-primary-text" />
                     <h4 className="font-semibold text-base">حقول {selectedCategory.title}</h4>
                   </div>
                   <DynamicFormFields
@@ -633,7 +633,7 @@ export default function PropertyManagement() {
                       )}
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-base leading-tight line-clamp-2 mb-1.5">{property.title}</h3>
-                        <p className="text-xl font-bold text-primary">
+                        <p className="text-xl font-bold text-primary-text">
                           {formatPrice(property.price, (property as any).currency)}
                         </p>
                       </div>

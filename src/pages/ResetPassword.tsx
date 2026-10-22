@@ -44,7 +44,7 @@ export default function ResetPassword() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-background font-arabic" dir="rtl">
       <form onSubmit={submit} className="w-full max-w-md bg-card border border-border rounded-2xl shadow-lg p-6 space-y-5">
         <div className="text-center">
-          <KeyRound className="w-10 h-10 mx-auto text-primary mb-2" />
+          <KeyRound className="w-10 h-10 mx-auto text-primary-text mb-2" />
           <h1 className="text-2xl font-bold">تعيين كلمة مرور جديدة</h1>
         </div>
         {!ready ? (

@@ -26,3 +26,18 @@ describe('Yemen phone', () => {
     expect(fromYemenPhone('+967771234567')).toBe('771234567');
   });
 });
+
+import { toYemenDialDigits, isRentListing } from './format';
+describe('contact & listing helpers', () => {
+  it('normalizes Yemen numbers for WhatsApp', () => {
+    expect(toYemenDialDigits('+967771234567')).toBe('967771234567');
+    expect(toYemenDialDigits('771234567')).toBe('967771234567');
+    expect(toYemenDialDigits('12345')).toBeNull();
+    expect(toYemenDialDigits(null)).toBeNull();
+  });
+  it('treats rent and legacy Arabic rent as rent', () => {
+    expect(isRentListing('rent')).toBe(true);
+    expect(isRentListing('للإيجار')).toBe(true);
+    expect(isRentListing('sale')).toBe(false);
+  });
+});

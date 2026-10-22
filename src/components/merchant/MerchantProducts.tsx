@@ -19,9 +19,11 @@ type Property = Tables<'properties'>;
 interface MerchantProductsProps {
   agentId: string;
   permissions: MerchantPermissions;
+  /** Increment to open the create-product form from outside (e.g. overview shortcut). */
+  createSignal?: number;
 }
 
-export default function MerchantProducts({ agentId, permissions }: MerchantProductsProps) {
+export default function MerchantProducts({ agentId, permissions, createSignal = 0 }: MerchantProductsProps) {
   const { toast } = useToast();
   const [products, setProducts] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,6 +48,9 @@ export default function MerchantProducts({ agentId, permissions }: MerchantProdu
   };
 
   useEffect(() => { fetchProducts(); }, [agentId]);
+  useEffect(() => {
+    if (createSignal > 0 && permissions.can_add_products) { setEditing(null); setDialogOpen(true); }
+  }, [createSignal]);
 
   const updateStatus = async (id: string, status: string) => {
     const { error } = await supabase.from('properties').update({ status }).eq('id', id);
@@ -54,7 +59,7 @@ export default function MerchantProducts({ agentId, permissions }: MerchantProdu
       return;
     }
     setProducts(prev => prev.map(p => (p.id === id ? { ...p, status } : p)));
-    toast({ title: '✅ تم التحديث' });
+    toast({ title: 'تم تحديث الحالة' });
   };
 
   const remove = async (id: string) => {
@@ -88,11 +93,11 @@ export default function MerchantProducts({ agentId, permissions }: MerchantProdu
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="ابحث في منتجاتك..." value={search} onChange={e => setSearch(e.target.value)} className="pr-10" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input placeholder="ابحث في منتجاتك..." value={search} onChange={e => setSearch(e.target.value)} className="ps-10" aria-label="بحث في المنتجات" />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-44"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-44" aria-label="تصفية حسب الحالة"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">كل الحالات</SelectItem>
             <SelectItem value="active">نشط</SelectItem>
@@ -112,9 +117,19 @@ export default function MerchantProducts({ agentId, permissions }: MerchantProdu
         <Card>
           <CardContent className="py-12 text-center">
             <Package className="w-14 h-14 mx-auto opacity-20 mb-3" />
-            <p className="font-semibold mb-1">لا توجد منتجات</p>
-            <p className="text-sm text-muted-foreground mb-4">{search ? 'جرب بحث آخر' : 'ابدأ بإضافة منتجك الأول'}</p>
-            {!search && permissions.can_add_products && (
+            {search || statusFilter !== 'all' ? (
+              <>
+                <p className="font-semibold mb-1">لا توجد نتائج مطابقة</p>
+                <p className="text-sm text-muted-foreground mb-4">جرّب كلمة بحث أخرى أو امسح التصفية.</p>
+                <Button variant="outline" onClick={() => { setSearch(''); setStatusFilter('all'); }}>مسح التصفية</Button>
+              </>
+            ) : (
+              <>
+                <p className="font-semibold mb-1">لا توجد منتجات بعد</p>
+                <p className="text-sm text-muted-foreground mb-4">ابدأ بإضافة منتجك الأول</p>
+              </>
+            )}
+            {!search && statusFilter === 'all' && products.length === 0 && permissions.can_add_products && (
               <Button onClick={openAdd} className="gap-2"><Plus className="w-4 h-4" /> إضافة منتج</Button>
             )}
           </CardContent>
@@ -134,10 +149,10 @@ export default function MerchantProducts({ agentId, permissions }: MerchantProdu
                   )}
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold line-clamp-2 mb-1">{p.title}</h3>
-                    <p className="text-primary font-bold mb-2">{formatPrice(p.price, (p as any).currency)}</p>
+                    <p className="text-primary-text font-bold mb-2">{formatPrice(p.price, (p as any).currency)}</p>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <Select value={p.status} onValueChange={v => updateStatus(p.id, v)}>
-                        <SelectTrigger className="h-8 w-32 text-xs">
+                      <Select value={p.status} onValueChange={v => updateStatus(p.id, v)} disabled={!permissions.can_edit_products}>
+                        <SelectTrigger className="h-10 w-36 text-xs" aria-label="حالة المنتج">
                           <SelectValue>
                             <Badge variant={p.status === 'active' ? 'default' : 'outline'} className="text-xs">
                               {p.status === 'active' ? 'نشط' : p.status === 'sold' ? 'مباع' : p.status === 'rented' ? 'مؤجر' : p.status === 'pending' ? 'مراجعة' : 'متوقف'}

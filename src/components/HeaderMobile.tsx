@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Moon, Sun, Search, Bell, User, Shield, Building2, Heart, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import NotificationCenter from "@/components/NotificationCenter";
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
@@ -37,17 +37,17 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
       <div className="px-3 sm:px-4 py-3">
         <div className="flex items-center justify-between">
           {/* الشعار */}
-          <div className="flex items-center space-x-2 rtl:space-x-reverse">
+          <Link to="/" aria-label="الرئيسية" className="flex items-center space-x-2 rtl:space-x-reverse">
             <AppLogo className="w-9 h-9" />
             <div className="text-right min-w-0">
-              <h1 className="text-base sm:text-lg font-bold font-arabic bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent truncate">
+              <h1 className="text-base sm:text-lg font-bold font-arabic text-primary-text truncate">
                 متجر إب الشامل
               </h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground font-arabic leading-none">
                 المتجر الشامل
               </p>
             </div>
-          </div>
+          </Link>
 
           {/* الأزرار الجانبية */}
           <div className="flex items-center space-x-1.5 sm:space-x-2 rtl:space-x-reverse">
@@ -55,7 +55,9 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="hover:bg-accent/50 transition-colors h-9 w-9 touch-manipulation"
+                aria-label="بحث"
+                aria-expanded={isSearchOpen}
+                className="hover:bg-accent/50 transition-colors touch-manipulation"
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
               >
                 <Search className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -68,10 +70,10 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
             {/* أيقونة المستخدم */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="حسابي" className="rounded-full h-9 w-9 p-0 touch-manipulation">
+                <Button variant="ghost" size="icon" aria-label="حسابي" className="rounded-full p-0 touch-manipulation">
                   <Avatar className="w-8 h-8 ring-2 ring-primary/30">
                     <AvatarImage src={myProfile?.avatar_url || ''} className="object-cover" />
-                    <AvatarFallback className="text-xs font-semibold bg-primary/10 text-primary">{initials}</AvatarFallback>
+                    <AvatarFallback className="text-xs font-semibold bg-primary/10 text-primary-text">{initials}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -82,18 +84,18 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/account')} className="font-arabic touch-manipulation">
-                  <User className="w-4 h-4 ml-2" />
+                  <User className="w-4 h-4 me-2" />
                   إعدادات الحساب
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/favorites')} className="font-arabic touch-manipulation">
-                  <Heart className="w-4 h-4 ml-2" />
+                  <Heart className="w-4 h-4 me-2" />
                   المفضلة
                 </DropdownMenuItem>
                 {hasMerchantAccess && (
                   <>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => navigate('/merchant')} className="font-arabic text-primary font-medium touch-manipulation">
-                      <Store className="w-4 h-4 ml-2" />
+                    <DropdownMenuItem onClick={() => navigate('/merchant')} className="font-arabic text-primary-text font-medium touch-manipulation">
+                      <Store className="w-4 h-4 me-2" />
                       لوحة التاجر
                     </DropdownMenuItem>
                   </>
@@ -101,14 +103,14 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
                 {isAnyAdmin && (
                   <>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => navigate('/admin')} className="font-arabic text-primary font-medium touch-manipulation">
-                      <Shield className="w-4 h-4 ml-2" />
+                    <DropdownMenuItem onClick={() => navigate('/admin')} className="font-arabic text-primary-text font-medium touch-manipulation">
+                      <Shield className="w-4 h-4 me-2" />
                       لوحة الإدارة
                     </DropdownMenuItem>
                   </>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="font-arabic text-red-600 touch-manipulation">
+                <DropdownMenuItem onClick={handleSignOut} className="font-arabic text-destructive touch-manipulation">
                   تسجيل الخروج
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -120,15 +122,15 @@ const HeaderMobile = ({ isDark, toggleTheme, showSearch = true }: HeaderMobilePr
         {isSearchOpen && (
           <div className="mt-3 animate-fade-in">
             <div className="relative">
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Search className="absolute start-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input 
                 placeholder="ابحث عن الإعلانات والعناصر..."
-                className="pr-10 bg-background/80 border-border/50 font-arabic"
+                className="ps-10 bg-background/80 border-border/50 font-arabic"
                 dir="rtl"
                 autoFocus
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={(e) => {
+                onKeyDown={(e) => {
                   if (e.key === 'Enter' && searchQuery.trim()) {
                     navigate(`/properties?search=${encodeURIComponent(searchQuery.trim())}`);
                     setIsSearchOpen(false);

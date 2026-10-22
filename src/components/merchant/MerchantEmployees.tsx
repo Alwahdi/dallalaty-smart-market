@@ -8,6 +8,8 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Loader2, Trash2, Users } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { YEMEN_LOCAL_PHONE, toYemenPhone } from '@/lib/format';
 
 const PERMISSION_LABELS: Record<string, string> = {
   can_add_products: 'إضافة منتجات',
@@ -46,7 +48,7 @@ export default function MerchantEmployees({ merchantId }: MerchantEmployeesProps
     const { data: emps } = await supabase.from('merchant_employees').select('*').eq('merchant_id', merchantId);
     if (emps && emps.length > 0) {
       const ids = emps.map(e => e.employee_id);
-      const { data: profs } = await supabase.from('profiles').select('user_id, full_name, phone').in('user_id', ids);
+      const { data: profs } = await supabase.rpc('get_merchant_employee_profiles', { _merchant_id: merchantId });
       const map = new Map((profs || []).map(p => [p.user_id, p]));
       setEmployees(emps.map(e => ({
         ...e,
@@ -62,17 +64,18 @@ export default function MerchantEmployees({ merchantId }: MerchantEmployeesProps
   useEffect(() => { fetchEmployees(); }, [merchantId]);
 
   const addEmployee = async () => {
-    if (!searchPhone.trim()) return;
+    if (!YEMEN_LOCAL_PHONE.test(searchPhone)) return;
     setAdding(true);
     try {
-      const { data: profile, error: profErr } = await supabase
-        .from('profiles')
-        .select('user_id, full_name, phone')
-        .eq('phone', searchPhone.trim())
-        .maybeSingle();
-
-      if (profErr || !profile) {
-        toast({ title: 'لم يتم العثور على المستخدم', description: 'تأكد من رقم الهاتف', variant: 'destructive' });
+      const { data: rows, error: profErr } = await supabase.rpc('merchant_find_user_by_phone', { _phone: toYemenPhone(searchPhone) });
+      const profile = rows?.[0];
+      if (profErr) throw profErr;
+      if (!profile) {
+        toast({ title: 'لا يوجد حساب بهذا الرقم', description: 'اطلب من الموظف التسجيل في التطبيق أولاً بنفس الرقم', variant: 'destructive' });
+        return;
+      }
+      if (employees.some(e => e.employee_id === profile.user_id)) {
+        toast({ title: 'هذا الموظف مضاف مسبقاً', variant: 'destructive' });
         return;
       }
       if (profile.user_id === merchantId) {
@@ -85,7 +88,7 @@ export default function MerchantEmployees({ merchantId }: MerchantEmployeesProps
         permissions: newPerms,
       });
       if (error) throw error;
-      toast({ title: '✅ تمت الإضافة' });
+      toast({ title: 'تمت إضافة الموظف', description: profile.full_name || undefined });
       setAddOpen(false);
       setSearchPhone('');
       fetchEmployees();
@@ -122,7 +125,7 @@ export default function MerchantEmployees({ merchantId }: MerchantEmployeesProps
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-semibold flex items-center gap-2"><Users className="w-5 h-5 text-primary" /> الموظفون</h3>
+          <h3 className="font-semibold flex items-center gap-2"><Users className="w-5 h-5 text-primary-text" /> الموظفون</h3>
           <p className="text-xs text-muted-foreground">أضف موظفين بأرقام هواتفهم وحدد صلاحياتهم</p>
         </div>
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
@@ -133,24 +136,28 @@ export default function MerchantEmployees({ merchantId }: MerchantEmployeesProps
             <DialogHeader><DialogTitle>إضافة موظف جديد</DialogTitle></DialogHeader>
             <div className="space-y-4 py-2">
               <div>
-                <Label>رقم الهاتف</Label>
-                <Input placeholder="7xxxxxxxx" value={searchPhone} onChange={e => setSearchPhone(e.target.value)} dir="ltr" />
-                <p className="text-xs text-muted-foreground mt-1">يجب أن يكون مسجلاً بنفس الرقم</p>
+                <Label htmlFor="emp-phone">رقم جوال الموظف</Label>
+                <div className="flex gap-2 mt-1.5" dir="ltr">
+                  <span className="flex items-center px-3 rounded-md border border-input bg-muted/50 text-sm font-medium select-none">+967</span>
+                  <Input id="emp-phone" type="tel" inputMode="numeric" placeholder="7XXXXXXXX" value={searchPhone}
+                    onChange={e => setSearchPhone(e.target.value.replace(/\D/g, '').slice(0, 9))} />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">يجب أن يكون الموظف مسجلاً في التطبيق بنفس الرقم</p>
               </div>
               <div className="space-y-2">
                 <Label>الصلاحيات</Label>
                 {Object.entries(PERMISSION_LABELS).map(([k, lbl]) => (
                   <div key={k} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
-                    <span className="text-sm">{lbl}</span>
-                    <Switch checked={(newPerms as any)[k]} onCheckedChange={v => setNewPerms(p => ({ ...p, [k]: v }))} />
+                    <Label htmlFor={`new-${k}`} className="text-sm font-normal">{lbl}</Label>
+                    <Switch id={`new-${k}`} checked={(newPerms as any)[k]} onCheckedChange={v => setNewPerms(p => ({ ...p, [k]: v }))} />
                   </div>
                 ))}
               </div>
             </div>
             <DialogFooter className="gap-2">
               <Button variant="outline" onClick={() => setAddOpen(false)} disabled={adding}>إلغاء</Button>
-              <Button onClick={addEmployee} disabled={adding || !searchPhone.trim()}>
-                {adding && <Loader2 className="w-4 h-4 ml-2 animate-spin" />} إضافة
+              <Button onClick={addEmployee} disabled={adding || !YEMEN_LOCAL_PHONE.test(searchPhone)}>
+                {adding && <Loader2 className="w-4 h-4 me-2 animate-spin" />} إضافة
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -175,15 +182,29 @@ export default function MerchantEmployees({ merchantId }: MerchantEmployeesProps
                   <div className="font-semibold truncate">{emp.profile?.full_name || 'غير محدد'}</div>
                   <div className="text-xs text-muted-foreground" dir="ltr">{emp.profile?.phone || '—'}</div>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => remove(emp.id)} className="text-destructive hover:bg-destructive/10 shrink-0">
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="icon" aria-label={`إزالة ${emp.profile?.full_name || 'الموظف'}`} className="text-destructive hover:bg-destructive/10 shrink-0">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent dir="rtl" className="max-w-[90vw] sm:max-w-lg">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>إزالة {emp.profile?.full_name || 'الموظف'}؟</AlertDialogTitle>
+                      <AlertDialogDescription>سيفقد الموظف صلاحية الوصول لمتجرك فوراً.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                      <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => remove(emp.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">إزالة</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {Object.entries(PERMISSION_LABELS).map(([k, lbl]) => (
                   <div key={k} className="flex items-center justify-between p-2 rounded-md bg-background border text-xs">
-                    <span>{lbl}</span>
-                    <Switch checked={!!emp.permissions[k]} onCheckedChange={v => updatePermission(emp.id, k, v)} />
+                    <Label htmlFor={`${emp.id}-${k}`} className="text-xs font-normal">{lbl}</Label>
+                    <Switch id={`${emp.id}-${k}`} checked={!!emp.permissions[k]} onCheckedChange={v => updatePermission(emp.id, k, v)} />
                   </div>
                 ))}
               </div>

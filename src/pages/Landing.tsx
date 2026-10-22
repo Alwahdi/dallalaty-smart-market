@@ -1,20 +1,13 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Search, Shield, Users, Star, ArrowLeft, CheckCircle, MapPin, Heart, Zap } from 'lucide-react';
-import heroImage from '@/assets/hero-apartment.jpg';
+import { Search, Shield, Users, Star, ArrowLeft, CheckCircle, MapPin, Heart, Zap, Car, Sofa, Smartphone, Shirt } from 'lucide-react';
+import AppLogo from '@/components/AppLogo';
 
 const Landing = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [isDark, setIsDark] = useState(false);
-
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-    document.documentElement.classList.toggle('dark');
-  };
 
   const handleGetStarted = () => {
     if (user) {
@@ -25,21 +18,20 @@ const Landing = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-background font-arabic ${isDark ? 'dark' : ''}`} dir="rtl">
+    <div className={`min-h-screen bg-background font-arabic `} dir="rtl">
       {/* Header */}
       <header className="border-b border-border/30 backdrop-blur-sm bg-background/80 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4 space-x-reverse">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                متجر إب الشامل
-              </h1>
+            <div className="flex items-center gap-3">
+              <AppLogo className="w-10 h-10" />
+              <span className="text-xl md:text-2xl font-bold text-primary-text">متجر إب الشامل</span>
             </div>
-            <div className="flex items-center space-x-4 space-x-reverse">
+            <div className="flex items-center gap-2">
               <Button variant="ghost" onClick={() => navigate('/auth')}>
                 تسجيل الدخول
               </Button>
-              <Button onClick={() => navigate('/auth')}>
+              <Button onClick={() => navigate('/auth?mode=signup')}>
                 إنشاء حساب
               </Button>
             </div>
@@ -62,7 +54,7 @@ const Landing = () => {
             <div className="space-y-8">
               <div className="space-y-4">
                 <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-                  <span className="bg-gradient-to-r from-primary via-primary-glow to-secondary bg-clip-text text-transparent">
+                  <span className="text-primary-text">
                     منصتك الذكية
                   </span>
                   <br />
@@ -80,7 +72,7 @@ const Landing = () => {
                   onClick={handleGetStarted}
                 >
                   ابدأ الآن
-                  <ArrowLeft className="w-5 h-5 mr-2" />
+                  <ArrowLeft className="w-5 h-5" />
                 </Button>
                 <Button 
                   variant="outline" 
@@ -92,36 +84,28 @@ const Landing = () => {
                 </Button>
               </div>
 
-              {/* Quick Stats */}
-              <div className="grid grid-cols-3 gap-6 pt-8">
-                {[
-                  { number: '١٠٠٠+', label: 'عرض متاح' },
-                  { number: '٥٠٠+', label: 'مستخدم نشط' },
-                  { number: '٩٥٪', label: 'رضا العملاء' }
-                ].map((stat, index) => (
-                  <div key={index} className="text-center">
-                    <div className="text-2xl md:text-3xl font-bold text-primary mb-1">
-                      {stat.number}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {stat.label}
-                    </div>
-                  </div>
+              <ul className="flex flex-wrap gap-x-6 gap-y-3 pt-4 text-sm text-muted-foreground">
+                {['تصفح مجاني', 'تواصل مباشر مع البائع', 'أسعار بالريال اليمني والسعودي والدولار'].map((t) => (
+                  <li key={t} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" />{t}</li>
                 ))}
-              </div>
+              </ul>
             </div>
 
-            {/* Hero Image */}
-            <div className="relative">
-              <div className="relative z-10">
-                <img 
-                  src={heroImage} 
-                  alt="متجر إب الشامل - منصتك الذكية للعروض"
-                  className="w-full rounded-2xl shadow-elegant"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl" />
-              </div>
-              <div className="absolute -bottom-4 -left-4 w-full h-full bg-gradient-primary rounded-2xl opacity-20 blur-xl" />
+            {/* Category preview */}
+            <div className="grid grid-cols-2 gap-4" aria-hidden="true">
+              {[
+                { icon: Car, label: 'سيارات' },
+                { icon: Sofa, label: 'أثاث' },
+                { icon: Smartphone, label: 'إلكترونيات' },
+                { icon: Shirt, label: 'ملابس' },
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} className="rounded-2xl border border-border/50 bg-card p-6 shadow-card flex flex-col items-center gap-3">
+                  <div className="w-14 h-14 rounded-2xl bg-primary/15 flex items-center justify-center">
+                    <Icon className="w-7 h-7 text-primary-text" />
+                  </div>
+                  <span className="font-semibold">{label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -147,7 +131,7 @@ const Landing = () => {
               {
                 icon: Shield,
                 title: 'أمان وموثوقية',
-                description: 'جميع العروض محققة ومن مصادر موثوقة لضمان تجربة آمنة'
+                description: 'حسابات مرتبطة برقم هاتف يمني وإمكانية الإبلاغ عن أي إعلان مخالف'
               },
               {
                 icon: Zap,
@@ -173,7 +157,7 @@ const Landing = () => {
               <Card key={index} className="group hover:shadow-elegant transition-all duration-300 border-border/30 hover:border-primary/30">
                 <CardContent className="p-6 text-center">
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4 group-hover:bg-primary/20 transition-colors duration-300">
-                    <feature.icon className="w-8 h-8 text-primary" />
+                    <feature.icon className="w-8 h-8 text-primary-text" />
                   </div>
                   <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
                   <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
@@ -195,23 +179,23 @@ const Landing = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                step: '١',
+                step: '1',
                 title: 'أنشئ حسابك',
                 description: 'سجل حساب جديد في ثوانٍ معدودة'
               },
               {
-                step: '٢',
+                step: '2',
                 title: 'ابحث واستكشف',
-                description: 'تصفح الآلاف من العروض أو ابحث عن ما تريد'
+                description: 'تصفح العروض أو ابحث عن ما تريد'
               },
               {
-                step: '٣',
+                step: '3',
                 title: 'تواصل واشتري',
                 description: 'تواصل مع البائع مباشرة واحصل على أفضل سعر'
               }
             ].map((step, index) => (
               <div key={index} className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-primary text-white text-2xl font-bold mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground text-2xl font-bold mb-4">
                   {step.step}
                 </div>
                 <h3 className="text-xl font-bold mb-2">{step.title}</h3>
@@ -223,22 +207,22 @@ const Landing = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-hero">
+      <section className="py-20 bg-primary">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-4xl font-bold mb-4 text-white">
+            <h2 className="text-4xl font-bold mb-4 text-primary-foreground">
               ابدأ رحلتك معنا اليوم
             </h2>
-            <p className="text-xl text-white/90 mb-8">
-              انضم إلى آلاف المستخدمين الذين يثقون في متجر إب الشامل للعثور على أفضل العروض
+            <p className="text-xl text-primary-foreground/85 mb-8">
+              أنشئ حسابك مجاناً وابدأ البيع والشراء في إب
             </p>
             <Button 
               size="lg" 
-              className="bg-white text-primary hover:bg-white/90 text-lg px-8"
+              variant="secondary" className="bg-background text-foreground hover:bg-background/90 text-lg px-8"
               onClick={handleGetStarted}
             >
               ابدأ الآن مجاناً
-              <ArrowLeft className="w-5 h-5 mr-2" />
+              <ArrowLeft className="w-5 h-5" />
             </Button>
           </div>
         </div>
@@ -248,16 +232,16 @@ const Landing = () => {
       <footer className="border-t border-border/30 py-8">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="flex items-center space-x-4 space-x-reverse mb-4 md:mb-0">
-              <h3 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <div className="flex items-center gap-4 mb-4 md:mb-0">
+              <h3 className="text-xl font-bold text-primary-text">
                 متجر إب الشامل
               </h3>
               <span className="text-muted-foreground">منصتك الذكية للعروض</span>
             </div>
-            <div className="flex items-center space-x-6 space-x-reverse text-sm text-muted-foreground">
-              <button onClick={() => navigate('/privacy')}>سياسة الخصوصية</button>
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <button className="hover:text-foreground underline-offset-4 hover:underline" onClick={() => navigate('/privacy')}>سياسة الخصوصية</button>
               <span>•</span>
-              <span>© ٢٠٢٥ متجر إب الشامل. جميع الحقوق محفوظة</span>
+              <span>© {new Date().getFullYear()} متجر إب الشامل. جميع الحقوق محفوظة</span>
             </div>
           </div>
         </div>

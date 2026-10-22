@@ -85,7 +85,7 @@ const Onboarding = ({ onComplete }: OnboardingProps) => {
           {/* محتوى الخطوة */}
           <div className="text-center animate-fade-in">
             <div className={`w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center ${steps[currentStep].gradient}`}>
-              {createElement(steps[currentStep].icon, { className: "w-10 h-10 text-primary" })}
+              {createElement(steps[currentStep].icon, { className: "w-10 h-10 text-primary-text" })}
             </div>
 
             <h2 className="text-2xl font-bold text-foreground mb-4 font-arabic">
@@ -99,7 +99,7 @@ const Onboarding = ({ onComplete }: OnboardingProps) => {
             <div className="space-y-3 mb-8">
               {steps[currentStep].features.map((feature, index) => (
                 <div key={index} className="flex items-center justify-start text-sm text-muted-foreground font-arabic">
-                  <CheckCircle className="w-4 h-4 text-primary ml-2 flex-shrink-0" />
+                  <CheckCircle className="w-4 h-4 text-primary-text ml-2 flex-shrink-0" />
                   <span>{feature}</span>
                 </div>
               ))}

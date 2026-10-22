@@ -74,10 +74,10 @@ export default function MerchantOverview({
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard icon={Package} label="إجمالي المنتجات" value={stats.total} color="bg-primary/10 text-primary" />
-        <StatCard icon={TrendingUp} label="نشطة" value={stats.active} color="bg-green-500/10 text-green-600" />
+        <StatCard icon={Package} label="إجمالي المنتجات" value={stats.total} color="bg-primary/10 text-primary-text" />
+        <StatCard icon={TrendingUp} label="نشطة" value={stats.active} color="bg-success/10 text-success" />
         <StatCard icon={Eye} label="غير نشطة" value={stats.inactive} color="bg-orange-500/10 text-orange-600" />
-        <StatCard icon={Users} label="الموظفون" value={employeesCount} color="bg-blue-500/10 text-blue-600" />
+        <StatCard icon={Users} label="الموظفون" value={employeesCount} color="bg-info/10 text-info" />
       </div>
 
       {canAdd && (
@@ -123,7 +123,7 @@ export default function MerchantOverview({
                     <p className="text-xs text-muted-foreground">{formatPrice(p.price, (p as any).currency)}</p>
                   </div>
                   <span className={`text-xs px-2 py-0.5 rounded-full ${
-                    p.status === 'active' ? 'bg-green-500/10 text-green-600' : 'bg-muted text-muted-foreground'
+                    p.status === 'active' ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'
                   }`}>
                     {p.status === 'active' ? 'نشط' : p.status === 'sold' ? 'مباع' : 'متوقف'}
                   </span>

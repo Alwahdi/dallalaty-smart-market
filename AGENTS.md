@@ -4,3 +4,7 @@
 - Use ImagePreview with react-zoom-pan-pinch for product-image inspection, so mouse and touch zoom share one accessible viewer.
 - Keep category ancestry helpers in category-tree and store nesting through the existing parent_id relationship, so all depths share consistent paths and cycle-safe parent choices.- Format every number, price and date through src/lib/format.ts (Latin-digit Arabic locale), so digits stay consistent app-wide.
 - Profile completeness (first/last name, +967 phone, GPS location) is enforced in ProtectedRoute via MandatoryOnboarding; phone_verified is only settable by admins/server (DB trigger), so future OTP can flip it safely.
+- Favorites state lives in one react-query cache (useFavorites), so cards, detail page, Favorites page and the nav badge always agree.
+- Cross-user profile lookups (phone uniqueness, merchant employee search/list) go through SECURITY DEFINER RPCs that return minimal fields, because profiles RLS only exposes a user's own row.
+- listing_type is stored as 'sale' | 'rent' (isRentListing accepts legacy Arabic), and contact numbers are stored +967 and dialed via toYemenDialDigits.
+- Status colors use semantic tokens (success/warning/info/destructive, primary-text for gold text) so contrast holds in light and dark themes.

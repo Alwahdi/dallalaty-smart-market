@@ -35,7 +35,7 @@ const Header = ({ isDark, toggleTheme }: HeaderProps) => {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/');
+    navigate('/auth');
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -65,12 +65,12 @@ const Header = ({ isDark, toggleTheme }: HeaderProps) => {
           {/* شريط البحث المركزي */}
           <div className="hidden md:flex flex-1 max-w-md mx-8">
             <form onSubmit={handleSearch} className="relative w-full">
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Search className="absolute start-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input 
                 placeholder="ابحث عن الإعلانات..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pr-10 bg-background/80 border-border/50 focus:ring-primary/50 font-arabic"
+                className="ps-10 bg-background/80 border-border/50 focus:ring-primary/50 font-arabic"
                 dir="rtl"
               />
             </form>
@@ -94,7 +94,7 @@ const Header = ({ isDark, toggleTheme }: HeaderProps) => {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" aria-label="حسابي" className="relative h-9 w-9 rounded-full p-0">
+                  <Button variant="ghost" aria-label="حسابي" className="relative rounded-full p-0">
                     <Avatar className="h-9 w-9 ring-2 ring-primary/30">
                       <AvatarImage src={myProfile?.avatar_url || ''} className="object-cover" />
                       <AvatarFallback className="bg-primary/10 text-primary-text text-sm font-semibold">{initials}</AvatarFallback>
@@ -114,32 +114,32 @@ const Header = ({ isDark, toggleTheme }: HeaderProps) => {
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => navigate('/account')}>
-                    <User className="mr-2 h-4 w-4" />
+                    <User className="me-2 h-4 w-4" />
                     <span className="font-arabic">الملف الشخصي</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/account')}>
-                    <Settings className="mr-2 h-4 w-4" />
+                    <Settings className="me-2 h-4 w-4" />
                     <span className="font-arabic">إعدادات الحساب</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/favorites')}>
-                    <Heart className="mr-2 h-4 w-4" />
+                    <Heart className="me-2 h-4 w-4" />
                     <span className="font-arabic">المفضلات</span>
                   </DropdownMenuItem>
                   {hasMerchantAccess && (
                     <DropdownMenuItem onClick={() => navigate('/merchant')}>
-                      <Store className="mr-2 h-4 w-4" />
+                      <Store className="me-2 h-4 w-4" />
                       <span className="font-arabic text-primary-text">لوحة التاجر</span>
                     </DropdownMenuItem>
                   )}
                   {isAnyAdmin && (
                     <DropdownMenuItem onClick={() => navigate('/admin')}>
-                      <Shield className="mr-2 h-4 w-4" />
+                      <Shield className="me-2 h-4 w-4" />
                       <span className="font-arabic text-primary-text">لوحة الإدارة</span>
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut}>
-                    <LogOut className="mr-2 h-4 w-4" />
+                  <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+                    <LogOut className="me-2 h-4 w-4" />
                     <span className="font-arabic">تسجيل الخروج</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -148,6 +148,7 @@ const Header = ({ isDark, toggleTheme }: HeaderProps) => {
               <Button 
                 variant="ghost" 
                 size="icon" 
+                aria-label="تسجيل الدخول"
                 className="hover:bg-accent/50 transition-colors"
                 onClick={() => navigate('/auth')}
               >
@@ -159,6 +160,8 @@ const Header = ({ isDark, toggleTheme }: HeaderProps) => {
             <Button 
               variant="ghost" 
               size="icon" 
+              aria-label="القائمة"
+              aria-expanded={isMenuOpen}
               className="md:hidden hover:bg-accent/50"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
@@ -170,12 +173,12 @@ const Header = ({ isDark, toggleTheme }: HeaderProps) => {
         {/* شريط البحث للموبايل */}
         <div className="md:hidden mt-3">
           <form onSubmit={handleSearch} className="relative">
-            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Search className="absolute start-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input 
               placeholder="ابحث عن الإعلانات..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pr-10 bg-background/80 border-border/50 font-arabic"
+              className="ps-10 bg-background/80 border-border/50 font-arabic"
               dir="rtl"
             />
           </form>
@@ -196,7 +199,7 @@ const Header = ({ isDark, toggleTheme }: HeaderProps) => {
                   <Button variant="ghost" className="w-full justify-start text-right" asChild>
                     <Link to="/account">إعدادات الحساب</Link>
                   </Button>
-                  <Button variant="ghost" className="w-full justify-start text-right" onClick={handleSignOut}>
+                  <Button variant="ghost" className="w-full justify-start text-right text-destructive" onClick={handleSignOut}>
                     تسجيل الخروج
                   </Button>
                 </>

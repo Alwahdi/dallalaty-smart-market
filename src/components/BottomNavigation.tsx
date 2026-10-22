@@ -22,7 +22,7 @@ const BottomNavigation = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-background/98 backdrop-blur-lg border-t border-border/50 shadow-lg">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-background/98 backdrop-blur-lg border-t border-border/50 shadow-lg" aria-label="التنقل الرئيسي" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
       <div className="flex items-center justify-around py-2.5 px-2">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -34,8 +34,9 @@ const BottomNavigation = () => {
             <Link
               key={item.path}
               to={item.path}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
-                "relative flex flex-col items-center justify-center min-w-0 flex-1 py-2 px-1 rounded-xl transition-all duration-300 transform touch-manipulation",
+                "relative flex flex-col items-center justify-center min-w-0 min-h-11 flex-1 py-2 px-1 rounded-xl transition-all duration-300 transform touch-manipulation",
                 isActive
                   ? "text-primary-text bg-primary/10 scale-105"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent/50 active:scale-95"
@@ -44,7 +45,7 @@ const BottomNavigation = () => {
               <div className="relative">
                 <Icon className={cn("w-5 h-5 mb-1 transition-all duration-300", isActive ? "scale-110 drop-shadow-md" : "")} />
                 {item.badge && (
-                  <Badge variant="destructive" className="absolute -top-2 -right-2 h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center text-[10px] animate-pulse font-medium">
+                  <Badge variant="destructive" className="absolute -top-2 -end-2 h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center text-[10px] animate-pulse font-medium">
                     {item.badge > 99 ? '99+' : item.badge}
                   </Badge>
                 )}

@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from "@/hooks/useAuth";
 import { useRoles } from "@/hooks/useRoles";
 import { useMerchantContext } from "@/hooks/useMerchantContext";
+import { useMyProfile } from "@/hooks/useMyProfile";
 import { Link, useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
@@ -28,6 +29,7 @@ const Header = ({ isDark, toggleTheme }: HeaderProps) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const { isAnyAdmin } = useRoles();
+  const { profile: myProfile, initials } = useMyProfile();
   const { hasMerchantAccess } = useMerchantContext();
 
   const handleSignOut = async () => {
@@ -93,21 +95,23 @@ const Header = ({ isDark, toggleTheme }: HeaderProps) => {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full hover:bg-accent/50 transition-colors">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src="/placeholder.svg" />
-                      <AvatarFallback className="bg-primary/10 text-primary">
-                        {user.email?.[0].toUpperCase()}
-                      </AvatarFallback>
+                  <Button variant="ghost" aria-label="حسابي" className="relative h-9 w-9 rounded-full p-0">
+                    <Avatar className="h-9 w-9 ring-2 ring-primary/30">
+                      <AvatarImage src={myProfile?.avatar_url || ''} className="object-cover" />
+                      <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">{initials}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <div className="flex flex-col space-y-1 p-2">
-                    <p className="text-sm font-medium leading-none font-arabic">مرحباً!</p>
-                    <p className="text-xs leading-none text-muted-foreground truncate">
-                      {user.email}
-                    </p>
+                <DropdownMenuContent className="w-60" align="end" forceMount>
+                  <div className="flex items-center gap-3 p-2">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={myProfile?.avatar_url || ''} className="object-cover" />
+                      <AvatarFallback className="bg-primary/10 text-primary">{initials}</AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold font-arabic truncate">{myProfile?.full_name || 'حسابي'}</p>
+                      <p className="text-xs text-muted-foreground truncate">{myProfile?.city || user.email}</p>
+                    </div>
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => navigate('/account')}>

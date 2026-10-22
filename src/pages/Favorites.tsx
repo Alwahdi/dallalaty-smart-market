@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
 import { Navigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2, Heart, ArrowLeft, Search, Trash2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Loader2, Heart, ArrowRight, Search } from 'lucide-react';
 import HeaderNew from '@/components/HeaderNew';
 import HeaderMobile from '@/components/HeaderMobile';
 import BottomNavigation from '@/components/BottomNavigation';
@@ -12,23 +10,7 @@ import PropertyCardNew from '@/components/PropertyCardNew';
 import { useFavorites } from '@/hooks/useFavorites';
 import { SwipeToDelete } from '@/components/SwipeToDelete';
 import { formatPrice } from '@/lib/currency';
-
-interface Property {
-  id: string;
-  title: string;
-  description?: string;
-  price: number;
-  location?: string;
-  city?: string;
-  neighborhood?: string;
-  category?: string;
-  listing_type?: string;
-  images: string[];
-  agent_name?: string;
-  agent_phone?: string;
-  agent_email?: string;
-  custom_data?: Record<string, any>;
-}
+import { formatNumber } from '@/lib/format';
 
 export default function Favorites() {
   const { user, loading: authLoading } = useAuth();

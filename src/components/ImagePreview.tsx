@@ -39,7 +39,7 @@ export default function ImagePreview({ images, index = 0, alt, className = '' }:
                   <Button variant="outline" size="icon" title="الحجم الأصلي" aria-label="الحجم الأصلي" onClick={() => resetTransform()}><RotateCcw className="h-5 w-5" /></Button>
                   <Button variant="outline" size="icon" title="تكبير" aria-label="تكبير" onClick={() => zoomIn()}><ZoomIn className="h-5 w-5" /></Button>
                 </div>
-                <div className="image-preview-stage relative overflow-hidden bg-muted">
+                <div className="image-preview-stage relative overflow-hidden bg-muted" dir="ltr">
                   <TransformComponent wrapperClass="image-preview-wrapper" contentClass="image-preview-content">
                     {failed ? <p className="text-muted-foreground">تعذر تحميل الصورة</p> :
                       <img src={images[active]} alt={alt} className="image-preview-photo" onError={() => setFailed(true)} />}

@@ -5,6 +5,7 @@ import { Capacitor } from '@capacitor/core';
 import { PushNotifications, Token } from '@capacitor/push-notifications';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { toast as sonnerToast } from 'sonner';
+import { notificationsEnabled, NOTIF_PREF_EVENT } from '@/lib/notification-prefs';
 
 interface Notification {
   id: string;
@@ -23,10 +24,18 @@ export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [alertsOn, setAlertsOn] = useState(notificationsEnabled);
+
+  useEffect(() => {
+    const sync = () => setAlertsOn(notificationsEnabled());
+    window.addEventListener(NOTIF_PREF_EVENT, sync);
+    window.addEventListener('storage', sync);
+    return () => { window.removeEventListener(NOTIF_PREF_EVENT, sync); window.removeEventListener('storage', sync); };
+  }, []);
 
   // Initialize push notifications for mobile
   const initializePushNotifications = async () => {
-    if (Capacitor.isNativePlatform()) {
+    if (Capacitor.isNativePlatform() && notificationsEnabled()) {
       try {
         const permission = await PushNotifications.checkPermissions();
         
@@ -41,7 +50,6 @@ export function useNotifications() {
 
         // Listen for registration
         PushNotifications.addListener('registration', async (token: Token) => {
-          console.log('Push registration success, token: ' + token.value);
           
           // Store the token in the user's profile for sending notifications
           if (user) {
@@ -54,13 +62,11 @@ export function useNotifications() {
 
         // Handle received notifications
         PushNotifications.addListener('pushNotificationReceived', (notification) => {
-          console.log('Push notification received: ', notification);
           fetchNotifications(); // Refresh notifications
         });
 
         // Handle notification actions
         PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
-          console.log('Push notification action performed', notification);
           if (notification.notification.data?.url) {
             window.location.href = notification.notification.data.url;
           }
@@ -190,7 +196,7 @@ export function useNotifications() {
 
   // Send local notification (for immediate feedback)
   const sendLocalNotification = async (title: string, body: string) => {
-    if (Capacitor.isNativePlatform()) {
+    if (Capacitor.isNativePlatform() && notificationsEnabled()) {
       try {
         await LocalNotifications.schedule({
           notifications: [
@@ -228,10 +234,9 @@ export function useNotifications() {
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          console.log('Notification change received:', payload);
           fetchNotifications();
 
-          if (payload.eventType === 'INSERT' && payload.new && typeof window !== 'undefined') {
+          if (payload.eventType === 'INSERT' && payload.new && notificationsEnabled()) {
             sonnerToast(payload.new.title as string, {
               description: payload.new.message as string,
               duration: 3000,
@@ -249,7 +254,7 @@ export function useNotifications() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, alertsOn]);
 
   return {
     notifications,

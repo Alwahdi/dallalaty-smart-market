@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import {
-  ArrowLeft,
+  ArrowRight,
   Heart,
   Share2,
   MessageCircle,
@@ -15,7 +15,6 @@ import {
   Phone,
   Mail,
   User,
-  Star,
   Loader2,
   ImageIcon,
   ChevronLeft,
@@ -32,6 +31,8 @@ import DynamicPropertyDisplay from '@/components/DynamicPropertyDisplay';
 import type { CustomField } from '@/components/admin/CustomFieldsEditor';
 import { formatPrice } from '@/lib/currency';
 import ImagePreview from '@/components/ImagePreview';
+import { useFavorites } from '@/hooks/useFavorites';
+import { toYemenDialDigits, isRentListing } from '@/lib/format';
 
 interface Property {
   id: string;
@@ -62,39 +63,35 @@ export default function ProductDetail() {
   
   // Cache hooks
   const { isDark, toggleTheme } = useTheme();
-  const { cachedFavorites, addToCache, removeFromCache } = useFavoritesCache();
+  const { addToCache, removeFromCache } = useFavoritesCache();
   useRouteTracking();
   
   const [property, setProperty] = useState<Property | null>(null);
   const [categoryFields, setCategoryFields] = useState<CustomField[]>([]);
   const [categoryLabel, setCategoryLabel] = useState<string>('');
   const [loading, setLoading] = useState(true);
-  const [isLiked, setIsLiked] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [likeBusy, setLikeBusy] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const isLiked = !!id && isFavorite(id);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Check cached favorites on load
   useEffect(() => {
-    if (id && cachedFavorites.includes(id)) {
-      setIsLiked(true);
-    }
-  }, [id, cachedFavorites]);
-
-  useEffect(() => {
-    if (id) {
-      fetchProperty();
-      if (user) checkIfLiked();
-    }
+    if (id) fetchProperty();
   }, [id, user]);
 
   const fetchProperty = async () => {
+    setLoading(true);
+    setLoadError(false);
     try {
       const { data, error } = await supabase
         .from('properties')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      if (!data) { setProperty(null); return; }
       setProperty(data as any);
 
       // Fetch category custom fields for dynamic display
@@ -110,80 +107,19 @@ export default function ProductDetail() {
           setCategoryFields(Array.isArray(fields) ? fields : []);
         }
       }
-    } catch (error: any) {
-      toast({
-        title: "خطأ",
-        description: "فشل في تحميل تفاصيل العنصر",
-        variant: "destructive"
-      });
-      navigate('/properties');
+    } catch {
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
   };
 
-  const checkIfLiked = async () => {
-    if (!user || !id) return;
-    
-    try {
-      const { data } = await supabase
-        .from('favorites')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('property_id', id)
-        .single();
-      
-      setIsLiked(!!data);
-    } catch (error) {
-      // Not liked
-    }
-  };
-
   const toggleLike = async () => {
-    if (!user) {
-      toast({
-        title: "تسجيل الدخول مطلوب",
-        description: "يجب تسجيل الدخول لإضافة العناصر للمفضلات",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      if (isLiked) {
-        await supabase
-          .from('favorites')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('property_id', id);
-        
-        if (id) removeFromCache(id);
-        setIsLiked(false);
-        toast({
-          title: "تم الحذف",
-          description: "تم حذف العنصر من المفضلات"
-        });
-      } else {
-        await supabase
-          .from('favorites')
-          .insert([
-            { user_id: user.id, property_id: id }
-          ]);
-        
-        if (id) addToCache(id);
-        setIsLiked(true);
-        toast({
-          title: "تم الإضافة للمفضلة",
-          description: "تم إضافة العنصر إلى قائمة المفضلات"
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: "خطأ",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
+    if (!id || likeBusy) return;
+    setLikeBusy(true);
+    const ok = await toggleFavorite(id);
+    if (ok) (isLiked ? removeFromCache(id) : addToCache(id));
+    setLikeBusy(false);
   };
 
   const handleShare = async () => {
@@ -206,13 +142,19 @@ export default function ProductDetail() {
     }
   };
 
-  const handleContact = () => {
-    if (property) {
-      const message = `مرحباً، أود الاستفسار عن: ${property.title}`;
-      const whatsappUrl = `https://wa.me/${property.agent_phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
-      window.open(whatsappUrl, '_blank');
-    }
-  };
+  const dial = toYemenDialDigits(property?.agent_phone);
+  const whatsappHref = property && dial
+    ? `https://wa.me/${dial}?text=${encodeURIComponent(`مرحباً، أود الاستفسار عن: ${property.title} - ${formatPrice(property.price, property.currency)}`)}`
+    : null;
+
+  const shell = (children: React.ReactNode) => (
+    <div className="min-h-screen bg-background font-arabic" dir="rtl">
+      <div className="hidden md:block"><HeaderNew isDark={isDark} toggleTheme={toggleTheme} /></div>
+      <HeaderMobile isDark={isDark} toggleTheme={toggleTheme} showSearch={false} />
+      {children}
+      <BottomNavigation />
+    </div>
+  );
 
 
   const getCategoryLabel = (category: string) => {
@@ -239,11 +181,21 @@ export default function ProductDetail() {
   };
 
   if (loading) {
-    return (
-      <div className={`min-h-screen bg-background font-arabic ${isDark ? 'dark' : ''}`} dir="rtl">
-        <HeaderNew isDark={isDark} toggleTheme={toggleTheme} />
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin" />
+    return shell(
+      <div role="status" className="flex items-center justify-center gap-2 py-20 text-muted-foreground">
+        <Loader2 className="h-6 w-6 animate-spin" /> جاري التحميل...
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return shell(
+      <div role="alert" className="container mx-auto px-4 py-16 text-center space-y-4">
+        <h1 className="text-xl font-bold">تعذر تحميل العنصر</h1>
+        <p className="text-muted-foreground">تحقق من اتصالك بالإنترنت ثم أعد المحاولة.</p>
+        <div className="flex gap-2 justify-center">
+          <Button onClick={fetchProperty}>إعادة المحاولة</Button>
+          <Button variant="outline" onClick={() => navigate('/properties')}>العودة للعناصر</Button>
         </div>
       </div>
     );
@@ -251,7 +203,7 @@ export default function ProductDetail() {
 
   if (!property) {
     return (
-      <div className={`min-h-screen bg-background font-arabic ${isDark ? 'dark' : ''}`} dir="rtl">
+      <div className={`min-h-screen bg-background font-arabic `} dir="rtl">
         <HeaderNew isDark={isDark} toggleTheme={toggleTheme} />
         <div className="container mx-auto px-4 py-8 text-center">
           <h1 className="text-2xl font-bold mb-4">العنصر غير موجود</h1>
@@ -264,7 +216,7 @@ export default function ProductDetail() {
   }
 
   return (
-    <div className={`min-h-screen bg-background font-arabic ${isDark ? 'dark' : ''}`} dir="rtl">
+    <div className={`min-h-screen bg-background font-arabic `} dir="rtl">
       {/* Desktop Header */}
       <div className="hidden md:block">
         <HeaderNew isDark={isDark} toggleTheme={toggleTheme} />
@@ -289,7 +241,7 @@ export default function ProductDetail() {
           onClick={() => navigate(-1)}
           className="mb-6 font-arabic"
         >
-          <ArrowLeft className="w-4 h-4 ml-2" />
+          <ArrowRight className="w-4 h-4 me-2" />
           العودة
         </Button>
 
@@ -322,18 +274,20 @@ export default function ProductDetail() {
                         <Button
                           variant="secondary"
                           size="icon"
-                          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background touch-manipulation"
+                          aria-label="الصورة السابقة"
+                          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background touch-manipulation rounded-full"
                           onClick={prevImage}
                         >
-                          <ChevronLeft className="w-4 h-4" />
+                          <ChevronRight className="w-5 h-5" />
                         </Button>
                         <Button
                           variant="secondary"
                           size="icon"
-                          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background touch-manipulation"
+                          aria-label="الصورة التالية"
+                          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background touch-manipulation rounded-full"
                           onClick={nextImage}
                         >
-                          <ChevronRight className="w-4 h-4" />
+                          <ChevronLeft className="w-5 h-5" />
                         </Button>
                       </>
                     )}
@@ -418,6 +372,7 @@ export default function ProductDetail() {
                     <Button
                       variant="outline"
                       size="icon"
+                      aria-label="مشاركة"
                       onClick={handleShare}
                     >
                       <Share2 className="w-4 h-4" />
@@ -425,6 +380,9 @@ export default function ProductDetail() {
                     <Button
                       variant={isLiked ? "default" : "outline"}
                       size="icon"
+                      aria-label={isLiked ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
+                      aria-pressed={isLiked}
+                      disabled={likeBusy}
                       onClick={toggleLike}
                     >
                       <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
@@ -441,19 +399,22 @@ export default function ProductDetail() {
                 </div>
 
                 <div className="flex items-center text-muted-foreground mb-6">
-                  <MapPin className="w-4 h-4 ml-2" />
+                  <MapPin className="w-4 h-4 me-2" />
                   <span className="font-arabic">{property.location}</span>
                 </div>
 
-                {/* Contact Button */}
-                <Button 
-                  onClick={handleContact}
-                  className="w-full font-arabic mb-4"
-                  size="lg"
-                >
-                  <MessageCircle className="w-5 h-5 ml-2" />
-                  تواصل عبر واتساب
-                </Button>
+                {whatsappHref ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <Button asChild className="w-full font-arabic" size="lg">
+                      <a href={whatsappHref} target="_blank" rel="noopener noreferrer"><MessageCircle className="w-5 h-5 me-2" />تواصل عبر واتساب</a>
+                    </Button>
+                    <Button asChild variant="outline" className="w-full font-arabic" size="lg">
+                      <a href={`tel:+${dial}`}><Phone className="w-5 h-5 me-2" />اتصال</a>
+                    </Button>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground rounded-md bg-muted/50 p-3 text-center">لم يضف البائع رقم تواصل لهذا العنصر.</p>
+                )}
               </CardContent>
             </Card>
 
@@ -477,29 +438,21 @@ export default function ProductDetail() {
                 <h3 className="text-lg font-bold mb-4 font-arabic">معلومات البائع</h3>
                 <div className="space-y-3">
                   <div className="flex items-center">
-                    <User className="w-4 h-4 ml-2 text-muted-foreground" />
+                    <User className="w-4 h-4 me-2 text-muted-foreground" />
                     <span className="font-arabic">{property.agent_name}</span>
                   </div>
                   <div className="flex items-center">
-                    <Phone className="w-4 h-4 ml-2 text-muted-foreground" />
-                    <span dir="ltr">{property.agent_phone}</span>
+                    <Phone className="w-4 h-4 me-2 text-muted-foreground" />
+                    <span dir="ltr">{dial ? `+${dial}` : 'غير متوفر'}</span>
                   </div>
                   {property.agent_email && (
                     <div className="flex items-center">
-                      <Mail className="w-4 h-4 ml-2 text-muted-foreground" />
+                      <Mail className="w-4 h-4 me-2 text-muted-foreground" />
                       <span dir="ltr">{property.agent_email}</span>
                     </div>
                   )}
                 </div>
 
-                <div className="flex items-center mt-4 text-yellow-500">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-current" />
-                  ))}
-                  <span className="text-sm text-muted-foreground mr-2 font-arabic">
-                    بائع موثق
-                  </span>
-                </div>
               </CardContent>
             </Card>
           </div>

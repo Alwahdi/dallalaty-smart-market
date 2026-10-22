@@ -1,4 +1,3 @@
-- [x] Add product image preview with zoom and pan.
-- [x] Enable clear nested-group creation and safe parent selection.
-- [x] Grant requested account the existing admin role.
-- [x] Validate viewer and hierarchy helpers; external Supabase authenticated end-to-end checks unavailable.
+# Roadmap — UX audit fixes
+- [ ] A: Listings/favorites/contact (PropertyCardNew, ProductDetail, Favorites, useFavorites, ProductFormDialog, MerchantProducts, MerchantEmployees, MerchantSettings, MerchantDashboard, Index)
+- [ ] B: Shell/nav/auth/account (HeaderNew, HeaderMobile, BottomNavigation, Landing, Auth, AccountSettings, MandatoryOnboarding, useNotifications, NotificationCenter, Notifications route, AdminPanel, index.css, button.tsx)

@@ -465,6 +465,14 @@ export type Database = {
         Args: { _employee_id: string }
         Returns: string[]
       }
+      get_merchant_employee_profiles: {
+        Args: { _merchant_id: string }
+        Returns: {
+          full_name: string
+          phone: string
+          user_id: string
+        }[]
+      }
       has_category_role: {
         Args: {
           _category_id: string
@@ -489,6 +497,14 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_phone_taken: { Args: { _phone: string }; Returns: boolean }
+      merchant_find_user_by_phone: {
+        Args: { _phone: string }
+        Returns: {
+          full_name: string
+          user_id: string
+        }[]
+      }
     }
     Enums: {
       app_role:

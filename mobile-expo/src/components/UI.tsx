@@ -1,12 +1,13 @@
 import React,{useRef,useState} from 'react';
 import {View,ScrollView,KeyboardAvoidingView,Platform,StyleSheet,RefreshControl} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {Text,Button,TextInput,ActivityIndicator,useTheme,Portal,Dialog,IconButton,List,Divider} from 'react-native-paper';
+import {Text as PaperText,Button,TextInput,ActivityIndicator,useTheme,Portal,Dialog,IconButton,List,Divider} from 'react-native-paper';
 import {useSettings} from '../providers/Theme';
 import {router} from 'expo-router';
 import {MaterialCommunityIcons} from '@expo/vector-icons';
 import {Brand} from './Brand';
-export {Button,Text,IconButton,Divider};
+export {Button,IconButton,Divider};
+export function Text(props:React.ComponentProps<typeof PaperText>){const {lang}=useSettings();return <PaperText {...props} style={[{textAlign:lang==='ar'?'right':'left'},props.style]}/>;}
 export function Page({children,title,back=false,refreshing,onRefresh}:{children:React.ReactNode;title?:string;back?:boolean;refreshing?:boolean;onRefresh?:()=>void}){const theme=useTheme();const {t,lang}=useSettings();return <SafeAreaView edges={['top','left','right']} style={{flex:1,backgroundColor:theme.colors.background}}><KeyboardAvoidingView style={{flex:1}} behavior={Platform.OS==='ios'?'padding':undefined}>{title&&<View style={styles.header}>{back&&<IconButton icon={lang==='ar'?'arrow-right':'arrow-left'} accessibilityLabel={t('رجوع','Back')} onPress={()=>router.canGoBack()?router.back():router.replace('/')}/>}<Text variant="titleLarge" style={{flex:1,fontFamily:'Cairo_700Bold'}}>{title}</Text></View>}<ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content} refreshControl={onRefresh?<RefreshControl refreshing={Boolean(refreshing)} onRefresh={onRefresh} tintColor={theme.colors.primary}/>:undefined}>{children}</ScrollView></KeyboardAvoidingView></SafeAreaView>;}
 export function Stack({children}:{children:React.ReactNode}){return <View style={styles.stack}>{children}</View>;}export function Row({children}:{children:React.ReactNode}){return <View style={styles.row}>{children}</View>;}
 export function Logo(){return <Brand/>;}

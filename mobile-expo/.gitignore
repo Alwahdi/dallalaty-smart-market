@@ -1,8 +1,9 @@
 node_modules/
 .expo/
 dist/
-/android/
-/ios/
+web-build/
+android/
+ios/
 .env
 .env.local
 *.jks

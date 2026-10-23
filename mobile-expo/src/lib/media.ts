@@ -1,0 +1,10 @@
+import * as Picker from 'expo-image-picker';
+import * as Manipulator from 'expo-image-manipulator';
+import * as Crypto from 'expo-crypto';
+import * as Location from 'expo-location';
+import {File} from 'expo-file-system';
+import {Platform} from 'react-native';
+import {stripAudio} from '../../modules/video-mute';
+import {supabase,check} from './client';
+export async function gps(){const permission=await Location.requestForegroundPermissionsAsync();if(!permission.granted)throw new Error('اسمح بالوصول للموقع من إعدادات الهاتف ثم أعد المحاولة / Allow location in phone settings and retry.');const result=await Location.getCurrentPositionAsync({accuracy:Location.Accuracy.Balanced});return {latitude:result.coords.latitude,longitude:result.coords.longitude};}
+export async function uploadAsset(uid:string,bucket:'property-images'|'property-videos'|'avatars',avatar=false){const permission=await Picker.requestMediaLibraryPermissionsAsync();if(!permission.granted)throw new Error('اسمح بالوصول للصور / Photo permission required');const result=await Picker.launchImageLibraryAsync({mediaTypes:bucket==='property-videos'?['videos']:['images'],allowsEditing:avatar,aspect:avatar?[1,1]:undefined,quality:1});if(result.canceled)return null;const asset=result.assets[0];if(!asset)return null;if((asset.fileSize??0)>100*1024*1024)throw new Error('الملف أكبر من 100 MB / File exceeds 100 MB');let uri=asset.uri;const video=bucket==='property-videos';if(video)uri=await stripAudio(uri);else{const image=await Manipulator.manipulateAsync(uri,[{resize:{width:avatar?512:1600}}],{compress:0.8,format:Manipulator.SaveFormat.JPEG});uri=image.uri;}const path=`${uid}/${Crypto.randomUUID()}.${video?'mp4':'jpg'}`;try{const bytes=Platform.OS==='web'?await (await fetch(uri)).arrayBuffer():await new File(uri).arrayBuffer();const {error}=await supabase.storage.from(bucket).upload(path,bytes,{contentType:video?'video/mp4':'image/jpeg',upsert:false});check(error);return {url:supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl,path,bucket};}finally{if(Platform.OS!=='web'&&uri!==asset.uri){try{new File(uri).delete();}catch{ /* cache already cleared */ }}}}

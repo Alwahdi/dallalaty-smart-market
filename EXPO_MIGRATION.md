@@ -4,9 +4,9 @@
 
 The approved plan is archived under `.lovable/plan/تحويل-متجر-إب-إلى-react-native-expo-2026-10-22.md`.
 
-The native source was created in `/tmp/matjer-ibb-expo`, but that directory disappeared before source packaging. The current checkout contains no Expo application and no downloadable native source archive. Do not describe this migration as completed or ready to build. The Vite website and connected Supabase data were not replaced.
+The source has now been recovered and completed under persistent `mobile-expo/` using project patches (2026-10-23). Customer, merchant, admin and auth routes, device adapters, local VideoMute module, shared UI, tests and Arabic documentation exist and survived separate commands. The Vite website and connected Supabase data were not replaced.
 
-A recovery attempt created `mobile-expo/` through shell writes in the project, but a subsequent command could not find that directory either. Persistent patch edits to this checkpoint, `AGENTS.md`, and `roadmap.md` remain visible. This is an unresolved execution/storage consistency blocker: do not continue claiming successful source delivery based on transient command results. Recover persistent source creation and confirm it survives a separate command before resuming implementation.
+Current checks: 12/12 rule tests, source typecheck, Expo dependency alignment, 20/20 Expo Doctor and Android/iOS/web JavaScript exports passed. Native VideoMute autolinking was discovered on both platforms. Public Expo Web flows were browser-tested without page errors. See `mobile-expo/VERIFICATION.md` for release blockers. A clean source ZIP is prepared separately from dependencies and build output.
 
 Earlier command results reported 11 passing rule tests, 20/20 Expo Doctor checks, a passing TypeScript check, and JavaScript/Hermes exports for Android, iOS, and web. Those results describe the now-missing temporary source, not a deliverable or a verified native binary. No physical-device, authenticated end-to-end, Kotlin compilation, Swift compilation, or signed native build was completed.
 

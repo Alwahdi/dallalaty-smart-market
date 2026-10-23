@@ -1,0 +1,1 @@
+{"platforms":["apple","android"],"apple":{"modules":["VideoMuteModule"]},"android":{"modules":["app.alwahdi.videomute.VideoMuteModule"]}}

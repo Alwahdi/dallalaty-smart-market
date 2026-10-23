@@ -1,0 +1,4 @@
+import {useQuery} from '@tanstack/react-query';
+import {supabase,check} from './client';
+import {useAuth} from '../providers/Auth';
+export function useAdminUsers(){const {roles}=useAuth();return useQuery({queryKey:['admin-users'],enabled:roles.data?.includes('admin')===true,queryFn:async()=>{const profiles=await supabase.from('profiles').select('*').order('created_at',{ascending:false}).limit(1000);check(profiles.error);const roleRows=await supabase.from('user_roles').select('*');check(roleRows.error);const {data,error}=await supabase.functions.invoke('admin-list-users');check(error);const emails=Array.isArray(data?.users)?data.users as {id:string;email:string|null}[]:[];return (profiles.data??[]).map(p=>({...p,email:emails.find(e=>e.id===p.user_id)?.email??p.email,roles:(roleRows.data??[]).filter(r=>r.user_id===p.user_id)}));}});}

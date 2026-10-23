@@ -1,0 +1,21 @@
+import {describe,it,expect} from 'vitest';
+import {YEMEN_LOCAL_PHONE,toYemenPhone,toYemenDialDigits,isRentListing,formatNumber} from '../src/lib/format';
+import {CURRENCIES,getCurrency,formatPrice} from '../src/lib/currency';
+import {categoryPath,allowedParents,descendantIds} from '../src/lib/category-tree';
+import {parsePermissions,denyPermissions,adminAccess,profileComplete,safeInternalPath} from '../src/lib/rules';
+import type {Profile} from '../src/lib/client';
+describe('Marketplace rules',()=>{
+ it('supports exactly YER SAR USD',()=>expect(CURRENCIES.map(c=>c.code)).toEqual(['YER','SAR','USD']));
+ it('keeps product currency',()=>{expect(getCurrency('SAR').symbol).toBe('ر.س');expect(formatPrice(25,'USD')).toContain('$');});
+ it('formats Latin digits',()=>{expect(formatNumber(12345)).not.toMatch(/[٠-٩]/);expect(formatNumber(12345).replace(/[^0-9]/g,'')).toBe('12345');});
+ it('stores Yemen prefix and accepts nine local digits starting 7',()=>{expect(toYemenPhone('777123456')).toBe('+967777123456');expect(YEMEN_LOCAL_PHONE.test('777123456')).toBe(true);expect(YEMEN_LOCAL_PHONE.test('677123456')).toBe(false);expect(YEMEN_LOCAL_PHONE.test('77712345')).toBe(false);});
+ it('dial links exclude invalid phone',()=>{expect(toYemenDialDigits('+967777123456')).toBe('967777123456');expect(toYemenDialDigits('123')).toBeNull();});
+ it('supports canonical rent and legacy Arabic',()=>{expect(isRentListing('rent')).toBe(true);expect(isRentListing('للإيجار')).toBe(true);expect(isRentListing('sale')).toBe(false);});
+ const nodes=[{id:'a',title:'أ'},{id:'b',title:'ب',parent_id:'a'},{id:'c',title:'ج',parent_id:'b'},{id:'d',title:'د'}];
+ it('supports deep category ancestry',()=>expect(categoryPath(nodes,'c')).toBe('أ / ب / ج'));
+ it('excludes category descendants from parent choices',()=>{expect([...descendantIds(nodes,'a')]).toEqual(['a','b','c']);expect(allowedParents(nodes,'a').map(n=>n.id)).toEqual(['d']);});
+ it('permissions fail closed for missing or nonboolean grants',()=>{expect(parsePermissions({can_add_products:'true'})).toEqual(denyPermissions);expect(parsePermissions({can_edit_products:true}).can_edit_products).toBe(true);});
+ it('limits area access to corresponding server roles',()=>{expect(adminAccess(['merchant'],'users')).toBe(false);expect(adminAccess(['properties_admin'],'products')).toBe(true);expect(adminAccess(['properties_admin'],'users')).toBe(false);expect(adminAccess(['admin'],'users')).toBe(true);});
+ it('requires first last phone and GPS for onboarding',()=>{const p={first_name:'A',last_name:'B',phone:'+967777123456',latitude:0,longitude:0} as Profile;expect(profileComplete(p)).toBe(true);expect(profileComplete({...p,latitude:null})).toBe(false);expect(profileComplete({...p,last_name:''})).toBe(false);expect(profileComplete({...p,phone:'123'})).toBe(false);});
+ it('does not open arbitrary notification destinations',()=>{expect(safeInternalPath('https://evil.example')).toBeNull();expect(safeInternalPath('//evil.example')).toBeNull();expect(safeInternalPath('/account')).toBe('/account');});
+});

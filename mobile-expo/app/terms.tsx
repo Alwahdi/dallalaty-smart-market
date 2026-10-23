@@ -1,0 +1,5 @@
+import React from 'react';
+import {Page,Text,Button} from '../src/components/UI';
+import {useSettings} from '../src/providers/Theme';
+import {Linking} from 'react-native';
+export default function Terms(){const {t}=useSettings();return <Page title={t('الشروط','Terms')} back><Text variant="titleLarge">{t('استخدام متجر إب','Using Matjer Ibb')}</Text><Text>{t('أضف معلومات صحيحة ووسائط لديك الحق في نشرها. لا تنشر محتوى مخالفًا أو مضللًا. يتحمل صاحب المنتج مسؤولية تفاصيله، ويجري التواصل والاتفاق مباشرة بين الأطراف.','Provide accurate information and media you have permission to publish. Do not post unlawful or misleading content. Listing owners are responsible for their product details; contact and agreements take place directly between parties.')}</Text><Text>{t('قد تُقيّد المنتجات أو الحسابات وفق قرارات الإدارة. لا توجد عملية دفع داخل التطبيق.','Products or accounts may be restricted by administration. The app has no in-app payment flow.')}</Text><Button icon="open-in-new" onPress={()=>void Linking.openURL('https://matjer-ibb.lovable.app/terms')}>{t('الشروط على الموقع','Website terms')}</Button></Page>;}

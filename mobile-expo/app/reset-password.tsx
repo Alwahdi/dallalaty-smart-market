@@ -1,0 +1,7 @@
+import React,{useState} from 'react';
+import {router} from 'expo-router';
+import {Page,Stack,Field,Button,Empty,useAction} from '../src/components/UI';
+import {useAuth} from '../src/providers/Auth';
+import {supabase,check} from '../src/lib/client';
+import {useSettings} from '../src/providers/Theme';
+export default function Reset(){const {user,recovery,setRecovery}=useAuth();const [password,setPassword]=useState(''),[confirm,setConfirm]=useState('');const action=useAction();const {t}=useSettings();return <Page title={t('كلمة مرور جديدة','New password')}>{!user||!recovery?<Empty title={t('افتح رابط الاستعادة من بريدك','Open the recovery link from your email')} action={<Button onPress={()=>router.replace('/auth')}>{t('تسجيل الدخول','Sign in')}</Button>}/>:<Stack><Field label={t('كلمة المرور الجديدة','New password')} value={password} onChangeText={setPassword} secureTextEntry/><Field label={t('تأكيد كلمة المرور','Confirm password')} value={confirm} onChangeText={setConfirm} secureTextEntry/><Button mode="contained" loading={action.busy} disabled={action.busy} onPress={()=>void action.run(async()=>{if(password.length<8||password!==confirm)throw new Error(t('كلمتا المرور يجب أن تتطابقا وتكونا 8 أحرف على الأقل','Passwords must match and contain at least 8 characters'));check((await supabase.auth.updateUser({password})).error);setRecovery(false);router.replace('/');})}>{t('حفظ كلمة المرور','Save password')}</Button>{action.feedback}</Stack>}</Page>;}

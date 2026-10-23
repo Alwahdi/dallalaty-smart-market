@@ -1,0 +1,10 @@
+import type {Profile,Role} from './client';
+export const roleOptions:{value:Role;ar:string;en:string}[]=[{value:'admin',ar:'مدير عام',en:'Administrator'},{value:'properties_admin',ar:'مدير المنتجات',en:'Product manager'},{value:'categories_admin',ar:'مدير الأقسام',en:'Category manager'},{value:'notifications_admin',ar:'مدير الإشعارات',en:'Notification manager'},{value:'moderator',ar:'مشرف',en:'Moderator'},{value:'merchant',ar:'تاجر',en:'Merchant'},{value:'user',ar:'مستخدم',en:'Customer'}];
+export const permissionKeys=['can_add_products','can_edit_products','can_delete_products','can_manage_employees'] as const;
+export type Permissions=Record<typeof permissionKeys[number],boolean>;
+export const denyPermissions:Permissions={can_add_products:false,can_edit_products:false,can_delete_products:false,can_manage_employees:false};
+export const allPermissions:Permissions={can_add_products:true,can_edit_products:true,can_delete_products:true,can_manage_employees:true};
+export function parsePermissions(value:unknown):Permissions{const result={...denyPermissions};if(value&&typeof value==='object')for(const key of permissionKeys)result[key]=(value as Record<string,unknown>)[key]===true;return result;}
+export function profileComplete(p:Profile|null|undefined){return Boolean(p?.first_name?.trim()&&p.last_name?.trim()&&/^\+9677\d{8}$/.test(p.phone??'')&&p.latitude!==null&&p.longitude!==null);}
+export function adminAccess(roles:Role[],area:'users'|'products'|'categories'|'notifications'){return roles.includes('admin')||(area==='products'&&roles.includes('properties_admin'))||(area==='categories'&&roles.includes('categories_admin'))||(area==='notifications'&&roles.includes('notifications_admin'));}
+export function safeInternalPath(url:string|null|undefined):string|null{if(!url||!url.startsWith('/')||url.startsWith('//'))return null;const value=url.split('?')[0]??'';if(value==='/'||value==='/properties')return '/';if(['/account','/favorites','/notifications','/merchant','/admin'].includes(value))return value;if(/^\/product\/[a-f0-9-]{36}$/.test(value))return value;return null;}

@@ -2,9 +2,11 @@ import {describe,it,expect} from 'vitest';
 import {YEMEN_LOCAL_PHONE,toYemenPhone,toYemenDialDigits,isRentListing,formatNumber} from '../src/lib/format';
 import {CURRENCIES,getCurrency,formatPrice} from '../src/lib/currency';
 import {categoryPath,allowedParents,descendantIds} from '../src/lib/category-tree';
-import {parsePermissions,denyPermissions,adminAccess,profileComplete,safeInternalPath} from '../src/lib/rules';
+import {parsePermissions,denyPermissions,adminAccess,profileComplete,safeInternalPath,hasMerchantCapability} from '../src/lib/rules';
 import type {Profile} from '../src/lib/client';
 describe('Marketplace rules',()=>{
+ it('platform administrator inherits merchant access without a merchant role',()=>{expect(hasMerchantCapability(['admin'])).toBe(true);});
+ it('merchant retains access while customers and scoped managers do not inherit it',()=>{expect(hasMerchantCapability(['merchant'])).toBe(true);expect(hasMerchantCapability(['user'])).toBe(false);expect(hasMerchantCapability(['properties_admin'])).toBe(false);expect(hasMerchantCapability([])).toBe(false);});
  it('supports exactly YER SAR USD',()=>expect(CURRENCIES.map(c=>c.code)).toEqual(['YER','SAR','USD']));
  it('keeps product currency',()=>{expect(getCurrency('SAR').symbol).toBe('ر.س');expect(formatPrice(25,'USD')).toContain('$');});
  it('formats Latin digits',()=>{expect(formatNumber(12345)).not.toMatch(/[٠-٩]/);expect(formatNumber(12345).replace(/[^0-9]/g,'')).toBe('12345');});

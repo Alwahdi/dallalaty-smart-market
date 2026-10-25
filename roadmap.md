@@ -1,4 +1,5 @@
 # Roadmap — UX audit fixes
+- [ ] Fix administrator merchant-dashboard access in website and Expo source; verify permission rules with regression tests.
 - [x] Diagnose Google return for the new Expo APK: native source requests matjeribb://auth/callback; an OAuth denial callback test returns to the website instead, consistent with a rejected native redirect.
 - [ ] Allow native OAuth callback in external Supabase URL Configuration and retest on APK: blocked on the user's hosted Auth settings access; keep the website Site URL unchanged.
 - [x] A: Listings/favorites/contact/merchant

@@ -11,3 +11,4 @@
 - Deliver the approved Expo migration as a separate native source project without replacing the Vite website or reusing Capacitor native folders, so the existing application stays operational during migration.
 - Keep Expo source checkpoints in project-controlled paths and stage clean download archives in /tmp only at packaging time, so temporary sandbox loss cannot erase the only source copy.
 - Read mobile-expo/AGENTS.md before changing native files; the independent native project has its own architecture rules.
+- Derive merchant UI capability from either the admin or merchant server role through role-access; platform admins inherit merchant workflows without duplicating stored roles, while RLS remains authoritative.

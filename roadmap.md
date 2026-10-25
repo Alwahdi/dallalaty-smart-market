@@ -1,4 +1,5 @@
 # Roadmap — UX audit fixes
+- [ ] Diagnose native Google OAuth returning to website and verify the app callback configuration.
 - [x] A: Listings/favorites/contact/merchant
 - [x] B: Shell/nav/auth/account/contrast
 

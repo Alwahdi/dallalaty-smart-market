@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { hasMerchantCapability } from '@/lib/role-access';
 
 export type UserRole = 'admin' | 'properties_admin' | 'categories_admin' | 'notifications_admin' | 'moderator' | 'merchant' | 'user';
 
@@ -73,7 +74,7 @@ export function useRoles() {
   const isCategoriesAdmin = hasRole('categories_admin') || isAdmin;
   const isNotificationsAdmin = hasRole('notifications_admin') || isAdmin;
   const isModerator = hasRole('moderator');
-  const isMerchant = hasRole('merchant');
+  const isMerchant = hasMerchantCapability(roles);
   const isAnyAdmin = isAdmin || isPropertiesAdmin || isCategoriesAdmin || isNotificationsAdmin || isModerator;
 
   return { 

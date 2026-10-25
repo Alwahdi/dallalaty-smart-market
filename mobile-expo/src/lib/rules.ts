@@ -4,6 +4,7 @@ export const permissionKeys=['can_add_products','can_edit_products','can_delete_
 export type Permissions=Record<typeof permissionKeys[number],boolean>;
 export const denyPermissions:Permissions={can_add_products:false,can_edit_products:false,can_delete_products:false,can_manage_employees:false};
 export const allPermissions:Permissions={can_add_products:true,can_edit_products:true,can_delete_products:true,can_manage_employees:true};
+export function hasMerchantCapability(roles:readonly Role[]):boolean{return roles.includes('admin')||roles.includes('merchant');}
 export function parsePermissions(value:unknown):Permissions{const result={...denyPermissions};if(value&&typeof value==='object')for(const key of permissionKeys)result[key]=(value as Record<string,unknown>)[key]===true;return result;}
 export function profileComplete(p:Profile|null|undefined){return Boolean(p?.first_name?.trim()&&p.last_name?.trim()&&/^\+9677\d{8}$/.test(p.phone??'')&&typeof p.latitude==='number'&&Number.isFinite(p.latitude)&&typeof p.longitude==='number'&&Number.isFinite(p.longitude));}
 export function adminAccess(roles:Role[],area:'users'|'products'|'categories'|'notifications'){return roles.includes('admin')||(area==='products'&&roles.includes('properties_admin'))||(area==='categories'&&roles.includes('categories_admin'))||(area==='notifications'&&roles.includes('notifications_admin'));}

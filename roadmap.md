@@ -1,4 +1,5 @@
 # Roadmap — UX audit fixes
+- [ ] Verify Google return on the installed app: source requests matjeribb://auth/callback and Supabase authorize echoes it; actual hosted allowlist and device callback remain unverified, awaiting the user's installed-app context.
 - [x] A: Listings/favorites/contact/merchant
 - [x] B: Shell/nav/auth/account/contrast
 
